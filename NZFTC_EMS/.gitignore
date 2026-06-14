@@ -1,0 +1,35 @@
+# Build artifacts
+bin/
+obj/
+**/bin/
+**/obj/
+
+# VS Code
+.vscode/
+
+# User-specific files
+*.user
+*.suo
+
+# Logs
+*.log
+
+# Compiled binaries
+*.dll
+*.exe
+*.pdb
+
+# Cache
+*.cache
+*.db
+
+# EF Core
+Migrations/
+
+# ASP.NET generated files
+wwwroot/lib/
+wwwroot/dist/
+
+# OS files
+Thumbs.db
+.DS_Store
