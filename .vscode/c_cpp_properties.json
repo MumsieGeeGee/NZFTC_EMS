@@ -1,35 +1,20 @@
 {
   "configurations": [
     {
-      "name": "windows-gcc-x64",
-      "includePath": [
-        "${workspaceFolder}/**",
-        "C:/Qt/6.9.2/msvc2022_64/include",
-        "C:/Qt/6.9.2/msvc2022_64/include/QtWidgets",
-        "C:/Qt/6.9.2/msvc2022_64/include/QtCore",
-        "C:/Qt/6.9.2/msvc2022_64/include/QtGui"
-      ],
-      "compilerPath": "gcc",
-      "cStandard": "c17",
-      "cppStandard": "c++17",
-      "intelliSenseMode": "windows-gcc-x64",
-      "compilerArgs": []
-    },
-    {
       "name": "Win32",
       "includePath": [
         "${workspaceFolder}/**",
-        "C:/Qt/6.9.2/msvc2022_64/include",
-        "C:/Qt/6.9.2/msvc2022_64/include/QtWidgets",
-        "C:/Qt/6.9.2/msvc2022_64/include/QtCore",
-        "C:/Qt/6.9.2/msvc2022_64/include/QtGui"
+        "C:\\Qt\\6.9.2\\msvc2022_64\\include",
+        "C:\\Qt\\6.9.2\\msvc2022_64\\include\\QtWidgets",
+        "C:\\Qt\\6.9.2\\msvc2022_64\\include\\QtCore",
+        "C:\\Qt\\6.9.2\\msvc2022_64\\include\\QtGui"
       ],
-      "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe",
+      "compilerPath": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\cl.exe",
       "cStandard": "c17",
       "cppStandard": "c++17",
+      "compileCommands": "${workspaceFolder}/build/compile_commands.json",
       "intelliSenseMode": "windows-msvc-x64"
     }
   ],
-  "compileCommands": "${workspaceFolder}/build/compile_commands.json",
   "version": 4
 }
