@@ -40,3 +40,4 @@ CMakeFiles/
 *.pdb 
 *.obj 
 *.exe 
+build/ 

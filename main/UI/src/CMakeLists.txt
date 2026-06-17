@@ -14,6 +14,7 @@ qt_standard_project_setup()
 
 qt_add_executable(NZFTC_EMS_UI
     mainUI.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../main/Login/main.cpp
     ../Shared_UI_Elements/Calendar_Widget.cpp
 )
 
