@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\DiplomaSoftwareDevelopment\.IntegrateStudios2\Proposal Assessment\NZFTC_EMS\main\UI\src\build\NZFTC_EMS_UI_autogen\mocs_compilation_Debug.cpp">
+      <Filter>Source Files\Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DiplomaSoftwareDevelopment\.IntegrateStudios2\Proposal Assessment\NZFTC_EMS\main\UI\src\mainUI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DiplomaSoftwareDevelopment\.IntegrateStudios2\Proposal Assessment\NZFTC_EMS\main\UI\src\build\NZFTC_EMS_UI_autogen\mocs_compilation_Release.cpp">
+      <Filter>Source Files\Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DiplomaSoftwareDevelopment\.IntegrateStudios2\Proposal Assessment\NZFTC_EMS\main\UI\src\build\NZFTC_EMS_UI_autogen\mocs_compilation_MinSizeRel.cpp">
+      <Filter>Source Files\Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\DiplomaSoftwareDevelopment\.IntegrateStudios2\Proposal Assessment\NZFTC_EMS\main\UI\src\build\NZFTC_EMS_UI_autogen\mocs_compilation_RelWithDebInfo.cpp">
+      <Filter>Source Files\Generated</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\DiplomaSoftwareDevelopment\.IntegrateStudios2\Proposal Assessment\NZFTC_EMS\main\UI\src\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{CDFF1A20-C858-3214-AEF6-E5102C310792}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Generated">
+      <UniqueIdentifier>{771AF710-B5F0-35EB-9319-8E29D876FE18}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

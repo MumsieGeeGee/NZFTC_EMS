@@ -59,7 +59,8 @@
   "files.exclude": {
     "**/.git": false,
     "**/.git/**": false,
-    "**/.gitignore": false, 
-    "**/.gitignore/**": false,
-  }
+    "**/.gitignore": false,
+    "**/.gitignore/**": false
+  },
+  "cmake.sourceDirectory": "D:/DiplomaSoftwareDevelopment/.IntegrateStudios2/Proposal Assessment/NZFTC_EMS/main/UI/src"
 }

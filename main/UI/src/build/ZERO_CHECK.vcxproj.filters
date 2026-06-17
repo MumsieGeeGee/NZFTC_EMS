@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\DiplomaSoftwareDevelopment\.IntegrateStudios2\Proposal Assessment\NZFTC_EMS\main\UI\src\build\CMakeFiles\8839b27951bddbe63d3691fce9239d2e\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{47F43F4A-2582-325B-9965-F3EAFEEB8E7B}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
