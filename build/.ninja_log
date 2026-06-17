@@ -1,8 +1,0 @@
-# ninja log v6
-19	461	8033909083823992	NZFTC_EMS_UI_autogen/timestamp	4e4ecbac5da8668b
-2321	3495	8033909103376081	NZFTC_EMS_UI.exe	265ff328cbb4bd30
-19	461	8033909083823992	NZFTC_EMS_UI_autogen/mocs_compilation.cpp	4e4ecbac5da8668b
-19	461	8033909083823992	D:/DiplomaSoftwareDevelopment/.IntegrateStudios2/Proposal Assessment/NZFTC_EMS/build/NZFTC_EMS_UI_autogen/timestamp	4e4ecbac5da8668b
-467	527	8033909084839073	CMakeFiles/NZFTC_EMS_UI.dir/NZFTC_EMS_UI_autogen/mocs_compilation.cpp.obj	6c7bbe0c9f064da
-19	461	8033909083823992	D:/DiplomaSoftwareDevelopment/.IntegrateStudios2/Proposal Assessment/NZFTC_EMS/build/NZFTC_EMS_UI_autogen/mocs_compilation.cpp	4e4ecbac5da8668b
-474	2318	8033909084904248	CMakeFiles/NZFTC_EMS_UI.dir/mainUI.cpp.obj	1d64ca956727e400

@@ -33,3 +33,10 @@ wwwroot/dist/
 # OS files
 Thumbs.db
 .DS_Store
+build/ 
+.cmake/ 
+CMakeFiles/ 
+*.ilk 
+*.pdb 
+*.obj 
+*.exe 

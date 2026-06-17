@@ -7,10 +7,11 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     QMainWindow window;
-    window.setWindowTitle("NZFTC EMS - Login");
-    window.resize(1200, 800);
+    window.setWindowTitle("Calendar Demo");
+    window.resize(900, 700);
 
     CalendarWidget *calendar = new CalendarWidget();
+
     window.setCentralWidget(calendar);
 
     window.show();
