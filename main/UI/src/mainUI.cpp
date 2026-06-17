@@ -9,6 +9,9 @@
 #include <QSizePolicy>
 #include <QFont>
 #include <QString>
+#include <QObject>
+#include <QEvent>
+#include <QCursor>
 void setupLoginUI(QMainWindow *window)
 {
     if (!window) return;
@@ -64,8 +67,8 @@ void setupLoginUI(QMainWindow *window)
     emailEdit->setFixedHeight(36);
     emailEdit->setFont(bodyFont);
     emailEdit->setText("Email:");
-    emailEdit->setStyleSheet("QLineEdit { background: white; border: none; outline: none; padding: 6px; font-size: 14px; } QLineEdit:focus { border: none; outline: none; }");
-    emailEdit->setEnabled(false);
+    emailEdit->setStyleSheet("QLineEdit { background: white; color: #4A4A4A; border: none; outline: none; padding: 6px; font-size: 14px; } QLineEdit:focus { border: none; outline: none; }");
+    emailEdit->setReadOnly(true);
 
 
     // Password field with placeholder text inside
@@ -73,8 +76,8 @@ void setupLoginUI(QMainWindow *window)
     passEdit->setFixedHeight(36);
     passEdit->setFont(bodyFont);
     passEdit->setText("Password:");
-    passEdit->setStyleSheet("QLineEdit { background: white; border: none; outline: none; padding: 6px; font-size: 14px; } QLineEdit:focus { border: none; outline: none; }");
-    passEdit->setEnabled(false);
+    passEdit->setStyleSheet("QLineEdit { background: white; color: #4A4A4A; border: none; outline: none; padding: 6px; font-size: 14px; } QLineEdit:focus { border: none; outline: none; }");
+    passEdit->setReadOnly(true);
 
     // Spacer
     QSpacerItem *vspacer = new QSpacerItem(20, 18, QSizePolicy::Minimum, QSizePolicy::Expanding);
@@ -88,8 +91,8 @@ void setupLoginUI(QMainWindow *window)
 
     QPushButton *loginBtn = new QPushButton("Login", body);
     loginBtn->setFixedSize(220, 44);
-    loginBtn->setStyleSheet(QString("background:%1; color: white; font-size:20px; border: 2px solid #F5F7FA; border-radius:2px;").arg(buttonBg));
-    loginBtn->setEnabled(false);
+    loginBtn->setStyleSheet(QString("QPushButton { background:%1; color: white; font-size:20px; border: 2px solid #F5F7FA; border-radius:2px; } QPushButton:hover { background:#2E7D6F; }").arg(buttonBg));
+    loginBtn->setEnabled(true);
     loginBtn->setFont(QFont("Roboto", 16, QFont::Bold));
 
     // Assemble body
@@ -106,6 +109,46 @@ void setupLoginUI(QMainWindow *window)
     root->addWidget(card, 0, Qt::AlignCenter);
 
     window->setCentralWidget(central);
+
+    class HoverFilter : public QObject {
+    public:
+        HoverFilter(QLineEdit *e, QLineEdit *p, QLabel *f, const QString &eText, const QString &pText)
+            : QObject(e), email(e), pass(p), forgot(f), emailText(eText), passText(pText) {}
+        bool eventFilter(QObject *obj, QEvent *ev) override {
+            if (ev->type() == QEvent::Enter) {
+                if (obj == email) {
+                    if (email->text() == emailText) email->clear();
+                    email->setCursor(Qt::IBeamCursor);
+                } else if (obj == pass) {
+                    if (pass->text() == passText) pass->clear();
+                    pass->setCursor(Qt::IBeamCursor);
+                } else if (obj == forgot) {
+                    forgot->setStyleSheet("background:#e9e9e9; padding:6px 10px; color:#222; font-size:14px; border:2px inset #4A4A4A; border-radius:2px;");
+                }
+            } else if (ev->type() == QEvent::Leave) {
+                if (obj == email) {
+                    if (email->text().isEmpty()) email->setText(emailText);
+                    email->unsetCursor();
+                } else if (obj == pass) {
+                    if (pass->text().isEmpty()) pass->setText(passText);
+                    pass->unsetCursor();
+                } else if (obj == forgot) {
+                    forgot->setStyleSheet("background:#e9e9e9; padding:4px; color:#222; font-size:14px;");
+                }
+            }
+            return QObject::eventFilter(obj, ev);
+        }
+    private:
+        QLineEdit *email;
+        QLineEdit *pass;
+        QLabel *forgot;
+        QString emailText;
+        QString passText;
+    } *filter = new HoverFilter(emailEdit, passEdit, forgot, QString("Email:"), QString("Password:"));
+
+    emailEdit->installEventFilter(filter);
+    passEdit->installEventFilter(filter);
+    forgot->installEventFilter(filter);
 }
 
 
