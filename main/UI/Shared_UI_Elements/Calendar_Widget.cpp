@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Georgia Kaye O'Sullivan, NZ Aotearoa. All rights reserved.
 #include "Calendar_Widget.h"
 #include <QTableWidget>
 #include <QHeaderView>

@@ -1,5 +1,19 @@
+// Copyright (c) 2026 Georgia Kaye O'Sullivan, NZ Aotearoa. All rights reserved.
 #include "main\main\Session Handling\Login_Logout_Events.h"
+#include "main\main\Error Handling\Login_Logout_Errors.h"
+#include "main\UI\User_Facing_Messages\Login_Logout_Messages.h"
+#include "main\main\User Roles\User_Roles.h"
 #include <string>
+
+// Login Events - User Facing
+
+// Logout Events - User Facing
+
+// Login Events - System Facing
+
+// Logout Events - System Facing
+
+
 
 
 // Personalized Login Events

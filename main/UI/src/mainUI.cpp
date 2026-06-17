@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Georgia Kaye O'Sullivan, NZ Aotearoa. All rights reserved.
 #include "mainUI.h"
 #include <QLabel>
 #include <QWidget>
@@ -12,10 +13,11 @@
 #include <QObject>
 #include <QEvent>
 #include <QCursor>
+
 void setupLoginUI(QMainWindow *window)
 {
     if (!window) return;
-    window->setWindowTitle("NZFTC EMS - Login");
+    window->setWindowTitle("NZFTC EMS - Login"); // Set window title
     window->resize(1200, 800);
 
     // Color scheme
@@ -44,7 +46,7 @@ void setupLoginUI(QMainWindow *window)
     cardLayout->setSpacing(0);
     cardLayout->setContentsMargins(0,0,0,0);
 
-    // Header band
+    // Header 
     QLabel *header = new QLabel("NZFTC", card);
     header->setFixedHeight(70);
     QFont hfont("Lucida Sans", 28, QFont::Bold);
@@ -61,7 +63,7 @@ void setupLoginUI(QMainWindow *window)
     bodyLayout->setSpacing(18);
     bodyLayout->addSpacing(12);
 
-    // Email field with placeholder text inside
+    // Email field
     QFont bodyFont("Roboto", 11);
     QLineEdit *emailEdit = new QLineEdit(body);
     emailEdit->setFixedHeight(36);
@@ -70,8 +72,7 @@ void setupLoginUI(QMainWindow *window)
     emailEdit->setStyleSheet("QLineEdit { background: white; color: #4A4A4A; border: none; outline: none; padding: 6px; font-size: 14px; } QLineEdit:focus { border: none; outline: none; }");
     emailEdit->setReadOnly(true);
 
-
-    // Password field with placeholder text inside
+    // Password field
     QLineEdit *passEdit = new QLineEdit(body);
     passEdit->setFixedHeight(36);
     passEdit->setFont(bodyFont);
@@ -79,9 +80,8 @@ void setupLoginUI(QMainWindow *window)
     passEdit->setStyleSheet("QLineEdit { background: white; color: #4A4A4A; border: none; outline: none; padding: 6px; font-size: 14px; } QLineEdit:focus { border: none; outline: none; }");
     passEdit->setReadOnly(true);
 
-    // Spacer
+    // Forgot Password and Login Buttons
     QSpacerItem *vspacer = new QSpacerItem(20, 18, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
     QLabel *forgot = new QLabel("forgot password", body);
     forgot->setStyleSheet("background:#e9e9e9; padding:4px; color:#222; font-size:14px;");
     forgot->setAlignment(Qt::AlignCenter);
@@ -95,7 +95,7 @@ void setupLoginUI(QMainWindow *window)
     loginBtn->setEnabled(true);
     loginBtn->setFont(QFont("Roboto", 16, QFont::Bold));
 
-    // Assemble body
+    // Styling and Layout
     bodyLayout ->addSpacing(35);
     bodyLayout->addWidget(emailEdit);
     bodyLayout->addWidget(passEdit);
@@ -150,5 +150,3 @@ void setupLoginUI(QMainWindow *window)
     passEdit->installEventFilter(filter);
     forgot->installEventFilter(filter);
 }
-
-

@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Georgia Kaye O'Sullivan, NZ Aotearoa. All rights reserved.
 #include "main\UI\User_Facing_Messages\Login_Logout_Messages.h"
 #include <string>
 

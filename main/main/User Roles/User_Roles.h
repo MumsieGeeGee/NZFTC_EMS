@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Georgia Kaye O'Sullivan, NZ Aotearoa. All rights reserved.
 #ifndef USER_ROLES_H
 #define USER_ROLES_H
 #pragma once
