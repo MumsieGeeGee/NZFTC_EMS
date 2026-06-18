@@ -1,5 +1,5 @@
 // Copyright (c) 2026 Georgia Kaye O'Sullivan, NZ Aotearoa. All rights reserved.
-#include "main\UI\User_Facing_Messages\Login_Logout_Messages.h"
+#include "main\UI\Shared_UI_Elements\User_Facing_Messages\Login_Logout_Messages.h"
 #include <string>
 
 // Login Error Message Functions
@@ -33,6 +33,10 @@ std::string MSG_Login_Again() {
 
 std::string MSG_Logged_Out() {
     return "you have been logged out";
+}
+
+std::string MSG_Forgot_Password() {
+    return "Password reset request sent to Admin, please contact an administrator directly.";
 }
 
 // Message Builder Function

@@ -1,5 +1,6 @@
 // Copyright (c) 2026 Georgia Kaye O'Sullivan, NZ Aotearoa. All rights reserved.
 #include "mainUI.h"
+#include "../Admin_Dashboard/Home_Page_Admin/Admin_Dash_Home_Page.h"
 #include <QLabel>
 #include <QWidget>
 #include <QVBoxLayout>
@@ -94,6 +95,9 @@ void setupLoginUI(QMainWindow *window)
     loginBtn->setStyleSheet(QString("QPushButton { background:%1; color: white; font-size:20px; border: 2px solid #F5F7FA; border-radius:2px; } QPushButton:hover { background:#2E7D6F; }").arg(buttonBg));
     loginBtn->setEnabled(true);
     loginBtn->setFont(QFont("Roboto", 16, QFont::Bold));
+    QObject::connect(loginBtn, &QPushButton::clicked, window, [window]() {
+        setupAdminDashboardUI(window);
+    });
 
     // Styling and Layout
     bodyLayout ->addSpacing(35);

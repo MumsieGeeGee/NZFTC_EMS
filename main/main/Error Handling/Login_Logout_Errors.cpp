@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Georgia Kaye O'Sullivan, NZ Aotearoa. All rights reserved.
 #include "Login_Logout_Errors.h"
-#include "Login_Logout_Messages.h"
-#include "User_Roles.h"
+#include "main\UI\Shared_UI_Elements\User_Facing_Messages\Login_Logout_Messages.h"
+#include "main\main\User Roles\User_Roles.h"
 
 // Login Errors - User Facing
 

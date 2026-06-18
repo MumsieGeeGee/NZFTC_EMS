@@ -13,6 +13,7 @@ std::string MSG_Account_Inactive();
 std::string MSG_Session_Expiry();
 std::string MSG_Login_Again();
 std::string MSG_Logged_Out();
+std::string MSG_Forgot_Password();
 
 // Message Builder Function
 std::string MSG_Login_Page_Full(const std::string& part1, const std::string& part2);
