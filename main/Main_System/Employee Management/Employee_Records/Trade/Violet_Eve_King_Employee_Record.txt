@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Violet
+Middle Name: Eve
+Last Name: King
+Date of Birth: 02-10-1995
+Business Role: Trade
+Job Role: Sales Representative
+Address: 36 Test Road, Central, Christchurch, 8011, PO Box: 136
+Email Address: violet.king@example.test
+Phone Number: 021-000-1036
+Username: trade_sal_violet_eve_king
+Password: 64c11e912f887018
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

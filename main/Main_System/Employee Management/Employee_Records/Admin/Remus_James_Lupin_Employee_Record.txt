@@ -1,0 +1,18 @@
+Employee Account Information Record
+Account Type: Admin
+First Name: Remus
+Middle Name: James
+Last Name: Lupin
+Date of Birth: 05-06-1984
+Business Role: Admin
+Job Role: Personal Assistant
+Assigned Manager: admin_jlm_barbara_bonnie_button
+Address: 3 Nowhere St, The Woods, Auckland, 0000, PO Box: 0
+Email Address: remus@professor.com
+Phone Number: 02192342324
+Username: admin_pa_remus_james_lupin
+Password: 9a0a324d178d0c24
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

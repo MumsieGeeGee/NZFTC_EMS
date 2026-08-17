@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Admin
+First Name: Zion
+Middle Name: Lee
+Last Name: Baker
+Date of Birth: 04-12-1984
+Business Role: Trade
+Job Role: Senior Trade Manager
+Address: 38 Test Road, Central, Christchurch, 8011, PO Box: 138
+Email Address: zion.baker@example.test
+Phone Number: 021-000-1038
+Username: trade_stm_zion_lee_baker
+Password: 64ba96912f831d52
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

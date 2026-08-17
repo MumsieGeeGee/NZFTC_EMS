@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Micah
+Middle Name: Rose
+Last Name: Ward
+Date of Birth: 21-01-1998
+Business Role: Trade
+Job Role: Junior General Trade Staff
+Address: 27 Test Road, Central, Christchurch, 8011, PO Box: 127
+Email Address: micah.ward@example.test
+Phone Number: 021-000-1027
+Username: trade_jg_micah_rose_ward
+Password: 5bbbe5912a5282e6
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

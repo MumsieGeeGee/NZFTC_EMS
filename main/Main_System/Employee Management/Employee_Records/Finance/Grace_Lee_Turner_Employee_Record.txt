@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Grace
+Middle Name: Lee
+Last Name: Turner
+Date of Birth: 15-06-1993
+Business Role: Finance
+Job Role: Senior Casual Finance Staff
+Address: 21 Test Street, Central, Wellington, 6011, PO Box: 121
+Email Address: grace.turner@example.test
+Phone Number: 021-000-1021
+Username: finance_sc_grace_lee_turner
+Password: a1153088c0ab475b
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

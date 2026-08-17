@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Admin
+First Name: Sirius
+Middle Name: Orion
+Last Name: Black
+Date of Birth: 04-04-1994
+Business Role: Admin
+Job Role: Human Resources Administrator
+Address: 12 Grimmauld Place, Rangiora, Chch, 0000, PO Box: 0
+Email Address: sirius@email.com
+Phone Number: 02121343244
+Username: admin_hr_sirius_orion_black
+Password: e64f7906bc6ecbb6
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

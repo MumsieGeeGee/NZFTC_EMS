@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Nova
+Middle Name: Lee
+Last Name: Price
+Date of Birth: 22-02-1992
+Business Role: Trade
+Job Role: Senior General Trade Staff
+Address: 28 Test Road, Central, Christchurch, 8011, PO Box: 128
+Email Address: nova.price@example.test
+Phone Number: 021-000-1028
+Username: trade_sg_nova_lee_price
+Password: 5ba41d912a3e502d
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

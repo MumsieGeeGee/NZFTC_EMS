@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Admin
+First Name: Kendall
+Middle Name: Eve
+Last Name: Murphy
+Date of Birth: 19-10-1989
+Business Role: Finance
+Job Role: Junior Finance Manager
+Address: 25 Test Street, Central, Wellington, 6011, PO Box: 125
+Email Address: kendall.murphy@example.test
+Phone Number: 021-000-1025
+Username: finance_jfm_kendall_eve_murphy
+Password: a1079888c09fbab7
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

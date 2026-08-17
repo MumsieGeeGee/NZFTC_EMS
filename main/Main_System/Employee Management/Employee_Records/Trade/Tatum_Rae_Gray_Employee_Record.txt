@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Admin
+First Name: Tatum
+Middle Name: Rae
+Last Name: Gray
+Date of Birth: 28-08-1988
+Business Role: Trade
+Job Role: Senior Mentor
+Address: 34 Test Road, Central, Christchurch, 8011, PO Box: 134
+Email Address: tatum.gray@example.test
+Phone Number: 021-000-1034
+Username: trade_men_tatum_rae_gray
+Password: 64c82e912f8ea9f6
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

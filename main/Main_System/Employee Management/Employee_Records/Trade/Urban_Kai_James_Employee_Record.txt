@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Admin
+First Name: Urban
+Middle Name: Kai
+Last Name: James
+Date of Birth: 01-09-1986
+Business Role: Trade
+Job Role: Safety Officer
+Address: 35 Test Road, Central, Christchurch, 8011, PO Box: 135
+Email Address: urban.james@example.test
+Phone Number: 021-000-1035
+Username: trade_saf_urban_kai_james
+Password: 64c4c6912f8bc367
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

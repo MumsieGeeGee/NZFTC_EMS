@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Jordan
+Middle Name: Mae
+Last Name: Quinn
+Date of Birth: 19-05-1996
+Business Role: Admin
+Job Role: Senior Trainee Administrator
+Address: 12 Fern Avenue, Roslyn, Dunedin, 9010, PO Box: 112
+Email Address: jordan.quinn@example.test
+Phone Number: 021-000-1012
+Username: admin_st_jordan_mae_quinn
+Password: 676f0ce380ec2fc8
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

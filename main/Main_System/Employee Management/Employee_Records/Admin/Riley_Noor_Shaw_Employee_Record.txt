@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Riley
+Middle Name: Noor
+Last Name: Shaw
+Date of Birth: 03-09-2001
+Business Role: Admin
+Job Role: Junior Trainee Administrator
+Address: 13 Southern Cross Road, Frankton, Hamilton, 3204, PO Box: 113
+Email Address: riley.shaw@example.test
+Phone Number: 021-000-1013
+Username: admin_jt_riley_noor_shaw
+Password: d34139a057a889b3
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

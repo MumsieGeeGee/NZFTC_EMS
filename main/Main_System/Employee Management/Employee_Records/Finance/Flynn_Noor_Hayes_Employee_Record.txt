@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Flynn
+Middle Name: Noor
+Last Name: Hayes
+Date of Birth: 14-05-2001
+Business Role: Finance
+Job Role: Junior Casual Finance Staff
+Address: 20 Test Street, Central, Wellington, 6011, PO Box: 120
+Email Address: flynn.hayes@example.test
+Phone Number: 021-000-1020
+Username: finance_jc_flynn_noor_hayes
+Password: a1189888c0ae2dea
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

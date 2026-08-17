@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Jamie
+Middle Name: Sky
+Last Name: Bennett
+Date of Birth: 18-09-1994
+Business Role: Finance
+Job Role: Accounts Receivable Administrator
+Address: 24 Test Street, Central, Wellington, 6011, PO Box: 124
+Email Address: jamie.bennett@example.test
+Phone Number: 021-000-1024
+Username: finance_ar_jamie_sky_bennett
+Password: a10b0088c0a2a146
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

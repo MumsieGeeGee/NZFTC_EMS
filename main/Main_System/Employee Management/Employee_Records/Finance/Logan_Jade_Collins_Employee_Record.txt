@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Admin
+First Name: Logan
+Middle Name: Jade
+Last Name: Collins
+Date of Birth: 20-11-1985
+Business Role: Finance
+Job Role: Senior Finance Manager
+Address: 26 Test Street, Central, Wellington, 6011, PO Box: 126
+Email Address: logan.collins@example.test
+Phone Number: 021-000-1026
+Username: finance_sfm_logan_jade_collins
+Password: a1043088c09cd428
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

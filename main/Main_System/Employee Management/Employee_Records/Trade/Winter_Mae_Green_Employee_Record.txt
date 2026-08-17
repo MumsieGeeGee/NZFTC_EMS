@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Admin
+First Name: Winter
+Middle Name: Mae
+Last Name: Green
+Date of Birth: 03-11-1990
+Business Role: Trade
+Job Role: Junior Trade Manager
+Address: 37 Test Road, Central, Christchurch, 8011, PO Box: 137
+Email Address: winter.green@example.test
+Phone Number: 021-000-1037
+Username: trade_jtm_winter_mae_green
+Password: 64bdbe912f859721
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

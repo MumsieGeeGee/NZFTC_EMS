@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Avery
+Middle Name: Morgan
+Last Name: Reed
+Date of Birth: 12-03-1994
+Business Role: Admin
+Job Role: Receptionist
+Address: 9 Harbour Road, Te Aro, Wellington, 6011, PO Box: 109
+Email Address: avery.reed@example.test
+Phone Number: 021-000-1009
+Username: admin_r_avery_morgan_reed
+Password: e6b86f1e295b93ad
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

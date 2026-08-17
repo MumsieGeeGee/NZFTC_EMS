@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Rowan
+Middle Name: Jade
+Last Name: Kelly
+Date of Birth: 26-06-1993
+Business Role: Trade
+Job Role: Senior Casual Trade Staff
+Address: 32 Test Road, Central, Christchurch, 8011, PO Box: 132
+Email Address: rowan.kelly@example.test
+Phone Number: 021-000-1032
+Username: trade_sc_rowan_jade_kelly
+Password: 64ceb6912f93fcbc
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

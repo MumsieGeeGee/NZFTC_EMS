@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Cameron
+Middle Name: Jade
+Last Name: Wells
+Date of Birth: 27-06-1987
+Business Role: Admin
+Job Role: Senior General Administrator
+Address: 15 Rimu Crescent, Stoke, Nelson, 7011, PO Box: 115
+Email Address: cameron.wells@example.test
+Phone Number: 021-000-1015
+Username: admin_sg_cameron_jade_wells
+Password: 5ff3d92d916cef50
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

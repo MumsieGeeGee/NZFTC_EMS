@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Quinn
+Middle Name: Noor
+Last Name: Bailey
+Date of Birth: 25-05-2001
+Business Role: Trade
+Job Role: Junior Casual Trade Staff
+Address: 31 Test Road, Central, Christchurch, 8011, PO Box: 131
+Email Address: quinn.bailey@example.test
+Phone Number: 021-000-1031
+Username: trade_jc_quinn_noor_bailey
+Password: 64d21e912f96e34b
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

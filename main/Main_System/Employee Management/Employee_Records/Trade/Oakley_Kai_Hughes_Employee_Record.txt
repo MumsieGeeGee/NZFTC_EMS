@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Oakley
+Middle Name: Kai
+Last Name: Hughes
+Date of Birth: 23-03-2000
+Business Role: Trade
+Job Role: Junior Trainee Trade Staff
+Address: 29 Test Road, Central, Christchurch, 8011, PO Box: 129
+Email Address: oakley.hughes@example.test
+Phone Number: 021-000-1029
+Username: trade_jt_oakley_kai_hughes
+Password: 5ba77d912a412924
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

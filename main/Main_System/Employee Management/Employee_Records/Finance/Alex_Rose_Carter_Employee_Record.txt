@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Alex
+Middle Name: Rose
+Last Name: Carter
+Date of Birth: 10-01-1998
+Business Role: Finance
+Job Role: Junior General Finance Staff
+Address: 16 Test Street, Central, Wellington, 6011, PO Box: 116
+Email Address: alex.carter@example.test
+Phone Number: 021-000-1016
+Username: finance_jg_alex_rose_carter
+Password: a9c8e188c59bf64d
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

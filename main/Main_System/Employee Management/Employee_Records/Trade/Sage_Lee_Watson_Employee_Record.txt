@@ -1,0 +1,18 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Sage
+Middle Name: Lee
+Last Name: Watson
+Date of Birth: 27-07-2002
+Business Role: Trade
+Job Role: Junior Apprentice
+Assigned Mentor: trade_men_tatum_rae_gray
+Address: 33 Test Road, Central, Christchurch, 8011, PO Box: 133
+Email Address: sage.watson@example.test
+Phone Number: 021-000-1033
+Username: trade_app_sage_lee_watson
+Password: 64cb96912f919085
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

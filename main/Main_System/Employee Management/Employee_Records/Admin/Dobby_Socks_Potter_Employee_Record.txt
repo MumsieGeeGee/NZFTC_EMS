@@ -1,0 +1,18 @@
+Employee Account Information Record
+Account Type: Admin
+First Name: Dobby
+Middle Name: Socks
+Last Name: Potter
+Date of Birth: 18-09-1950
+Business Role: Admin
+Job Role: Executive Assistant
+Main Manager: admin_slm_jane_sarah_doe
+Address: 3 Free St, Surrey, London, 0000, PO Box: 0
+Email Address: Dobby@hogwarts.co.nz
+Phone Number: 0
+Username: admin_ea_dobby_socks_potter
+Password: 797efcf59ed6d301
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

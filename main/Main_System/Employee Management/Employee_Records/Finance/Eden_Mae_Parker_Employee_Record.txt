@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Eden
+Middle Name: Mae
+Last Name: Parker
+Date of Birth: 13-04-1997
+Business Role: Finance
+Job Role: Senior Trainee Finance Staff
+Address: 19 Test Street, Central, Wellington, 6011, PO Box: 119
+Email Address: eden.parker@example.test
+Phone Number: 021-000-1019
+Username: finance_st_eden_mae_parker
+Password: a9e0a988c5b02906
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

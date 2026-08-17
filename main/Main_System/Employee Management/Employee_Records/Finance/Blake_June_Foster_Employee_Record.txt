@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Blake
+Middle Name: June
+Last Name: Foster
+Date of Birth: 11-02-1992
+Business Role: Finance
+Job Role: Senior General Finance Staff
+Address: 17 Test Street, Central, Wellington, 6011, PO Box: 117
+Email Address: blake.foster@example.test
+Phone Number: 021-000-1017
+Username: finance_sg_blake_june_foster
+Password: a9cc4188c59ecf44
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

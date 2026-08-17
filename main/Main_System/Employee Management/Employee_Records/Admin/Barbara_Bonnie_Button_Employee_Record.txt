@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Admin
+First Name: Barbara
+Middle Name: Bonnie
+Last Name: Button
+Date of Birth: 01-01-1991
+Business Role: Admin
+Job Role: Junior Level Manager
+Address: 1 Barbie St, Rangiora, Chch, 0000, PO Box: 0
+Email Address: Barbie@email.com
+Phone Number: 021-091-02292
+Username: admin_jlm_barbara_bonnie_button
+Password: e7e40460fd3d2bd7
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

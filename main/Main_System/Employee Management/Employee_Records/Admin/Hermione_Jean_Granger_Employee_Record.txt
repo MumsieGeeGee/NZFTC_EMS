@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Hermione
+Middle Name: Jean
+Last Name: Granger
+Date of Birth: 01-01-1945
+Business Role: Admin
+Job Role: Call Centre Operator
+Address: 5 idk St, chch, chch, 0000, PO Box: 0
+Email Address: hermoninny@wrongname.govt.nz
+Phone Number: 02345334565
+Username: admin_cc_hermione_jean_granger
+Password: eb949ee2b42bb984
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

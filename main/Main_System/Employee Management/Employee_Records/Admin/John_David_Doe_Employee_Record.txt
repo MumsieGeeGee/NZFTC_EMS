@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Admin
+First Name: John
+Middle Name: David
+Last Name: Doe
+Date of Birth: 01-02-1993
+Business Role: Admin
+Job Role: Senior IT Support Administrator
+Address: 3 Blah St, Rangiora, Chch, 0000, PO Box: 0
+Email Address: John@email.com
+Phone Number: 02102102202
+Username: admin_sit_john_david_doe
+Password: a0a826dda77b9cbb
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

@@ -1,0 +1,88 @@
+IRD Set Details:
+Student Loan Repayment Threshold: $24,128
+Student Loan Repayment Rate Default: 12%
+ACC Auto-Apply Configuration (IT maintained as changes occur):
+ACC Levy Type: Earners Levy Rate
+ACC Levy Rate: 1.75%
+Maximum Liable Earnings Threshold: $142,283
+KiwiSaver Employer Contribution Rate: (Default) 3%
+___________________________________________________________________________________________________
+
+Considerations For Future Scaling:
+Password1#
+___________________________________________________________________________________________________
+
+BIC Code Considerations For ACC Levys:
+___________________________________________________________________________________________________
+https://www.businessdescription.co.nz/
+Administration:
+Common:
+N729100 – Office Administrative Services
+N729300 – Call Centre Operations
+N729900 – Other Administrative Services
+M696200 – Management Consultancy / Business Support
+M696210 – HR Advisory Services
+M696250 – Training & Staff Development
+J580000 – Telecommunications Support (for call‑centre / IT helpdesk)
+Uncommon:
+N729200 – Document preparation / business support services
+M696220 – Business process support
+M696230 – Office management services
+M696240 – Executive assistance / PA services
+M696290 – Other professional admin support
+J580100 – Wired telecommunications
+J580200 – Wireless telecommunications
+J580300 – Internet service operations
+J580400 – Call routing / contact centre infrastructure
+J580900 – Other telecom support services
+___________________________________________________________________________________________________
+Financial:
+Common:
+K642030 – Accounting & Bookkeeping Services
+K642020 – Payroll Processing Services
+K642040 – Financial Advisory Services
+M693100 – Accounting Services
+M693300 – Bookkeeping & Payroll Services
+Uncommon:
+K641900 – Financial asset investing / general finance services
+K642000 – Financial service providers
+K642010 – Banking support services
+K642050 – Taxation services
+K642060 – Audit services
+K642070 – Financial compliance services
+K642090 – Other financial services
+M693200 – Auditing services
+___________________________________________________________________________________________________
+Trade:
+Common:
+E301120 – House Construction
+E301130 – Commercial Building Construction
+E322200 – Bricklaying / Roofing / Building Installation
+E322400 – Plumbing Services
+E322500 – Electrical Services
+E323100 – Carpentry Services
+E323300 – Metal Fabrication / Welding
+E324100 – Painting & Decorating
+Uncommon:
+E301140 – Prefabricated building assembly
+E301900 – Other building construction
+E302100 – Road and bridge construction
+E302200 – Utility infrastructure construction
+E302300 – Civil engineering construction
+E302400 – Structural steel erection
+E302900 – Other civil construction
+E321100 – Site preparation services
+E321200 – Earthmoving services
+E321300 – Excavation services
+E321400 – Demolition services
+E321900 – Other site preparation
+E322100 – Concreting services
+E322300 – Roofing services
+E322900 – Other building installation services
+E323200 – Joinery services
+E323900 – Other trade services
+E324200 – Plastering and wall finishing
+E324300 – Tiling services
+E324400 – Flooring services
+E324900 – Other building completion services
+___________________________________________________________________________________________________

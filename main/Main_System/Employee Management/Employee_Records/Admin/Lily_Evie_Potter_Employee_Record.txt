@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Admin
+First Name: Lily
+Middle Name: Evie
+Last Name: Potter
+Date of Birth: 02-02-1992
+Business Role: Admin
+Job Role: Junior IT Support Administrator
+Address: 2 Potter St, Rangiora, Chch, 0000, PO Box: 0
+Email Address: Potters@email.com
+Phone Number: 0210233432
+Username: admin_jit_lily_evie_potter
+Password: e916f8efd06123a3
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

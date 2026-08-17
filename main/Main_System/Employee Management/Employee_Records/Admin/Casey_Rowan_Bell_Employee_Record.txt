@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Casey
+Middle Name: Rowan
+Last Name: Bell
+Date of Birth: 08-11-1998
+Business Role: Admin
+Job Role: Junior Casual Administrator
+Address: 11 Tui Street, Mount Eden, Auckland, 1024, PO Box: 111
+Email Address: casey.bell@example.test
+Phone Number: 021-000-1011
+Username: admin_jc_casey_rowan_bell
+Password: 60d1f831e993ee10
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

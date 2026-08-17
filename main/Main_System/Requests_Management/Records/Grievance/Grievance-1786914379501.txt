@@ -1,0 +1,21 @@
+Request Record
+Request Type: Grievance
+Request ID: Grievance-1786914379501
+Status: Open
+Submitted By: admin_jg_taylor_lee_brooks
+Submitted For: admin_jg_taylor_lee_brooks
+Business Role: Admin
+Job Role: Junior General Administrator
+Created At: 2026-08-17 09:06:19
+Updated At: 2026-08-17 09:06:19
+Additional Comments: None
+Affect Details: Test Details
+Attending Supervisor: Jane Doe
+Declaration: I do
+Employee Name: Taylor Lee Brooks
+Event Date: 01-01-2026
+Event Details: Test Details
+Persons Involved: Test Details
+Signed Date: 17-08-2026
+Suggestions: Test Suggestions
+History Entry: 2026-08-17 09:06:19	Open	admin_jg_taylor_lee_brooks	Request submitted

@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Indie
+Middle Name: Rae
+Last Name: Cooper
+Date of Birth: 17-08-1995
+Business Role: Finance
+Job Role: Accounts Payable Administrator
+Address: 23 Test Street, Central, Wellington, 6011, PO Box: 123
+Email Address: indie.cooper@example.test
+Phone Number: 021-000-1023
+Username: finance_ap_indie_rae_cooper
+Password: a10e2888c0a51b15
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

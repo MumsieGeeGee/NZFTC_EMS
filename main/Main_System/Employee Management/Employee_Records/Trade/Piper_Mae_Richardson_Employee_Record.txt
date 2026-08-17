@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Piper
+Middle Name: Mae
+Last Name: Richardson
+Date of Birth: 24-04-1997
+Business Role: Trade
+Job Role: Senior Trainee Trade Staff
+Address: 30 Test Road, Central, Christchurch, 8011, PO Box: 130
+Email Address: piper.richardson@example.test
+Phone Number: 021-000-1030
+Username: trade_st_piper_mae_richardson
+Password: 64d5c6912f9a369a
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

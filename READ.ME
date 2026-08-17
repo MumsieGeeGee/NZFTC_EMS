@@ -1,1 +1,19 @@
 NZFTC Employee Management System
+
+Main_System data notes:
+- Employee records are read from and written to `main/Main_System/Employee Management/Employee_Records`.
+- Employer tax details are read from `main/Main_System/Employer_Details.txt`.
+- Payslips are saved under `main/Main_System/Employee Management/Employee_Records/Payslips`.
+  The folder is created automatically if it does not already exist.
+
+Build:
+- In VS Code, press `Ctrl+Shift+B` and choose:
+  - `Build Main_System C++ app`
+  - `Build NZFTC_EMS ASP.NET app`
+- The C++ build needs the Visual Studio C++ workload installed.
+- If the C++ task says MSVC is missing, open the repo from a Developer Command Prompt or install the C++ Build Tools.
+- The ASP.NET build needs the .NET 10 SDK installed.
+
+Runtime:
+- The app now resolves data paths from the copied workspace automatically, so it does not depend on a separate `D:\MyApps\Apps for other Apps` folder.
+- Folder structure: `main/Main_System/` contains all C++ backend code, `main/NZFTC_EMS/UI/` contains Qt UI files.

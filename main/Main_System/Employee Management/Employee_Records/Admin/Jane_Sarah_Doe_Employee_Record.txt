@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Admin
+First Name: Jane
+Middle Name: Sarah
+Last Name: Doe
+Date of Birth: 01-01-1999
+Business Role: Admin
+Job Role: Senior Level Manager
+Address: 1 High Street, Rangiora, Christchurch, 0000, PO Box: 0
+Email Address: JaneDoe@gmail.com
+Phone Number: 02112345678
+Username: admin_slm_jane_sarah_doe
+Password: a0a4fedda77922ec
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

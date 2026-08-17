@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Admin
+First Name: Harper
+Middle Name: Quinn
+Last Name: Scott
+Date of Birth: 16-07-1990
+Business Role: Finance
+Job Role: Payroll Administrator
+Address: 22 Test Street, Central, Wellington, 6011, PO Box: 122
+Email Address: harper.scott@example.test
+Phone Number: 021-000-1022
+Username: finance_pr_harper_quinn_scott
+Password: a1118888c0a7f40c
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

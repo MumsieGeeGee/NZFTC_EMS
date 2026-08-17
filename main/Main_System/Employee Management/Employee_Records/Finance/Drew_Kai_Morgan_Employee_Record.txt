@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Drew
+Middle Name: Kai
+Last Name: Morgan
+Date of Birth: 12-03-2000
+Business Role: Finance
+Job Role: Junior Trainee Finance Staff
+Address: 18 Test Street, Central, Wellington, 6011, PO Box: 118
+Email Address: drew.morgan@example.test
+Phone Number: 021-000-1018
+Username: finance_jt_drew_kai_morgan
+Password: a9dd4188c5ad4277
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

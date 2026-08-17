@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Morgan
+Middle Name: Elise
+Last Name: Hart
+Date of Birth: 24-07-1989
+Business Role: Admin
+Job Role: Senior Casual Administrator
+Address: 10 Koru Lane, Riccarton, Christchurch, 8041, PO Box: 110
+Email Address: morgan.hart@example.test
+Phone Number: 021-000-1010
+Username: admin_sc_morgan_elise_hart
+Password: 9466e7377badb3f1
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:

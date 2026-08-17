@@ -1,0 +1,17 @@
+Employee Account Information Record
+Account Type: Employee
+First Name: Taylor
+Middle Name: Lee
+Last Name: Brooks
+Date of Birth: 15-01-1997
+Business Role: Admin
+Job Role: Junior General Administrator
+Address: 14 Pohutukawa Drive, Papamoa, Tauranga, 3118, PO Box: 114
+Email Address: taylor.brooks@example.test
+Phone Number: 021-000-1014
+Username: admin_jg_taylor_lee_brooks
+Password: d6bb0c2a0906d8c7
+
+Current Open Leave Requests:
+Current Temp Denied Leave Requests:
+Current Resolved Leave Requests:
