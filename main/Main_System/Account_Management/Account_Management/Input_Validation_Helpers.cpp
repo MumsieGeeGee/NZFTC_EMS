@@ -124,10 +124,11 @@ bool Is_Percentage(const std::string& input) {
 }
 // Date Input Validation
 bool Is_Valid_Year(const std::string& input) {
-    if (!Is_Numeric_accepts_Symbols(input)) {
+    const std::string value = Trim_Copy(input);
+    if (!Is_Numeric_Only(value)) {
         return false;
     }
-    int year = std::stoi(input);
+    int year = std::stoi(value);
     if (year < 2025 || year > 2100) {
         std::cout << Display_Error << Invalid_Date << " " << Invalid_Year << std::endl;
         return false;
@@ -136,10 +137,11 @@ bool Is_Valid_Year(const std::string& input) {
 }
 
 bool Is_Valid_DOB_Year(const std::string & input) {
-    if (!Is_Numeric_accepts_Symbols(input)) {
+    const std::string value = Trim_Copy(input);
+    if (!Is_Numeric_Only(value)) {
         return false;
     }
-    int year = std::stoi(input);
+    int year = std::stoi(value);
     if (year < 1920 || year > 2020) { // update years as needed
         std::cout << Display_Error << Invalid_Year_DOB << std::endl;
         return false;
@@ -149,19 +151,35 @@ bool Is_Valid_DOB_Year(const std::string & input) {
 
 // Date Format Validation - dd-mm-yyyy or dd/mm/yyyy or dd.mm.yyyy
 bool Is_Date_Format(const std::string& input) {
-    // dd-mm-yyyy or dd/mm/yyyy or dd.mm.yyyy
-    std::string Day, Month, Year;
-    Day = input.substr(0, 2);
-    Month = input.substr(3, 2);
-    Year = input.substr(6, 4);
-    if (!Is_Numeric_Only(Day) || !Is_Numeric_Only(Month) || !Is_Numeric_Only(Year)) {
+    const std::string value = Trim_Copy(input);
+    if (value.length() != 10) {
         std::cout << Display_Error << Invalid_Date_Format << std::endl;
         return false;
     }
-    int day = std::stoi(Day);
-    int month = std::stoi(Month);
-    int year = std::stoi(Year);
-    if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2100) {
+
+    const char separator = value[2];
+    if (separator != '/' && separator != '-' && separator != '.') {
+        std::cout << Display_Error << Invalid_Date_Format << std::endl;
+        return false;
+    }
+
+    if (value[5] != separator) {
+        std::cout << Display_Error << Invalid_Date_Format << std::endl;
+        return false;
+    }
+
+    const std::string day = value.substr(0, 2);
+    const std::string month = value.substr(3, 2);
+    const std::string year = value.substr(6, 4);
+    if (!Is_Numeric_Only(day) || !Is_Numeric_Only(month) || !Is_Numeric_Only(year)) {
+        std::cout << Display_Error << Invalid_Date_Format << std::endl;
+        return false;
+    }
+
+    const int day_value = std::stoi(day);
+    const int month_value = std::stoi(month);
+    const int year_value = std::stoi(year);
+    if (day_value < 1 || day_value > 31 || month_value < 1 || month_value > 12 || year_value < 1900 || year_value > 2100) {
         std::cout << Display_Error << Invalid_Date << std::endl;
         return false;
     }
@@ -218,7 +236,6 @@ bool Is_No_Input(const std::string& input) {
     const std::string value = Trim_Copy(input);
     return value == "no" || value == "n" || value == "No" || value == "N" || value == "NO";
 }
-
 bool Is_Student_Loan_Active_Input(const std::string& input) {
     const std::string value = Trim_Copy(input);
     return Is_Yes_Input(value) || value == "True" || value == "true" || value == "TRUE" || value == "1" || value == "SL";
@@ -331,13 +348,19 @@ std::vector<int> Parse_Comma_Separated_Selection(const std::string& input) {
 
     while (std::getline(ss, item, ',')) {
         item = Trim_Copy(item);
-        if (!item.empty()) {
-            selections.push_back(std::stoi(item));
+        if (item.empty()) {
+            continue;
         }
+
+        if (!Is_Numeric_Only(item)) {
+            std::cout << Display_Error << Invalid_Numerical_Input << std::endl;
+            return {};
+        }
+
+        selections.push_back(std::stoi(item));
     }
 
     return selections;
 }
-
 
 

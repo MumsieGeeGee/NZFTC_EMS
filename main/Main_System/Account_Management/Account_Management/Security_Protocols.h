@@ -36,6 +36,16 @@ bool Password_Rules(std::string& password);
 std::string Password_Save(const std::string& password);
 std::string Password_Hashing(const std::string& password);
 std::string Mask_Password_Index_Entry(const std::string& password_hash);
+bool Is_Account_Locked(const std::string& username);
+int Get_Failed_Login_Attempts(const std::string& username);
+bool Account_Requires_Password_Reset(const std::string& username);
+bool Reset_Failed_Login_Attempts(const std::string& username);
+bool First_Incorrect_Password_Attempt(const std::string& username);
+bool Second_Incorrect_Password_Attempt(const std::string& username);
+bool Third_Incorrect_Password_Attempt(const std::string& username);
+bool Lock_Account_After_Three_Failed_Attempts(const std::string& username);
+bool Unlock_Account_from_Admin_Dashboard(const std::string& username, const std::string& temporary_password);
+bool Complete_Required_Password_Reset(const std::string& username);
 
 // Console password input handling (masked by default; toggleable for future UI settings).
 void Set_Password_Input_Masking_Enabled(bool enabled);

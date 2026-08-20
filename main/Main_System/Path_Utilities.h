@@ -35,6 +35,7 @@ inline std::filesystem::path Resolve_Data_Path(
 
 inline std::filesystem::path Get_Employee_Records_Directory() {
     static const std::filesystem::path directory = Resolve_Data_Path({
+        "main/Main_System/Employee Management/Employee_Records",
         "Main_System/Employee Management/Employee_Records",
         "Employee Management/Employee_Records"
     });
@@ -43,6 +44,7 @@ inline std::filesystem::path Get_Employee_Records_Directory() {
 
 inline std::filesystem::path Get_Employer_Details_File() {
     static const std::filesystem::path file = Resolve_Data_Path({
+        "main/Main_System/Employer_Details.txt",
         "Main_System/Employer_Details.txt",
         "Employer_Details.txt"
     });
@@ -51,8 +53,18 @@ inline std::filesystem::path Get_Employer_Details_File() {
 
 inline std::filesystem::path Get_Payslip_Directory() {
     static const std::filesystem::path directory = Resolve_Data_Path({
+        "main/Main_System/Employee Management/Employee_Records/Payslips",
         "Main_System/Employee Management/Employee_Records/Payslips",
         "Employee Management/Employee_Records/Payslips"
+    });
+    return directory;
+}
+
+inline std::filesystem::path Get_Session_Logs_Directory() {
+    static const std::filesystem::path directory = Resolve_Data_Path({
+        "main/Main_System/NZFTC_EMS/Session_Handling/Session_Logs",
+        "Main_System/NZFTC_EMS/Session_Handling/Session_Logs",
+        "NZFTC_EMS/Session_Handling/Session_Logs"
     });
     return directory;
 }

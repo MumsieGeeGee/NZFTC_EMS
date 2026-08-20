@@ -7,7 +7,6 @@
 #include <iostream>
 
 void Display_Main_Login_Menu_UI() {
-    // Display NZFTC EMS Login Menu
     std::cout << "Welcome to the NZFTC Employee Management System (EMS)" << std::endl;
     std::cout << Please_Select_an_Option_Label << std::endl;
     std::cout << "1. Login" << std::endl;

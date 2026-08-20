@@ -38,6 +38,16 @@
 namespace {
 std::string Get_Current_User_Job_Role();
 
+void Log_Current_User_Logout() {
+    const User_Session_Context& session = Get_Current_User_Session_Context();
+    if (!session.authenticated || Trim_Copy(session.username).empty()) {
+        return;
+    }
+
+    Log_Successful_Logout(session.username);
+    Log_Session_Ended_Normally(session.username);
+}
+
 bool Current_User_Is_Assistant() {
     const std::string job_role = Get_Current_User_Job_Role();
     return job_role == Admin_Executive_Assistant ||
@@ -584,6 +594,7 @@ void Get_FULL_Admin_Dashboard_Main_Menu_Choice(Admin_Role admin_role, Finance_Ro
             Run_Grievance_Request_Management_Menu();
             break;
         case 5:
+            Log_Current_User_Logout();
             std::cout << Display_Success << Successful_Logout << std::endl;
             break;
         default:
@@ -620,6 +631,7 @@ void Get_Partial_Admin_Dashboard_Main_Menu_Choice(Admin_Role admin_role, Finance
             Run_Grievance_Request_Management_Menu();
             break;
         case 7:
+            Log_Current_User_Logout();
             std::cout << Display_Success << Successful_Logout << std::endl;
             return;
         default:
@@ -652,6 +664,7 @@ void Get_Account_Management_Only_Admin_Dashboard_Main_Menu_Choice(Admin_Role adm
             Run_Grievance_Request_Management_Menu();
             break;
         case 6:
+            Log_Current_User_Logout();
             std::cout << Display_Success << Successful_Logout << std::endl;
             return;
         default:
@@ -684,6 +697,7 @@ void Get_Employee_Management_Only_Admin_Dashboard_Main_Menu_Choice(Admin_Role ad
             Run_Grievance_Request_Management_Menu();
             break;
         case 6:
+            Log_Current_User_Logout();
             std::cout << Display_Success << Successful_Logout << std::endl;
             return;
         default:
@@ -716,6 +730,7 @@ void Get_HR_Management_Only_Admin_Dashboard_Main_Menu_Choice(Admin_Role admin_ro
             Run_Grievance_Request_Management_Menu();
             break;
         case 6:
+            Log_Current_User_Logout();
             std::cout << Display_Success << Successful_Logout << std::endl;
             return;
         default:

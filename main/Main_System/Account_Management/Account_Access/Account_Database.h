@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-enum class Account_Update_Result {
+enum class Account_Update_Result { // maybe add the locked/unlocked state to this enum in the future
 	Success,
 	Invalid_Input,
 	User_Not_Found,

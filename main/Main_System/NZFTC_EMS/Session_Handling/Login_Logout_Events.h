@@ -6,17 +6,19 @@
 
 #include <string>
 
-// Login event messages
-extern std::string Unknown_User_Login_Attempt_Event;
-extern std::string Incorrect_Password_Login_Attempt_Event;
-extern std::string Secondary_Incorrect_Password_Login_Attempt_Event;
-extern std::string Third_Incorrect_Password_Login_Attempt_Event;
-extern std::string Too_Many_Incorrect_Password_Login_Attempts_Event;
-extern std::string Account_Locked_Due_to_Failed_Login_Attempts_Event;
-extern std::string Successful_Logout_Event;
-extern std::string Session_Ended_Normally_Event;
-// Logout event messages
-extern std::string Unsuccessful_Logout_Event;
-extern std::string Session_Ended_Due_to_Timeout_Event;
+std::string Unknown_User_Login_Attempt();
+std::string Incorrect_Password_Login_Attempt();
+std::string Secondary_Incorrect_Password_Login_Attempt();
+std::string Third_Incorrect_Password_Login_Attempt();
+std::string Too_Many_Incorrect_Password_Login_Attempts();
+std::string Account_Locked_Due_to_Failed_Login_Attempts();
+std::string Locked_Account_Login_Attempt();
+std::string Account_Unlocked_From_Admin_Dashboard();
+std::string Password_Changed_After_Admin_Unlock();
+std::string Successful_Logout();
+std::string Session_Ended_Normally();
+std::string Unsuccessful_Logout();
+std::string Session_Ended_Due_to_Timeout();
+std::string Session_Ended_Due_to_Forced_Logout();
 
 #endif // LOGIN_LOGOUT_EVENTS_MESSAGES_H

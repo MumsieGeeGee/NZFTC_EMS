@@ -36,6 +36,7 @@ extern const std::string Password_Cannot_Contain_Account_User_Email;
 extern const std::string Password_Cannot_Contain_Account_User_Phone;
 extern const std::string Password_Cannot_Contain_Account_User_Address;
 extern const std::string Password_Cannot_Contain_Account_User_IRD;
+extern const std::string Passwords_Do_Not_Match;
 
 extern const std::string Invalid_Selection;
 extern const std::string Invalid_Account_Type;

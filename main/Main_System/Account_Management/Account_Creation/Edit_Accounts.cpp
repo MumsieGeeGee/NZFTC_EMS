@@ -7,6 +7,8 @@
 #include "../Account_Access/Admin_Dashboard.h"
 #include "../Account_Access/Account_Database.h"
 #include "../Account_Management/Input_Validation_Helpers.h"
+#include "../Account_Management/Security_Protocols.h"
+#include "../../Account_Form/Account_Creation_Form_UI.h"
 #include "../../NZFTC_EMS/Session_Handling/Session_Handling.h"
 #include "../../UI/Account_UI/Admin_Dashboard_UI.h"
 #include "../../UI/Account_UI/Edit_Accounts_UI.h"
@@ -19,6 +21,47 @@
 #include <string>
 
 namespace {
+std::string Get_Account_Field_Value(
+        const std::map<std::string, std::string>& account_details,
+        const std::string& field_name) {
+    const auto found = account_details.find(field_name);
+    if (found == account_details.end()) {
+        return "";
+    }
+
+    return Trim_Copy(found->second);
+}
+
+bool Unlock_Postconditions_Met(const std::map<std::string, std::string>& account_details) {
+    return Get_Account_Field_Value(account_details, "Account Status") == "Active" &&
+           Get_Account_Field_Value(account_details, "Failed Login Attempts") == "0" &&
+           Get_Account_Field_Value(account_details, "Password Reset Required") == "Yes";
+}
+
+bool Prompt_Temporary_Password(std::string& temporary_password_out) {
+    while (true) {
+        Password_Rules_Full_UI();
+        std::cout << "Temporary Password: ";
+        const std::string temporary_password = Read_Password_Input_From_Console();
+        std::string password_check = temporary_password;
+
+        if (!Password_Rules(password_check)) {
+            std::cout << Display_Error << Password_Insecure << std::endl;
+            continue;
+        }
+
+        std::cout << "Confirm Temporary Password: ";
+        const std::string confirm_password = Read_Password_Input_From_Console();
+        if (temporary_password != confirm_password) {
+            std::cout << Display_Error << Passwords_Do_Not_Match << std::endl;
+            continue;
+        }
+
+        temporary_password_out = temporary_password;
+        return true;
+    }
+}
+
 void Display_Account_Update_Result_Error(Account_Update_Result update_result) {
     if (update_result == Account_Update_Result::User_Not_Found) {
         std::cout << Display_Error << Account_Retrieval_Failure << std::endl;
@@ -64,8 +107,57 @@ bool Apply_Password_Update(const std::string& username) {
 		return false;
 	}
 
+    if (!Update_Account_Record_Field_For_Username(username, "Password Reset Required", "No")) {
+        std::cout << Display_Error << Account_Update_Failure << std::endl;
+        return false;
+    }
+
 	std::cout << Display_Success << Account_Update_Success_Message << std::endl;
 	return true;
+}
+
+bool Apply_Unlock_Account(const std::string& username) {
+    std::map<std::string, std::string> account_details;
+    if (!Get_Account_Record_Details_For_Username(username, &account_details)) {
+        std::cout << Display_Error << Account_Retrieval_Failure << std::endl;
+        std::cout << Display_Error << Username_Invalid << std::endl;
+        return false;
+    }
+
+    const std::string account_status = Get_Account_Field_Value(account_details, "Account Status");
+    if (account_status.empty()) {
+        std::cout << Display_Error << Account_Retrieval_Failure << std::endl;
+        return false;
+    }
+
+    if (account_status != "Locked") {
+        std::cout << Display_Info << "Selected account is not locked." << std::endl;
+        return false;
+    }
+
+    std::string temporary_password;
+    if (!Prompt_Temporary_Password(temporary_password)) {
+        std::cout << Display_Error << Account_Update_Failure << std::endl;
+        return false;
+    }
+
+    if (!Unlock_Account_from_Admin_Dashboard(username, temporary_password)) {
+        std::cout << Display_Error << Account_Update_Failure << std::endl;
+        return false;
+    }
+
+    account_details.clear();
+    if (!Get_Account_Record_Details_For_Username(username, &account_details) ||
+        !Unlock_Postconditions_Met(account_details)) {
+        std::cout << Display_Error << Account_Update_Failure << std::endl;
+        return false;
+    }
+
+    std::cout << Display_Success << Account_Update_Success_Message << std::endl;
+    std::cout << Display_Info
+              << "A temporary password has been assigned and a password reset is required on next login."
+              << std::endl;
+    return true;
 }
 
 bool Apply_Role_And_Username_Update(std::string& username,
@@ -260,11 +352,11 @@ bool Edit_Selected_User_Account_Details(std::string& username) {
 		repeat_input_prompt = true;
 
 		int choice = 0;
-		if (!Get_Validated_Menu_Choice(1, 12, &choice)) {
+		if (!Get_Validated_Menu_Choice(1, 13, &choice)) {
 			continue;
 		}
 
-		if (choice == 12) {
+		if (choice == 13) {
 			return true;
 		}
 
@@ -341,6 +433,11 @@ bool Edit_Selected_User_Account_Details(std::string& username) {
 		}
 		if (choice == 11) {
 			Apply_Password_Update(username);
+            continue;
+		}
+        if (choice == 12) {
+            Apply_Unlock_Account(username);
+            continue;
 		}
 	}
 }

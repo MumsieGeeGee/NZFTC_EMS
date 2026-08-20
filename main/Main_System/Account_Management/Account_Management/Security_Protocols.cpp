@@ -5,10 +5,12 @@
 #include "Save_Account_Details.h"
 #include "../Account_Access/Account_Database.h"
 #include "../Account_Access/Component_Access.h"
+#include "../../Account_Form/Account_Creation_Form_UI.h"
 #include "../../Employee Management/Role_Management/Role_and_Salary_Details.h"
 #include "../../NZFTC_EMS/Session_Handling/Session_Handling.h"
 #include "../../UI/Shared_UI_Messaging/Error_Messages.h"
 #include "../../UI/Shared_UI_Messaging/Info_Messages.h"
+#include "../../UI/Shared_UI_Messaging/Success_Messages.h"
 #include "../../UI/Shared_UI_Messaging/Form_Labels_UI.h"
 #include "../../UI/Shared_UI_Messaging/IRD_PAYE_UI.h"
 #include "../../UI/Account_UI/Admin_Dashboard_UI.h"
@@ -19,6 +21,7 @@
 #include <cctype>
 #include <cstdint>
 #include <conio.h>
+#include <cstdlib>
 #include <io.h>
 #include <iostream>
 #include <map>
@@ -27,6 +30,214 @@ const std::string allowed_symbols = "!@#$%^&*()_+-=`~{}[]:\";'<>,.?/|\\";
 
 namespace {
 bool password_input_masking_enabled = true;
+constexpr const char AccountStatusField[] = "Account Status";
+constexpr const char FailedLoginAttemptsField[] = "Failed Login Attempts";
+constexpr const char PasswordResetRequiredField[] = "Password Reset Required";
+constexpr const char AccountStatusActive[] = "Active";
+constexpr const char AccountStatusLocked[] = "Locked";
+constexpr const char PasswordResetRequiredYes[] = "Yes";
+constexpr const char PasswordResetRequiredNo[] = "No";
+
+int Parse_Attempt_Count(const std::string& attempt_value) {
+    const std::string trimmed_attempt_value = Trim_Copy(attempt_value);
+    if (trimmed_attempt_value.empty()) {
+        return 0;
+    }
+
+    char* parse_end = nullptr;
+    const long parsed_value = std::strtol(trimmed_attempt_value.c_str(), &parse_end, 10);
+    if (parse_end == trimmed_attempt_value.c_str() || *parse_end != '\0') {
+        return 0;
+    }
+
+    if (parsed_value < 0) {
+        return 0;
+    }
+
+    if (parsed_value > 3) {
+        return 3;
+    }
+
+    return static_cast<int>(parsed_value);
+}
+
+bool Update_Account_Login_State(
+        const std::string& username,
+        const std::string& field_label,
+        const std::string& field_value) {
+    const std::string normalized_username = Trim_Copy(username);
+    if (normalized_username.empty()) {
+        return false;
+    }
+
+    return Update_Account_Record_Field_For_Username(
+        normalized_username,
+        field_label,
+        field_value,
+        nullptr);
+}
+
+bool Read_Account_Login_State(
+        const std::string& username,
+        std::map<std::string, std::string>* account_details) {
+    if (account_details == nullptr) {
+        return false;
+    }
+
+    const std::string normalized_username = Trim_Copy(username);
+    if (normalized_username.empty()) {
+        return false;
+    }
+
+    return Get_Account_Record_Details_For_Username(
+        normalized_username,
+        account_details);
+}
+
+std::string Get_Account_Field_Value(
+        const std::map<std::string, std::string>& account_details,
+        const std::string& field_name) {
+    const auto found = account_details.find(field_name);
+    if (found == account_details.end()) {
+        return "";
+    }
+
+    return Trim_Copy(found->second);
+}
+
+bool Contains_Case_Insensitive(
+        const std::string& haystack,
+        const std::string& needle) {
+    const std::string normalized_haystack = Trim_Copy(haystack);
+    const std::string normalized_needle = Trim_Copy(needle);
+    if (normalized_haystack.empty() || normalized_needle.empty()) {
+        return false;
+    }
+
+    std::string lower_haystack = normalized_haystack;
+    std::string lower_needle = normalized_needle;
+    std::transform(lower_haystack.begin(), lower_haystack.end(), lower_haystack.begin(),
+        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    std::transform(lower_needle.begin(), lower_needle.end(), lower_needle.begin(),
+        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    return lower_haystack.find(lower_needle) != std::string::npos;
+}
+
+bool Validate_Replacement_Password(
+        const std::string& username,
+        const std::string& password,
+        const std::map<std::string, std::string>& account_details) {
+    const std::string trimmed_password = Trim_Copy(password);
+    if (trimmed_password.empty()) {
+        std::cout << Display_Error << Password_Empty << std::endl;
+        return false;
+    }
+
+    if (password.length() < 8) {
+        std::cout << Display_Error << Password_Too_Short << std::endl;
+        return false;
+    }
+
+    if (password.length() > 50) {
+        std::cout << Display_Error << Password_Too_Long << std::endl;
+        return false;
+    }
+
+    if (password.find(' ') != std::string::npos) {
+        std::cout << Display_Error << Password_Cannot_Contain_Space << std::endl;
+        return false;
+    }
+
+    if (password.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ") == std::string::npos) {
+        std::cout << Display_Error << Password_Must_Contain_1_Upper << std::endl;
+        return false;
+    }
+
+    if (password.find_first_of("abcdefghijklmnopqrstuvwxyz") == std::string::npos) {
+        std::cout << Display_Error << Password_Must_Contain_1_Lower << std::endl;
+        return false;
+    }
+
+    if (password.find_first_of("0123456789") == std::string::npos) {
+        std::cout << Display_Error << Password_Must_Contain_1_Number << std::endl;
+        return false;
+    }
+
+    if (password.find_first_of("!@#$%^&*") == std::string::npos) {
+        std::cout << Display_Error << Password_Must_Contain_1_Symbol << std::endl;
+        return false;
+    }
+
+    if (Contains_Case_Insensitive(password, username)) {
+        std::cout << Display_Error << Password_Cannot_Contain_Username << std::endl;
+        return false;
+    }
+
+    const std::string first_name = Get_Account_Field_Value(account_details, "First Name");
+    const std::string middle_name = Get_Account_Field_Value(account_details, "Middle Name");
+    const std::string last_name = Get_Account_Field_Value(account_details, "Last Name");
+    if (Contains_Case_Insensitive(password, first_name) ||
+        Contains_Case_Insensitive(password, middle_name) ||
+        Contains_Case_Insensitive(password, last_name)) {
+        std::cout << Display_Error << Password_Cannot_Contain_Account_User_Name << std::endl;
+        return false;
+    }
+
+    if (Contains_Case_Insensitive(password, Get_Account_Field_Value(account_details, "Date of Birth"))) {
+        std::cout << Display_Error << Password_Cannot_Contain_Account_User_DOB << std::endl;
+        return false;
+    }
+
+    if (Contains_Case_Insensitive(password, Get_Account_Field_Value(account_details, "Email Address"))) {
+        std::cout << Display_Error << Password_Cannot_Contain_Account_User_Email << std::endl;
+        return false;
+    }
+
+    if (Contains_Case_Insensitive(password, Get_Account_Field_Value(account_details, "Phone Number"))) {
+        std::cout << Display_Error << Password_Cannot_Contain_Account_User_Phone << std::endl;
+        return false;
+    }
+
+    if (Contains_Case_Insensitive(password, Get_Account_Field_Value(account_details, "Address"))) {
+        std::cout << Display_Error << Password_Cannot_Contain_Account_User_Address << std::endl;
+        return false;
+    }
+
+    if (Contains_Case_Insensitive(password, Get_Account_Field_Value(account_details, "IRD Number"))) {
+        std::cout << Display_Error << Password_Cannot_Contain_Account_User_IRD << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool Current_User_Can_Unlock_Accounts() {
+    const User_Session_Context& session = Get_Current_User_Session_Context();
+    if (!session.authenticated || Trim_Copy(session.username).empty()) {
+        return false;
+    }
+
+    std::map<std::string, std::string> current_user_details;
+    if (!Get_Account_Record_Details_For_Username(session.username, &current_user_details)) {
+        return false;
+    }
+
+    const std::string current_job_role = Get_Account_Field_Value(current_user_details, "Job Role");
+    return current_job_role == "Junior IT Support Administrator" ||
+           current_job_role == "Senior IT Support Administrator" ||
+           current_job_role == "Junior Level Manager" ||
+           current_job_role == "Senior Level Manager" ||
+           current_job_role == "Junior Finance Manager" ||
+           current_job_role == "Senior Finance Manager" ||
+           current_job_role == "Junior Trade Manager" ||
+           current_job_role == "Senior Trade Manager";
+}
+
+bool Set_Password_Reset_Required(
+        const std::string& username,
+        const std::string& value) {
+    return Update_Account_Login_State(username, PasswordResetRequiredField, value);
+}
 }
 
 void Set_Password_Input_Masking_Enabled(bool enabled) {
@@ -235,6 +446,168 @@ std::string Generate_Role_Based_Username(int role_type_selection,
 	}
 
 	return unique_username;
+}
+
+bool Is_Account_Locked(const std::string& username) {
+    std::map<std::string, std::string> account_details;
+    if (!Read_Account_Login_State(username, &account_details)) {
+        return true;
+    }
+
+    return Trim_Copy(account_details[AccountStatusField]) == AccountStatusLocked;
+}
+
+int Get_Failed_Login_Attempts(const std::string& username) {
+    std::map<std::string, std::string> account_details;
+    if (!Read_Account_Login_State(username, &account_details)) {
+        return 3;
+    }
+
+    return Parse_Attempt_Count(account_details[FailedLoginAttemptsField]);
+}
+
+bool Account_Requires_Password_Reset(const std::string& username) {
+    std::map<std::string, std::string> account_details;
+    if (!Read_Account_Login_State(username, &account_details)) {
+        return true;
+    }
+
+    return Get_Account_Field_Value(account_details, PasswordResetRequiredField) == PasswordResetRequiredYes;
+}
+
+bool Reset_Failed_Login_Attempts(const std::string& username) {
+    const bool attempts_updated =
+        Update_Account_Login_State(username, FailedLoginAttemptsField, "0");
+    const bool status_updated =
+        Update_Account_Login_State(username, AccountStatusField, AccountStatusActive);
+    return attempts_updated && status_updated;
+}
+
+bool First_Incorrect_Password_Attempt(const std::string& username) {
+    const bool attempts_updated =
+        Update_Account_Login_State(username, FailedLoginAttemptsField, "1");
+    const bool status_updated =
+        Update_Account_Login_State(username, AccountStatusField, AccountStatusActive);
+    if (attempts_updated && status_updated) {
+        Log_Incorrect_Password_Attempt(username);
+    }
+    return attempts_updated && status_updated;
+}
+
+bool Second_Incorrect_Password_Attempt(const std::string& username) {
+    const bool attempts_updated =
+        Update_Account_Login_State(username, FailedLoginAttemptsField, "2");
+    const bool status_updated =
+        Update_Account_Login_State(username, AccountStatusField, AccountStatusActive);
+    if (attempts_updated && status_updated) {
+        Log_Second_Incorrect_Password_Attempt(username);
+    }
+    return attempts_updated && status_updated;
+}
+
+bool Third_Incorrect_Password_Attempt(const std::string& username) {
+    const bool attempts_updated =
+        Update_Account_Login_State(username, FailedLoginAttemptsField, "3");
+    const bool status_updated =
+        Update_Account_Login_State(username, AccountStatusField, AccountStatusActive);
+    if (attempts_updated && status_updated) {
+        Log_Third_Incorrect_Password_Attempt(username);
+    }
+    return attempts_updated && status_updated;
+}
+
+bool Lock_Account_After_Three_Failed_Attempts(const std::string& username) {
+    const bool attempts_updated =
+        Update_Account_Login_State(username, FailedLoginAttemptsField, "3");
+    const bool status_updated =
+        Update_Account_Login_State(username, AccountStatusField, AccountStatusLocked);
+    if (attempts_updated && status_updated) {
+        Log_Account_Locked(username);
+    }
+    return attempts_updated && status_updated;
+}
+
+bool Unlock_Account_from_Admin_Dashboard(const std::string& username, const std::string& temporary_password) {
+	// for IT support/manager roles
+	// place in the "Account Management" section of the admin dashboard
+    const std::string normalized_username = Trim_Copy(username);
+    const std::string normalized_temporary_password = Trim_Copy(temporary_password);
+    if (normalized_username.empty() || normalized_temporary_password.empty()) {
+        return false;
+    }
+
+    if (!Current_User_Can_Unlock_Accounts()) {
+        return false;
+    }
+
+    std::map<std::string, std::string> account_details;
+    if (!Get_Account_Record_Details_For_Username(normalized_username, &account_details)) {
+        return false;
+    }
+
+    if (!Update_Account_Password_For_Username(
+            normalized_username,
+            normalized_temporary_password,
+            nullptr)) {
+        return false;
+    }
+
+    if (!Reset_Failed_Login_Attempts(normalized_username)) {
+        return false;
+    }
+
+    if (!Set_Password_Reset_Required(normalized_username, PasswordResetRequiredYes)) {
+        return false;
+    }
+    Log_Account_Unlocked(normalized_username);
+    return true;
+}
+
+bool Complete_Required_Password_Reset(const std::string& username) {
+    const std::string normalized_username = Trim_Copy(username);
+    if (normalized_username.empty() || !Account_Requires_Password_Reset(normalized_username)) {
+        return true;
+    }
+
+    std::map<std::string, std::string> account_details;
+    if (!Get_Account_Record_Details_For_Username(normalized_username, &account_details)) {
+        return false;
+    }
+
+    std::cout << Display_Info
+              << "A temporary password was assigned to your account. Please create a new password before continuing."
+              << std::endl;
+
+    while (true) {
+        Password_Rules_Full_UI();
+        std::cout << "New Password: ";
+        const std::string new_password = Read_Password_Input_From_Console();
+        if (!Validate_Replacement_Password(normalized_username, new_password, account_details)) {
+            continue;
+        }
+
+        std::cout << "Confirm New Password: ";
+        const std::string confirm_password = Read_Password_Input_From_Console();
+        if (new_password != confirm_password) {
+            std::cout << Display_Error << Passwords_Do_Not_Match << std::endl;
+            continue;
+        }
+
+        Account_Update_Result update_result = Account_Update_Result::Success;
+        if (!Update_Account_Password_For_Username(normalized_username, new_password, &update_result)) {
+            std::cout << Display_Error << Account_Update_Failure << std::endl;
+            return false;
+        }
+
+        if (!Set_Password_Reset_Required(normalized_username, PasswordResetRequiredNo)) {
+            std::cout << Display_Error << Account_Update_Failure << std::endl;
+            return false;
+        }
+
+        Log_Password_Changed_After_Admin_Unlock(normalized_username);
+        std::cout << Display_Success << Account_Update_Success_Message << std::endl;
+        return true;
+    }
 }
 
 void Password_Making_Rules(std::string& password,

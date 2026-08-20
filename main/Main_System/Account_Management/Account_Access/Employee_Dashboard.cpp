@@ -19,6 +19,16 @@
 #include <iostream>
 
 namespace {
+void Log_Current_User_Logout() {
+    const User_Session_Context& session = Get_Current_User_Session_Context();
+    if (!session.authenticated || Trim_Copy(session.username).empty()) {
+        return;
+    }
+
+    Log_Successful_Logout(session.username);
+    Log_Session_Ended_Normally(session.username);
+}
+
 void Get_Employee_Account_Details_Menu_Choice() {
     while (true) {
         Display_Employee_Account_Details_Menu_UI();
@@ -133,6 +143,7 @@ void Get_Employee_Dashboard_Main_Menu_Choice() {
             continue;
         }
 
+        Log_Current_User_Logout();
         std::cout << Display_Success << Successful_Logout << std::endl;
         return;
     }

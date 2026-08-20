@@ -32,6 +32,7 @@ const std::string Password_Cannot_Contain_Account_User_Email = Password_Label + 
 const std::string Password_Cannot_Contain_Account_User_Phone = Password_Label + " cannot contain Phone Number.";
 const std::string Password_Cannot_Contain_Account_User_Address = Password_Label + " cannot contain Address Details.";
 const std::string Password_Cannot_Contain_Account_User_IRD = Password_Label + " cannot contain IRD Number.";
+const std::string Passwords_Do_Not_Match = "Passwords do not match.";
 
 const std::string Invalid_Selection = "Invalid selection. Please try again.";
 const std::string Invalid_Account_Type = "Invalid account type. Please select a valid account type.";
@@ -217,8 +218,7 @@ const std::string Username_Too_Long = "Username cannot exceed 50 characters.";
 const std::string Username_Invalid_Characters = "Username can only contain alphanumeric characters, '_' and '#'.";
 const std::string Username_Invalid = "Invalid username.";
 
-// Login and session error messages
-
+// Login and Logout and eventually "session" also error messages
 const std::string Account_Locked = "Account is locked.";
 const std::string Account_Inactive = "Account is inactive.";
 const std::string Too_Many_Attempts = "Too many attempts. Please try again later.";

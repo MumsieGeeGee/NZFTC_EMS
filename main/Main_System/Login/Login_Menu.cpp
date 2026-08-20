@@ -9,11 +9,11 @@
 #include "Account_Management/Account_Access/Account_Database.h"
 #include "Account_Management/Account_Access/Component_Access.h"
 #include "Account_Management/Account_Management/Security_Protocols.h"
+#include "Account_Management/Account_Management/Input_Validation_Helpers.h"
 #include "../NZFTC_EMS/Session_Handling/Session_Handling.h"
 
 #include <string>
 #include <iostream>
-#include <limits>
 #include <cstdlib>
 
 bool Get_Password(const std::string& password, const std::string& IRD_number, const std::string& username, std::string& authenticated_username);
@@ -24,8 +24,15 @@ bool Get_Username(const std::string& username, const std::string& password, cons
     (void)IRD_number;
     std::string entered_username;
     std::getline(std::cin, entered_username);
+    entered_username = Trim_Copy(entered_username);
+
+    if (entered_username.empty()) {
+        std::cout << Display_Error << Username_Empty << std::endl;
+        return false;
+    }
 
     if (!Get_Username_From_Employee_Records(entered_username) || !Username_Rules(entered_username)) {
+        Log_Unknown_User_Attempt(entered_username);
         std::cout << Display_Error << Username_Invalid << std::endl;
         return false;
     }
@@ -36,38 +43,94 @@ bool Get_Username(const std::string& username, const std::string& password, cons
 
 bool Get_Password(const std::string& password, const std::string& IRD_number, const std::string& username, std::string& authenticated_username) {
     (void)password;
+    if (Is_Account_Locked(username)) {
+        Log_Locked_Account_Login_Attempt(username);
+        std::cout << Display_Error << Account_Locked << ' ' << Too_Many_Attempts << std::endl;
+        return false;
+    }
+
     std::string entered_password;
     Display_Password_Prompt_UI();
     entered_password = Read_Password_Input_From_Console();
 
-    const std::string entered_password_hash = Password_Save(entered_password);
-    
-    if (!Get_Password_From_Employee_Records(entered_password_hash)) {
-        std::cout << Display_Error << Password_Missing_or_Invalid << std::endl;
+    const auto register_failed_attempt = [&username]() -> int {
+        const int next_attempt = Get_Failed_Login_Attempts(username) + 1;
+        if (next_attempt <= 1) {
+            if (!First_Incorrect_Password_Attempt(username)) {
+                return 3;
+            }
+            return 1;
+        }
+
+        if (next_attempt == 2) {
+            if (!Second_Incorrect_Password_Attempt(username)) {
+                return 3;
+            }
+            return 2;
+        }
+
+        if (!Third_Incorrect_Password_Attempt(username)) {
+            return 3;
+        }
+        Log_Too_Many_Incorrect_Password_Attempts(username);
+        if (!Lock_Account_After_Three_Failed_Attempts(username)) {
+            return 3;
+        }
+        return 3;
+    };
+
+    const auto display_failed_attempt_message =
+        [](const std::string& base_message, int attempt_number) {
+            if (attempt_number == 1) {
+                std::cout << Display_Error << base_message << ' '
+                          << First_Incorrect_Password << std::endl;
+                return;
+            }
+
+            if (attempt_number == 2) {
+                std::cout << Display_Error << base_message << ' '
+                          << Second_Incorrect_Password << std::endl;
+                return;
+            }
+
+            std::cout << Display_Error << base_message << ' '
+                      << Third_Incorrect_Password << ' '
+                      << Account_Locked_Due_to_Failed_Attempts << std::endl;
+        };
+
+    if (Trim_Copy(entered_password).empty()) {
+        const int attempt_number = register_failed_attempt();
+        display_failed_attempt_message(Password_Missing_or_Invalid, attempt_number);
         return false;
     }
+
+    const std::string entered_password_hash = Password_Save(entered_password);
 
     if (!Check_Account_Exists(username, entered_password_hash, IRD_number)) {
-        std::cout << Display_Error << Invalid_Credentials << std::endl;
+        const int attempt_number = register_failed_attempt();
+        display_failed_attempt_message(Incorrect_Password, attempt_number);
         return false;
     }
 
+    if (!Reset_Failed_Login_Attempts(username)) {
+        std::cout << Display_Error << Account_Update_Failure << std::endl;
+        return false;
+    }
+    if (!Complete_Required_Password_Reset(username)) {
+        return false;
+    }
     authenticated_username = username;
     return true;
 }
 
 bool Get_Login_Menu_Choice(const std::string& username, const std::string& password, const std::string& IRD_number, std::string& authenticated_username) {
-    int choice = 0;
     while (true) {
-        std::cin >> choice;
-        if (std::cin.fail()) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << Display_Error << Invalid_Input_Try_Again << std::endl;
+        int choice = 0;
+        if (!Get_Validated_Menu_Choice(1, 2, &choice)) {
             continue;
         }
+
         if (choice == 1) {
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             while (true) {
                 Display_Login_Prompt_UI();
                 Display_Username_Prompt_UI();
@@ -84,10 +147,7 @@ bool Get_Login_Menu_Choice(const std::string& username, const std::string& passw
                 return true;
             }
         } else if (choice == 2) {
-            exit(0);
-        } else {
-            std::cout << Display_Error << Invalid_Input_Try_Again << std::endl;
-            continue;
+            std::exit(0);
         }
     }
 }
@@ -113,6 +173,10 @@ void Main_Login_Menu(const std::string& username, const std::string& password, c
 
 void Return_to_Login_Menu() {
     std::cout << Returning_to_Main_Menu << std::endl;
+    const User_Session_Context& session = Get_Current_User_Session_Context();
+    if (session.authenticated && !Trim_Copy(session.username).empty()) {
+        Log_Session_Ended_Normally(session.username);
+    }
     Clear_Current_User_Session_Context();
     std::string username;
     std::string password;
