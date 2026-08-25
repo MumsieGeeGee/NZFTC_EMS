@@ -6,11 +6,55 @@ Last Name: Brooks
 Date of Birth: 15-01-1997
 Business Role: Admin
 Job Role: Junior General Administrator
+Employment Type: Full-time
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 24.52
+Approximate Annual Salary: 51000
+Annual Salary: 51000
+Monthly Salary: 4250
+Fortnightly Salary: 1961.54
+Weekly Salary: 980.77
+Annual Leave Entitlement: 20
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 0
+Annual Leave Total Entitlement: 20
+Sick Leave Entitlement: 10
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 0
+Sick Leave Total Entitlement: 10
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 0
+Maternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Special Leave Entitlement: 3
+Special Leave Package Extra: 3
+KiwiSaver Employer Contribution: 3%
+Superannuation Contribution: 0%
+Health Insurance Contribution: $0 per year
+Professional Development Contribution: $500 per year
+Employee Assistance Program Contribution: $500 per year
 Address: 14 Pohutukawa Drive, Papamoa, Tauranga, 3118, PO Box: 114
 Email Address: taylor.brooks@example.test
 Phone Number: 021-000-1014
 Username: admin_jg_taylor_lee_brooks
 Password: d6bb0c2a0906d8c7
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000014
+
+Emergency Contact: Casey Rowan Bell | Partner | 021-555-2033
+Diagnosed Health Conditions: None known
+Allergies: None known
+Approved Emergency Steps and Medicines: Standard first aid response; escalate if required.
+Prior Training and Qualifications: Admin support and compliance complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

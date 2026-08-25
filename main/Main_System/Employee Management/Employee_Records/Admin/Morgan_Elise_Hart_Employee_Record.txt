@@ -6,11 +6,55 @@ Last Name: Hart
 Date of Birth: 24-07-1989
 Business Role: Admin
 Job Role: Senior Casual Administrator
+Employment Type: Casual
+Pay Type: Casual
+Pay Frequency: Weekly
+Contracted Weekly Hours: 20
+Contracted Hourly Rate: 51.92
+Approximate Annual Salary: 54000
+Annual Salary: 
+Monthly Salary: 
+Fortnightly Salary: 
+Weekly Salary: 
+Annual Leave Entitlement: 20
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 0
+Annual Leave Total Entitlement: 20
+Sick Leave Entitlement: 10
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 0
+Sick Leave Total Entitlement: 10
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 0
+Maternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Special Leave Entitlement: 3
+Special Leave Package Extra: 3
+KiwiSaver Employer Contribution: 3%
+Superannuation Contribution: 0%
+Health Insurance Contribution: $0 per year
+Professional Development Contribution: $0 per year
+Employee Assistance Program Contribution: $0 per year
 Address: 10 Koru Lane, Riccarton, Christchurch, 8041, PO Box: 110
 Email Address: morgan.hart@example.test
 Phone Number: 021-000-1010
 Username: admin_sc_morgan_elise_hart
 Password: 9466e7377badb3f1
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000010
+
+Emergency Contact: Avery Morgan Reed | Sibling | 021-555-2023
+Diagnosed Health Conditions: None known
+Allergies: None known
+Approved Emergency Steps and Medicines: Standard first aid response; escalate if required.
+Prior Training and Qualifications: Admin support and compliance complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

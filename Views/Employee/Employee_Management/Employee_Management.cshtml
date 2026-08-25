@@ -92,7 +92,7 @@
             color: #4A4A4A;
             border: none;
             padding: 10px 20px;
-            font-size: 14px;
+            font-size: 16px;
             border-radius: 4px;
             font-weight: bold;
             cursor: pointer;
@@ -237,7 +237,7 @@
             <div class="header-bottom-row">
                 <div class="header-date-left">
                     <span class="current-datetime" id="dateTime"></span>
-                    <a class="return-to-dashboard-btn" href="@Url.Action("Dashboard", "Admin")">Return to Dashboard</a>
+                    <a class="return-to-dashboard-btn" href="@Url.Action("Dashboard", "Employee")">Return to Dashboard</a>
                 </div>
                 <div class="header-action-right">
                     <div class="timeout-block">
@@ -253,20 +253,30 @@
 
         <div class="main-content-wrapper">
             <div class="left-sidebar">
-                <a href="@Url.Action("AccountManagement", "Admin")" class="sidebar-button">
-                    <i class="fi fi-rr-user" aria-hidden="true"></i>
-                    <span>Account Management</span>
-                </a>
-                <a href="@Url.Action("EmployeeManagement", "Admin")" class="sidebar-button active">
-                    <i class="fi fi-rr-briefcase" aria-hidden="true"></i>
-                    <span>Employee Management</span>
-                </a>
-                <a href="@Url.Action("HRManagement", "Admin")" class="sidebar-button">
-                    <i class="fi fi-rr-calendar" aria-hidden="true"></i>
-                    <span>HR Management</span>
-                </a>
+                @if ((bool?)ViewBag.CanAccessAccountModule == true)
+                {
+                    <a href="@Url.Action("AccountManagement", "Employee")" class="sidebar-button">
+                        <i class="fi fi-rr-user" aria-hidden="true"></i>
+                        <span>Account Management</span>
+                    </a>
+                }
+                @if ((bool?)ViewBag.CanAccessEmployeeModule == true)
+                {
+                    <a href="@Url.Action("EmployeeManagement", "Employee")" class="sidebar-button active">
+                        <i class="fi fi-rr-briefcase" aria-hidden="true"></i>
+                        <span>Employee Management</span>
+                    </a>
+                }
+                @if ((bool?)ViewBag.CanAccessHrModule == true)
+                {
+                    <a href="@Url.Action("HRManagement", "Employee")" class="sidebar-button">
+                        <i class="fi fi-rr-calendar" aria-hidden="true"></i>
+                        <span>HR Management</span>
+                    </a>
+                }
             </div>
             <div class="main-content">
+                @await Html.PartialAsync("~/Views/Shared/Role_Menus.cshtml")
             </div>
         </div>
     </div>
@@ -408,5 +418,6 @@
             }, 1000);
         })();
     </script>
+    <script src="~/js/sidebar-prefetch.js" asp-append-version="true"></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 @model dynamic
 @{
     ViewData["Title"] = "Employee Dashboard";
+    Layout = null;
 }
 
 <!DOCTYPE html>
@@ -95,7 +96,7 @@
             color: #4A4A4A;
             border: none;
             padding: 10px 20px;
-            font-size: 14px;
+            font-size: 16px;
             border-radius: 4px;
             font-weight: bold;
             cursor: pointer;
@@ -146,11 +147,12 @@
             display: flex;
             flex: 1;
             overflow: hidden;
+            --sidebar-width: 130px;
         }
 
         /* LEFT SIDEBAR */
         .left-sidebar {
-            width: 130px;
+            width: var(--sidebar-width);
             background: #2A5D8F;
             padding: 10px;
             display: flex;
@@ -200,6 +202,114 @@
             background: #F5F7FA;
             color: #2A5D8F;
         }
+
+        .main-content {
+            flex: 1;
+            background: #F5F7FA;
+            overflow: hidden;
+            padding: 0;
+            display: grid;
+            grid-template-columns: calc((100% - var(--sidebar-width)) / 2) calc((100% + var(--sidebar-width)) / 2);
+            align-items: flex-start;
+            gap: 0;
+        }
+
+        .main-content-text {
+            min-width: 0;
+            padding: 24px;
+        }
+
+        .notification-panel {
+            background: #F5F7FA;
+            border: 1px solid #C7CED6;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .notification-panel h2 {
+            color: #2A5D8F;
+            margin-bottom: 12px;
+        }
+
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .notification-item {
+            background: #FFFFFF;
+            border: 1px solid #C7CED6;
+            border-left: 4px solid #2A5D8F;
+            border-radius: 8px;
+            padding: 12px 14px;
+            box-shadow: 0 1px 2px rgba(42, 93, 143, 0.06);
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 12px;
+        }
+
+        .notification-badge {
+            color: #FFFFFF;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .notification-grievance { background: #2A5D8F; }
+        .notification-leave { background: #5BA6A6; }
+        .notification-account { background: #1A73E8; }
+
+        .notification-time {
+            color: #4A4A4A;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .notification-item strong {
+            display: block;
+            color: #2A5D8F;
+            margin-bottom: 6px;
+        }
+
+        .notification-item p {
+            color: #4A4A4A;
+            margin-bottom: 0;
+            line-height: 1.5;
+        }
+
+        .main-content-calendar {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            padding: 0;
+        }
+
+        .main-content-calendar .dashboard-calendar-widget {
+            width: 100%;
+            max-width: none;
+        }
+
+        .main-content h1 {
+            color: #2A5D8F;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .main-content p {
+            color: #5BA6A6;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
     </style>
 </head>
 <body>
@@ -238,20 +348,39 @@
         <div class="main-content-wrapper">
             <!-- LEFT SIDEBAR -->
             <div class="left-sidebar">
-                <a href="@Url.Action("AccountManagement", "Employee")" class="sidebar-button">
-                    <i class="fi fi-rr-user" aria-hidden="true"></i>
-                    <span>Account Management</span>
-                </a>
-                <a href="@Url.Action("EmployeeManagement", "Employee")" class="sidebar-button">
-                    <i class="fi fi-rr-briefcase" aria-hidden="true"></i>
-                    <span>Employee Management</span>
-                </a>
-                <a href="@Url.Action("HRManagement", "Employee")" class="sidebar-button">
-                    <i class="fi fi-rr-calendar" aria-hidden="true"></i>
-                    <span>HR Management</span>
-                </a>
+                @if ((bool?)ViewBag.CanAccessAccountModule == true)
+                {
+                    <a href="@Url.Action("AccountManagement", "Employee")" class="sidebar-button">
+                        <i class="fi fi-rr-user" aria-hidden="true"></i>
+                        <span>Account Management</span>
+                    </a>
+                }
+                @if ((bool?)ViewBag.CanAccessEmployeeModule == true)
+                {
+                    <a href="@Url.Action("EmployeeManagement", "Employee")" class="sidebar-button">
+                        <i class="fi fi-rr-briefcase" aria-hidden="true"></i>
+                        <span>Employee Management</span>
+                    </a>
+                }
+                @if ((bool?)ViewBag.CanAccessHrModule == true)
+                {
+                    <a href="@Url.Action("HRManagement", "Employee")" class="sidebar-button">
+                        <i class="fi fi-rr-calendar" aria-hidden="true"></i>
+                        <span>HR Management</span>
+                    </a>
+                }
             </div>
             <div class="main-content">
+                <div class="main-content-text">
+                    <h1>Employee Dashboard</h1>
+                    @{
+                        var dashboardNotifications = ViewBag.DashboardNotifications as IEnumerable<NZFTC_EMS.Models.DashboardNotification> ?? System.Linq.Enumerable.Empty<NZFTC_EMS.Models.DashboardNotification>();
+                    }
+                    @await Html.PartialAsync("~/Views/Shared/Notification_Panel.cshtml", dashboardNotifications)
+                </div>
+                <div class="main-content-calendar">
+                    @await Html.PartialAsync("~/Views/Shared/Calendar_Widget.cshtml")
+                </div>
             </div>
         </div>
     </div>
@@ -393,5 +522,6 @@
             }, 1000);
         })();
     </script>
+    <script src="~/js/sidebar-prefetch.js" asp-append-version="true"></script>
 </body>
 </html>

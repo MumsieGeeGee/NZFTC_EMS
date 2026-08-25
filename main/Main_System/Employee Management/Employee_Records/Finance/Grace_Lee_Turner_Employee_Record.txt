@@ -6,11 +6,55 @@ Last Name: Turner
 Date of Birth: 15-06-1993
 Business Role: Finance
 Job Role: Senior Casual Finance Staff
+Employment Type: Casual
+Pay Type: Casual
+Pay Frequency: Weekly
+Contracted Weekly Hours: 20
+Contracted Hourly Rate: 57.69
+Approximate Annual Salary: 60000
+Annual Salary: 
+Monthly Salary: 
+Fortnightly Salary: 
+Weekly Salary: 
+Annual Leave Entitlement: 20
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 0
+Annual Leave Total Entitlement: 20
+Sick Leave Entitlement: 10
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 0
+Sick Leave Total Entitlement: 10
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 0
+Maternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Special Leave Entitlement: 3
+Special Leave Package Extra: 3
+KiwiSaver Employer Contribution: 3%
+Superannuation Contribution: 0%
+Health Insurance Contribution: $0 per year
+Professional Development Contribution: $0 per year
+Employee Assistance Program Contribution: $0 per year
 Address: 21 Test Street, Central, Wellington, 6011, PO Box: 121
 Email Address: grace.turner@example.test
 Phone Number: 021-000-1021
 Username: finance_sc_grace_lee_turner
 Password: a1153088c0ab475b
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000021
+
+Emergency Contact: Flynn Noor Hayes | Partner | 021-555-2012
+Diagnosed Health Conditions: Anxiety
+Allergies: None known
+Approved Emergency Steps and Medicines: Provide calm support and escalate if needed.
+Prior Training and Qualifications: Finance support and compliance training complete.
+First Aid Certification: Uncertified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

@@ -6,11 +6,55 @@ Last Name: Ward
 Date of Birth: 21-01-1998
 Business Role: Trade
 Job Role: Junior General Trade Staff
+Employment Type: Full-time
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 27.4
+Approximate Annual Salary: 57000
+Annual Salary: 57000
+Monthly Salary: 4750
+Fortnightly Salary: 2192.31
+Weekly Salary: 1096.15
+Annual Leave Entitlement: 20
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 0
+Annual Leave Total Entitlement: 20
+Sick Leave Entitlement: 10
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 0
+Sick Leave Total Entitlement: 10
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 0
+Maternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Special Leave Entitlement: 3
+Special Leave Package Extra: 3
+KiwiSaver Employer Contribution: 3%
+Superannuation Contribution: 0%
+Health Insurance Contribution: $0 per year
+Professional Development Contribution: $500 per year
+Employee Assistance Program Contribution: $500 per year
 Address: 27 Test Road, Central, Christchurch, 8011, PO Box: 127
 Email Address: micah.ward@example.test
 Phone Number: 021-000-1027
 Username: trade_jg_micah_rose_ward
 Password: 5bbbe5912a5282e6
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000027
+
+Emergency Contact: Nova Lee Price | Partner | 021-555-2022
+Diagnosed Health Conditions: None known
+Allergies: Bee stings
+Approved Emergency Steps and Medicines: Remove from exposure and follow first aid protocol.
+Prior Training and Qualifications: Trade safety induction complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

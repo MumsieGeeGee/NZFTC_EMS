@@ -1,0 +1,241 @@
+@model NZFTC_EMS.Models.SelectedEmployeeAccountDetailsViewModel
+@{
+    Layout = null;
+}
+
+<style>
+    .selected-account-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: end;
+        margin-bottom: 12px;
+    }
+
+    .selected-account-controls label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-weight: 700;
+        color: #4A4A4A;
+    }
+
+    .selected-account-controls select {
+        min-width: 220px;
+        padding: 8px;
+        border: 1px solid #C7CED6;
+        border-radius: 4px;
+        background: #FFFFFF;
+        color: #4A4A4A;
+    }
+
+    .selected-account-load-button {
+        background: #5BA6A6;
+        color: #4A4A4A;
+        border: 1px solid rgba(42, 93, 143, 0.2);
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .selected-account-load-button:hover {
+        background: #C7CED6;
+    }
+</style>
+
+<div data-selected-account-root data-endpoint="@Model.ContentEndpoint" data-action-key="view-selected-employee-account-details">
+    <h2 style="color:#2A5D8F; font-size:22px; margin:0 0 12px;">View an Employee's Account Details</h2>
+
+    <div class="selected-account-controls">
+        <label>
+            Business Department
+            <select data-selected-group>
+                <option value="">Select a department...</option>
+                @if (Model.SelectedGroup == "admin")
+                {
+                    <option value="admin" selected>Admin</option>
+                }
+                else
+                {
+                    <option value="admin">Admin</option>
+                }
+                @if (Model.SelectedGroup == "finance")
+                {
+                    <option value="finance" selected>Finance</option>
+                }
+                else
+                {
+                    <option value="finance">Finance</option>
+                }
+                @if (Model.SelectedGroup == "trade")
+                {
+                    <option value="trade" selected>Trade</option>
+                }
+                else
+                {
+                    <option value="trade">Trade</option>
+                }
+            </select>
+        </label>
+
+        <label>
+            Employee
+            <select data-selected-username>
+                <option value="">Select an employee...</option>
+                @foreach (var username in Model.Usernames)
+                {
+                    var displayName = Model.UsernameDisplayNames.TryGetValue(username, out var resolvedDisplayName) ? resolvedDisplayName : username;
+                    if (Model.SelectedUsername == username)
+                    {
+                        <option value="@username" selected>@displayName</option>
+                    }
+                    else
+                    {
+                        <option value="@username">@displayName</option>
+                    }
+                }
+            </select>
+        </label>
+
+        <button type="button" class="selected-account-load-button" data-load-selected-account>Load</button>
+    </div>
+
+    @if (Model.Details != null)
+    {
+        <dl style="margin:0; color:#4A4A4A; display:grid; grid-template-columns:220px 1fr; row-gap:8px;">
+            <dt style="font-weight:700;">Account Type</dt>
+            <dd style="margin:0;">@Model.Details.AccountType</dd>
+
+            <dt style="font-weight:700;">Business Role</dt>
+            <dd style="margin:0;">@Model.Details.BusinessRole</dd>
+
+            <dt style="font-weight:700;">Job Role</dt>
+            <dd style="margin:0;">@Model.Details.JobRole</dd>
+
+            <dt style="font-weight:700;">First Name</dt>
+            <dd style="margin:0;">@Model.Details.FirstName</dd>
+
+            <dt style="font-weight:700;">Middle Name</dt>
+            <dd style="margin:0;">@Model.Details.MiddleName</dd>
+
+            <dt style="font-weight:700;">Last Name</dt>
+            <dd style="margin:0;">@Model.Details.LastName</dd>
+
+            <dt style="font-weight:700;">Date of Birth</dt>
+            <dd style="margin:0;">@Model.Details.DateOfBirth</dd>
+
+            <dt style="font-weight:700;">Address</dt>
+            <dd style="margin:0;">@Model.Details.Address</dd>
+
+            <dt style="font-weight:700;">Email Address</dt>
+            <dd style="margin:0;">@Model.Details.EmailAddress</dd>
+
+            <dt style="font-weight:700;">Phone Number</dt>
+            <dd style="margin:0;">@Model.Details.PhoneNumber</dd>
+
+            <dt style="font-weight:700;">Username</dt>
+            <dd style="margin:0;">@Model.Details.Username</dd>
+
+            <dt style="font-weight:700;">Account Status</dt>
+            <dd style="margin:0;">@Model.Details.AccountStatus</dd>
+
+            <dt style="font-weight:700;">Failed Login Attempts</dt>
+            <dd style="margin:0;">@Model.Details.FailedLoginAttempts</dd>
+
+            <dt style="font-weight:700;">Password Reset Required</dt>
+            <dd style="margin:0;">@Model.Details.PasswordResetRequired</dd>
+
+            <dt style="font-weight:700;">Last Login Event</dt>
+            <dd style="margin:0;">@Model.Details.LastLoginEvent</dd>
+
+            <dt style="font-weight:700;">Last Session Event</dt>
+            <dd style="margin:0;">@Model.Details.LastSessionEvent</dd>
+        </dl>
+    }
+    else
+    {
+        <p style="margin:0; color:#4A4A4A;">Select a group and employee, then click Load. If no account details exist yet, ask the employee's manager or HR to complete the record first.</p>
+    }
+</div>
+
+<script>
+    (function () {
+        const root = document.querySelector("[data-selected-account-root]");
+        if (!root || root.dataset.bound === "true") {
+            return;
+        }
+
+        root.dataset.bound = "true";
+        const endpoint = root.dataset.endpoint || "";
+        const groupSelect = root.querySelector("[data-selected-group]");
+        const usernameSelect = root.querySelector("[data-selected-username]");
+        const loadButton = root.querySelector("[data-load-selected-account]");
+        const host = root.closest("[data-account-content-host]");
+
+        if (!endpoint || !groupSelect || !usernameSelect || !loadButton || !host) {
+            return;
+        }
+
+        async function loadSelected(group, username) {
+            loadButton.disabled = true;
+            try {
+                if (!username) {
+                    host.querySelector("p")?.remove();
+                    const message = document.createElement("p");
+                    message.style.margin = "0";
+                    message.style.color = "#4A4A4A";
+                    message.textContent = "Please select an employee first.";
+                    host.appendChild(message);
+                    return;
+                }
+
+                const actionKey = root.dataset.actionKey || "view-selected-employee-account-details";
+                const response = await fetch(`${endpoint}?actionKey=${encodeURIComponent(actionKey)}&group=${encodeURIComponent(group)}&username=${encodeURIComponent(username)}`, { credentials: "same-origin" });
+                if (!response.ok) {
+                    return;
+                }
+
+                const html = await response.text();
+                if (typeof window.nzftcSetAccountContentHostHtml === "function") {
+                    window.nzftcSetAccountContentHostHtml(host, html);
+                } else {
+                    host.innerHTML = html;
+                }
+            } catch (error) {
+                console.error(error);
+            } finally {
+                loadButton.disabled = false;
+            }
+        }
+
+        groupSelect.addEventListener("change", () => {
+            const actionKey = root.dataset.actionKey || "view-selected-employee-account-details";
+            loadButton.disabled = true;
+            fetch(`${endpoint}?actionKey=${encodeURIComponent(actionKey)}&group=${encodeURIComponent(groupSelect.value)}&username=`, { credentials: "same-origin" })
+                .then((response) => response.ok ? response.text() : null)
+                .then((html) => {
+                    if (!html) {
+                        return;
+                    }
+
+                    if (typeof window.nzftcSetAccountContentHostHtml === "function") {
+                        window.nzftcSetAccountContentHostHtml(host, html);
+                    } else {
+                        host.innerHTML = html;
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                })
+                .finally(() => {
+                    loadButton.disabled = false;
+                });
+        });
+
+        loadButton.addEventListener("click", () => {
+            loadSelected(groupSelect.value, usernameSelect.value);
+        });
+    })();
+</script>

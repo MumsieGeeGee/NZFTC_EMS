@@ -2,13 +2,21 @@ using Microsoft.EntityFrameworkCore;
 using NZFTC_EMS.Data;
 using NZFTC_EMS.Services;
 using NZFTC_EMS.Utilities;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var mysqlPassword = builder.Configuration["MYSQL_PASSWORD"] ?? Environment.GetEnvironmentVariable("MYSQL_PASSWORD");
+if (!string.IsNullOrWhiteSpace(connectionString) && !string.IsNullOrWhiteSpace(mysqlPassword))
+{
+    connectionString = AppendMySqlPassword(connectionString, mysqlPassword);
+}
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+        connectionString,
+        ServerVersion.AutoDetect(connectionString)
     ));
 
 // Add session services
@@ -22,6 +30,12 @@ builder.Services.AddSession(options =>
 
 // Add authentication service
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IPublicHolidayCalendarService, PublicHolidayCalendarService>();
+builder.Services.AddScoped<MySqlRepository>();
+builder.Services.AddScoped<EmployeeAccountRecordService>();
+builder.Services.AddScoped<GrievanceRequestService>();
+builder.Services.AddScoped<LeaveRequestService>();
+builder.Services.AddScoped<PayrollService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -34,10 +48,9 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Privacy/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 
-
-app.UseHttpsRedirection();
 app.UseRouting();
 
 // Add session middleware BEFORE authorization
@@ -87,3 +100,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+
+static string AppendMySqlPassword(string connectionString, string password)
+{
+    const string passwordKey = "password=";
+    var separator = connectionString.EndsWith(';') ? string.Empty : ";";
+    if (connectionString.Contains(passwordKey, StringComparison.OrdinalIgnoreCase))
+    {
+        return connectionString;
+    }
+
+    return $"{connectionString}{separator}password={password}";
+}

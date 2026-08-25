@@ -6,11 +6,55 @@ Last Name: Doe
 Date of Birth: 01-02-1993
 Business Role: Admin
 Job Role: Senior IT Support Administrator
+Employment Type: Full-time
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 30.29
+Approximate Annual Salary: 63000
+Annual Salary: 63000
+Monthly Salary: 5250
+Fortnightly Salary: 2423.08
+Weekly Salary: 1211.54
+Annual Leave Entitlement: 28
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 8
+Annual Leave Total Entitlement: 28
+Sick Leave Entitlement: 16
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 6
+Sick Leave Total Entitlement: 16
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 3
+Maternity Leave Entitlement: 26 weeks lawful + 3 weeks extra = 29 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 3 weeks extra = 29 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 3 weeks extra = 29 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 3 weeks extra = 29 weeks total
+Special Leave Entitlement: 4
+Special Leave Package Extra: 4
+KiwiSaver Employer Contribution: 4%
+Superannuation Contribution: 4%
+Health Insurance Contribution: $1000 per year
+Professional Development Contribution: $2000 per year
+Employee Assistance Program Contribution: $1000 per year
 Address: 3 Blah St, Rangiora, Chch, 0000, PO Box: 0
 Email Address: John@email.com
 Phone Number: 02102102202
 Username: admin_sit_john_david_doe
 Password: a0a826dda77b9cbb
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000003
+
+Emergency Contact: Jane Sarah Doe | Parent | 021-555-2017
+Diagnosed Health Conditions: High blood pressure
+Allergies: None known
+Approved Emergency Steps and Medicines: Monitor and escalate if symptoms present.
+Prior Training and Qualifications: Admin safety and first aid refresher complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

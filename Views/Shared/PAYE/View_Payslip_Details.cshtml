@@ -1,0 +1,131 @@
+@using System.Globalization
+@model NZFTC_EMS.Models.PayslipRecord
+@{
+    Layout = null;
+    var payslip = Model ?? new NZFTC_EMS.Models.PayslipRecord();
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Payslip #@payslip.Id</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 24px;
+            color: #1f2937;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            background: #2A5D8F;
+            color: #fff;
+        }
+
+        .button.secondary {
+            background: #6b7280;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+        }
+
+        .card {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .card h3 {
+            margin-top: 0;
+        }
+
+        dl {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 8px 14px;
+        }
+
+        dt {
+            font-weight: 700;
+        }
+
+        @@media print {
+            .toolbar { display: none; }
+            body { margin: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <a href="javascript:window.print()" class="button">Print</a>
+        <a href="javascript:history.back()" class="button secondary">Back</a>
+    </div>
+
+    <h1>Payslip #@payslip.Id</h1>
+    <p>Generated @payslip.CreatedOn.ToString("dd MMM yyyy HH:mm", CultureInfo.InvariantCulture) UTC</p>
+
+    <div class="grid">
+        <div class="card">
+            <h3>Employee</h3>
+            <dl>
+                <dt>Name</dt><dd>@payslip.EmployeeName</dd>
+                <dt>Username</dt><dd>@payslip.Username</dd>
+                <dt>IRD</dt><dd>@payslip.IRDNumber</dd>
+                <dt>Package</dt><dd>@(string.IsNullOrWhiteSpace(payslip.SalaryPackageDisplayName) ? payslip.SalaryPackageName : payslip.SalaryPackageDisplayName)</dd>
+                <dt>Pay Period</dt><dd>@payslip.PayPeriod</dd>
+                <dt>Frequency</dt><dd>@payslip.PayFrequency</dd>
+            </dl>
+        </div>
+
+        <div class="card">
+            <h3>Earnings</h3>
+            <dl>
+                <dt>Base Pay</dt><dd>@payslip.BasePay.ToString("C2")</dd>
+                <dt>Overtime</dt><dd>@payslip.OvertimePay.ToString("C2")</dd>
+                <dt>Bonus</dt><dd>@payslip.BonusPay.ToString("C2")</dd>
+                <dt>Allowances</dt><dd>@payslip.AllowancePay.ToString("C2")</dd>
+                <dt>Gross Pay</dt><dd>@payslip.GrossPay.ToString("C2")</dd>
+                <dt>Taxable Income</dt><dd>@payslip.TaxableIncome.ToString("C2")</dd>
+            </dl>
+        </div>
+
+        <div class="card">
+            <h3>Deductions</h3>
+            <dl>
+                <dt>PAYE</dt><dd>@payslip.PAYE.ToString("C2")</dd>
+                <dt>Student Loan</dt><dd>@payslip.StudentLoan.ToString("C2")</dd>
+                <dt>KiwiSaver (Employee)</dt><dd>@payslip.KiwiSaverEmployeeContribution.ToString("C2")</dd>
+                <dt>KiwiSaver (Employer)</dt><dd>@payslip.KiwiSaverEmployerContribution.ToString("C2")</dd>
+                <dt>ESCT</dt><dd>@payslip.ESCT.ToString("C2")</dd>
+                <dt>ACC</dt><dd>@payslip.ACCLevy.ToString("C2")</dd>
+                <dt>Post-tax Deductions</dt><dd>@payslip.PostTaxDeductions.ToString("C2")</dd>
+                <dt>Net Pay</dt><dd>@payslip.NetPay.ToString("C2")</dd>
+            </dl>
+        </div>
+
+        <div class="card">
+            <h3>Leave Snapshot</h3>
+            <dl>
+                <dt>Annual Leave Remaining</dt><dd>@payslip.AnnualLeaveRemainingDays days</dd>
+                <dt>Sick Leave Remaining</dt><dd>@payslip.SickLeaveRemainingDays days</dd>
+                <dt>Special Leave Remaining</dt><dd>@payslip.SpecialLeaveRemainingDays days</dd>
+                <dt>Parental Leave Remaining</dt><dd>@payslip.ParentalLeaveRemainingWeeks weeks</dd>
+                <dt>Public Holidays</dt><dd>@payslip.PublicHolidayDays days</dd>
+            </dl>
+        </div>
+    </div>
+</body>
+</html>

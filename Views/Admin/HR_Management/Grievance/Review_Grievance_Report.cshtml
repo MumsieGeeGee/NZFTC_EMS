@@ -1,0 +1,183 @@
+@model NZFTC_EMS.Models.GrievanceRequest
+@{
+    Layout = null;
+}
+
+<style>
+    .review-panel {
+        background: #FFFFFF;
+        border: 1px solid #C7CED6;
+        border-radius: 10px;
+        padding: 24px;
+        box-shadow: 0 2px 6px rgba(42, 93, 143, 0.08);
+        color: #2A5D8F;
+    }
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .status-badge {
+        background: #5BA6A6;
+        color: #FFFFFF;
+        padding: 6px 10px;
+        border-radius: 14px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .review-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(260px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    .detail-block {
+        background: #F5F7FA;
+        border: 1px solid #C7CED6;
+        border-radius: 8px;
+        padding: 14px;
+    }
+    .detail-block strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #2A5D8F;
+    }
+    .form-section {
+        border-top: 1px solid #C7CED6;
+        padding-top: 20px;
+        margin-top: 12px;
+    }
+    .form-row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 18px;
+    }
+    label {
+        font-weight: 700;
+        color: #2A5D8F;
+    }
+    select, textarea {
+        width: 100%;
+        border: 1px solid #C7CED6;
+        border-radius: 6px;
+        padding: 10px 12px;
+        font-size: 14px;
+        font-family: inherit;
+        background: #FFFFFF;
+        color: #4A4A4A;
+    }
+    textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 8px;
+    }
+    .primary-btn, .secondary-link {
+        display: inline-block;
+        border-radius: 6px;
+        padding: 10px 16px;
+        font-weight: 700;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+    .primary-btn {
+        background: #2A5D8F;
+        color: #FFFFFF;
+    }
+    .primary-btn:hover {
+        background: #5BA6A6;
+    }
+    .secondary-link {
+        background: #C7CED6;
+        color: #4A4A4A;
+    }
+    .secondary-link:hover {
+        background: #5BA6A6;
+        color: #FFFFFF;
+    }
+    .description-box {
+        background: #F5F7FA;
+        border: 1px solid #C7CED6;
+        border-radius: 8px;
+        padding: 14px;
+        color: #4A4A4A;
+        line-height: 1.6;
+    }
+</style>
+
+<div class="review-panel">
+    <div class="review-header">
+        <div>
+            <h2>Review Grievance Report</h2>
+            <p>Manage the report outcome and notify the employee of the final decision.</p>
+        </div>
+        <span class="status-badge">@Model.Status</span>
+    </div>
+
+    <div class="review-grid">
+        <div class="detail-block">
+            <strong>Employee</strong>
+            <span>@Model.EmployeeName</span>
+        </div>
+        <div class="detail-block">
+            <strong>Submitted by</strong>
+            <span>@Model.SubmittedByUsername</span>
+        </div>
+        <div class="detail-block">
+            <strong>Category</strong>
+            <span>@Model.Category</span>
+        </div>
+        <div class="detail-block">
+            <strong>Severity</strong>
+            <span>@Model.Severity</span>
+        </div>
+    </div>
+
+    <div class="detail-block">
+        <strong>Subject</strong>
+        <div>@Model.Subject</div>
+    </div>
+
+    <div class="description-box" style="margin-top: 16px;">
+        @Model.Description
+    </div>
+
+    <form method="post" action="@Url.Action("UpdateGrievanceStatus", "Admin")" class="form-section">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="grievanceId" value="@Model.Id" />
+
+        <div class="form-row">
+            <label for="status">Decision status</label>
+            <select id="status" name="status">
+                <option value="Open" selected="@(Model.Status == "Open" ? "selected" : null)">Open</option>
+                <option value="Resolved" selected="@(Model.Status == "Resolved" ? "selected" : null)">Resolved</option>
+                <option value="Temporarily Denied" selected="@(Model.Status == "Temporarily Denied" ? "selected" : null)">Temporarily Denied</option>
+                <option value="Rejected" selected="@(Model.Status == "Rejected" ? "selected" : null)">Rejected</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label for="outcome">Outcome summary</label>
+            <textarea id="outcome" name="outcome">@Model.Outcome</textarea>
+        </div>
+
+        <div class="form-row">
+            <label for="decisionReason">Decision reason</label>
+            <textarea id="decisionReason" name="decisionReason">@Model.DecisionReason</textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="primary-btn">Save decision</button>
+            <a href="@Url.Action("HRManagement", "Admin", new { actionKey = "view-users-open-grievance-reports" })" class="secondary-link">Back to HR management</a>
+        </div>
+    </form>
+</div>

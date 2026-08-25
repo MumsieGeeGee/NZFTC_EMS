@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Employee Management";
+    ViewData["Title"] = "HR Management";
     Layout = null;
 }
 
@@ -7,7 +7,7 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>NZFTC EMS - Employee Management</title>
+    <title>NZFTC EMS - HR Management</title>
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css">
     <style>
         * {
@@ -92,7 +92,7 @@
             color: #4A4A4A;
             border: none;
             padding: 10px 20px;
-            font-size: 14px;
+            font-size: 16px;
             border-radius: 4px;
             font-weight: bold;
             cursor: pointer;
@@ -205,8 +205,11 @@
         .main-content {
             flex: 1;
             background: #F5F7FA;
-            overflow-y: auto;
+            overflow: hidden;
             padding: 24px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
         }
 
         .main-content h1 {
@@ -253,20 +256,30 @@
 
         <div class="main-content-wrapper">
             <div class="left-sidebar">
-                <a href="@Url.Action("AccountManagement", "Employee")" class="sidebar-button">
-                    <i class="fi fi-rr-user" aria-hidden="true"></i>
-                    <span>Account Management</span>
-                </a>
-                <a href="@Url.Action("EmployeeManagement", "Employee")" class="sidebar-button active">
-                    <i class="fi fi-rr-briefcase" aria-hidden="true"></i>
-                    <span>Employee Management</span>
-                </a>
-                <a href="@Url.Action("HRManagement", "Employee")" class="sidebar-button">
-                    <i class="fi fi-rr-calendar" aria-hidden="true"></i>
-                    <span>HR Management</span>
-                </a>
+                @if ((bool?)ViewBag.CanAccessAccountModule == true)
+                {
+                    <a href="@Url.Action("AccountManagement", "Employee")" class="sidebar-button">
+                        <i class="fi fi-rr-user" aria-hidden="true"></i>
+                        <span>Account Management</span>
+                    </a>
+                }
+                @if ((bool?)ViewBag.CanAccessEmployeeModule == true)
+                {
+                    <a href="@Url.Action("EmployeeManagement", "Employee")" class="sidebar-button">
+                        <i class="fi fi-rr-briefcase" aria-hidden="true"></i>
+                        <span>Employee Management</span>
+                    </a>
+                }
+                @if ((bool?)ViewBag.CanAccessHrModule == true)
+                {
+                    <a href="@Url.Action("HRManagement", "Employee")" class="sidebar-button active">
+                        <i class="fi fi-rr-calendar" aria-hidden="true"></i>
+                        <span>HR Management</span>
+                    </a>
+                }
             </div>
             <div class="main-content">
+                @await Html.PartialAsync("~/Views/Shared/Role_Menus.cshtml")
             </div>
         </div>
     </div>
@@ -408,5 +421,6 @@
             }, 1000);
         })();
     </script>
+    <script src="~/js/sidebar-prefetch.js" asp-append-version="true"></script>
 </body>
 </html>

@@ -1,0 +1,44 @@
+@using System.Linq
+@using NZFTC_EMS.Models
+@model IEnumerable<GrievanceRequest>
+
+@{
+    var reports = Model ?? Enumerable.Empty<GrievanceRequest>();
+}
+
+<div class="grievance-panel">
+    <h2>My Open Grievance Reports</h2>
+    <p class="grievance-intro">These are the grievances currently waiting for review or a response.</p>
+
+    @if (!reports.Any())
+    {
+        <div class="empty-state">No open grievance reports at the moment.</div>
+    }
+    else
+    {
+        @foreach (var item in reports)
+        {
+            <div class="grievance-card">
+                <div class="grievance-card-header">
+                    <span class="grievance-badge">@item.Status</span>
+                    <strong>#@item.Id</strong>
+                </div>
+                <h3>@item.Subject</h3>
+                <p><strong>Category:</strong> @item.Category</p>
+                <p><strong>Severity:</strong> @item.Severity</p>
+                <p><strong>Submitted:</strong> @item.SubmittedOn.ToString("dd MMM yyyy")</p>
+                <p>@item.Description</p>
+            </div>
+        }
+    }
+</div>
+
+<style>
+    .grievance-panel { color: #2A5D8F; }
+    .grievance-panel h2 { margin-bottom: 10px; }
+    .grievance-intro { color: #4A4A4A; margin-bottom: 16px; }
+    .grievance-card { background: #FFFFFF; border: 1px solid #C7CED6; border-radius: 8px; padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 2px rgba(42, 93, 143, 0.08); }
+    .grievance-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .grievance-badge { background: #5BA6A6; color: #FFFFFF; padding: 4px 8px; border-radius: 14px; font-size: 12px; font-weight: 700; }
+    .empty-state { background: #F5F7FA; border: 1px dashed #C7CED6; padding: 18px; border-radius: 8px; color: #4A4A4A; }
+</style>

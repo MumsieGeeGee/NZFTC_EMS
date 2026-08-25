@@ -4,12 +4,11 @@ Student Loan Repayment Rate Default: 12%
 ACC Auto-Apply Configuration (IT maintained as changes occur):
 ACC Levy Type: Earners Levy Rate
 ACC Levy Rate: 1.75%
-Maximum Liable Earnings Threshold: $142,283
+ACC Levy Maximum: $142,283
 KiwiSaver Employer Contribution Rate: (Default) 3%
 ___________________________________________________________________________________________________
 
 Considerations For Future Scaling:
-Password1#
 ___________________________________________________________________________________________________
 
 BIC Code Considerations For ACC Levys:

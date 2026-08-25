@@ -6,11 +6,55 @@ Last Name: Cooper
 Date of Birth: 17-08-1995
 Business Role: Finance
 Job Role: Accounts Payable Administrator
+Employment Type: Full-time
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 28.85
+Approximate Annual Salary: 60000
+Annual Salary: 60000
+Monthly Salary: 5000
+Fortnightly Salary: 2307.69
+Weekly Salary: 1153.85
+Annual Leave Entitlement: 22
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 2
+Annual Leave Total Entitlement: 22
+Sick Leave Entitlement: 12
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 2
+Sick Leave Total Entitlement: 12
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 2
+Maternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Special Leave Entitlement: 4
+Special Leave Package Extra: 4
+KiwiSaver Employer Contribution: 4%
+Superannuation Contribution: 4%
+Health Insurance Contribution: $500 per year
+Professional Development Contribution: $500 per year
+Employee Assistance Program Contribution: $500 per year
 Address: 23 Test Street, Central, Wellington, 6011, PO Box: 123
 Email Address: indie.cooper@example.test
 Phone Number: 021-000-1023
 Username: finance_ap_indie_rae_cooper
 Password: a10e2888c0a51b15
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000023
+
+Emergency Contact: Jamie Sky Bennett | Partner | 021-555-2015
+Diagnosed Health Conditions: None known
+Allergies: Gluten
+Approved Emergency Steps and Medicines: Avoid allergen exposure and escalate if required.
+Prior Training and Qualifications: Finance induction complete.
+First Aid Certification: Uncertified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

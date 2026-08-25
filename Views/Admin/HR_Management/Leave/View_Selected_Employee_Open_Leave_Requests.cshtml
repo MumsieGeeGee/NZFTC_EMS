@@ -1,0 +1,46 @@
+@using System.Linq
+@model NZFTC_EMS.Models.SelectedEmployeeLeaveDetailsViewModel
+@{
+    Layout = null;
+}
+
+<style>
+    .leave-panel { color: #2A5D8F; }
+    .leave-card { background: #FFFFFF; border: 1px solid #C7CED6; border-radius: 8px; padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 2px rgba(42, 93, 143, 0.08); }
+    .leave-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .leave-badge { background: #5BA6A6; color: #FFFFFF; padding: 4px 8px; border-radius: 14px; font-size: 12px; font-weight: 700; }
+    .leave-action-button {
+        display: inline-block; background: #2A5D8F; color: #FFFFFF; border-radius: 6px; padding: 8px 12px; font-weight: 700; text-decoration: none;
+    }
+    .leave-action-button:hover { background: #5BA6A6; }
+    .empty-state { background: #F5F7FA; border: 1px dashed #C7CED6; padding: 18px; border-radius: 8px; color: #4A4A4A; }
+</style>
+
+<div>
+    <h2 style="color:#2A5D8F; font-size:22px; margin:0 0 12px;">View Employees Open Leave Requests</h2>
+
+    @if (Model.Requests.Any())
+    {
+        <div class="leave-panel">
+            @foreach (var request in Model.Requests)
+            {
+                <div class="leave-card">
+                    <div class="leave-card-header">
+                        <span class="leave-badge">@request.Status</span>
+                    </div>
+                    <h3>@request.EmployeeName - @request.LeaveType</h3>
+                    <p><strong>Dates:</strong> @request.StartDate.ToString("dd MMM yyyy") to @request.EndDate.ToString("dd MMM yyyy")</p>
+                    <p><strong>Days:</strong> @request.TotalDays</p>
+                    <p>@request.Reason</p>
+                    <div class="leave-card-actions">
+                        <a class="leave-action-button" href="@Url.Action("HRManagement", "Admin", new { actionKey = "review-leave-request", leaveRequestId = request.Id })">Review leave request</a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">No open leave requests at the moment.</div>
+    }
+</div>

@@ -1,0 +1,66 @@
+@model NZFTC_EMS.Models.PayrollTaxInformation
+@{
+    var taxInfo = Model;
+}
+
+<h3>Edit My Tax Information</h3>
+@if (taxInfo == null || string.IsNullOrWhiteSpace(taxInfo.Username))
+{
+    <p>No tax information is available to edit for this employee.</p>
+}
+else
+{
+    <form method="post" action="@Url.Action("EditMyTaxInformation", "Employee")">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="Username" value="@taxInfo.Username" />
+        <div class="mb-3">
+            <label class="form-label">Employee</label>
+            <input class="form-control" value="@taxInfo.EmployeeName" readonly />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">IRD Number</label>
+            <input class="form-control" value="@taxInfo.IRDNumber" readonly />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="TaxCode">Tax Code</label>
+            <input class="form-control" id="TaxCode" name="TaxCode" value="@taxInfo.TaxCode" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="PayFrequency">Pay Frequency</label>
+            <input class="form-control" id="PayFrequency" name="PayFrequency" value="@taxInfo.PayFrequency" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="IRDConfirmationStatus">IRD Confirmation Status</label>
+            <input class="form-control" id="IRDConfirmationStatus" name="IRDConfirmationStatus" value="@taxInfo.IRDConfirmationStatus" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="PAYETableVersion">PAYE Table Version</label>
+            <input class="form-control" id="PAYETableVersion" name="PAYETableVersion" value="@taxInfo.PAYETableVersion" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="ExtraPayeVoluntaryDeduction">Extra PAYE Voluntary Deduction</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="ExtraPayeVoluntaryDeduction" name="ExtraPayeVoluntaryDeduction" value="@taxInfo.ExtraPayeVoluntaryDeduction" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="StudentLoanStatus">Student Loan Status</label>
+            <input class="form-control" id="StudentLoanStatus" name="StudentLoanStatus" value="@taxInfo.StudentLoanStatus" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="StudentLoanRate">Student Loan Rate</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="StudentLoanRate" name="StudentLoanRate" value="@taxInfo.StudentLoanRate" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="KiwiSaverEmployerContributionRate">KiwiSaver Employer Contribution Rate</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="KiwiSaverEmployerContributionRate" name="KiwiSaverEmployerContributionRate" value="@taxInfo.KiwiSaverEmployerContributionRate" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="ACCLevyRate">ACC Levy Rate</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="ACCLevyRate" name="ACCLevyRate" value="@taxInfo.ACCLevyRate" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="EmployeeType">Employee Type</label>
+            <input class="form-control" id="EmployeeType" name="EmployeeType" value="@taxInfo.EmployeeType" />
+        </div>
+        <button type="submit" class="btn btn-primary">Update tax information</button>
+    </form>
+}

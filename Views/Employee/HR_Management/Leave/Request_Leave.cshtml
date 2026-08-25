@@ -1,0 +1,58 @@
+@model NZFTC_EMS.Models.LeaveRequest
+
+@{
+    var submitAction = Url.Action("SubmitLeaveRequest", "Employee");
+    var targetUsername = Model?.SubmittedForUsername ?? string.Empty;
+    var employeeName = targetUsername;
+}
+
+<div class="leave-panel">
+    <h2>Request Leave</h2>
+    <p class="leave-intro">Submit a leave request for @employeeName.</p>
+
+    <form method="post" action="@submitAction" class="leave-request-form">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="submittedForUsername" value="@targetUsername" />
+
+        <div class="form-row">
+            <label for="leaveType">Leave Type</label>
+            <select id="leaveType" name="leaveType" required>
+                <option value="Annual Leave">Annual Leave</option>
+                <option value="Sick Leave">Sick Leave</option>
+                <option value="Parental Leave">Parental Leave</option>
+                <option value="Special Leave">Special Leave</option>
+            </select>
+        </div>
+
+        <div class="form-row two-column">
+            <div>
+                <label for="startDate">Start Date</label>
+                <input id="startDate" name="startDate" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+            </div>
+            <div>
+                <label for="endDate">End Date</label>
+                <input id="endDate" name="endDate" type="date" value="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" required />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label for="reason">Reason</label>
+            <textarea id="reason" name="reason" rows="4" placeholder="Provide a brief reason for the leave request."></textarea>
+        </div>
+
+        <button type="submit" class="primary-button">Submit Leave Request</button>
+    </form>
+</div>
+
+<style>
+    .leave-panel { color: #2A5D8F; }
+    .leave-panel h2 { margin-bottom: 10px; }
+    .leave-intro { color: #4A4A4A; margin-bottom: 16px; }
+    .leave-request-form { max-width: 620px; display: flex; flex-direction: column; gap: 16px; }
+    .form-row { display: flex; flex-direction: column; gap: 8px; }
+    .two-column { display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 16px; }
+    label { font-weight: 700; color: #2A5D8F; }
+    input, select, textarea { width: 100%; border: 1px solid #C7CED6; border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+    .primary-button { background: #2A5D8F; color: #FFFFFF; border: none; border-radius: 6px; padding: 10px 16px; font-weight: 700; cursor: pointer; }
+    .primary-button:hover { background: #5BA6A6; }
+</style>

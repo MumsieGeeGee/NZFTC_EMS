@@ -1,0 +1,17 @@
+Current Open Leave Requests:
+Leave Request:
+Request ID: 1
+Submitted By Username: admin_slm_jane_sarah_doe
+Submitted For Username: admin_slm_jane_sarah_doe
+Employee Name: Jane Sarah Doe
+Leave Type: Annual Leave
+Start Date: 2026-08-28
+End Date: 2026-08-28
+Reason: Mother Visiting short notice
+Status: Open
+Decision Reason: 
+Handled By Username: 
+Requested On: 2026-08-24 23:41:12
+Updated On: 
+End Leave Request
+

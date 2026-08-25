@@ -6,10 +6,20 @@
 #include "../../Path_Utilities.h"
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
+#include <sstream>
 
 namespace {
 std::filesystem::path Get_Payslip_Directory() {
     return Path_Utilities::Get_Payslip_Directory();
+}
+
+std::string Format_Money(double value) {
+    std::ostringstream out;
+    out.setf(std::ios::fixed);
+    out.precision(2);
+    out << '$' << value;
+    return out.str();
 }
 
 std::string Sanitize_File_Component(std::string value) {
@@ -60,21 +70,21 @@ bool Save_Payslip(const std::string& username, const Pre_Calculation_Payslip& sl
     output << "Username: " << username << '\n';
     output << "IRD Number: " << slip.IRD_Number << '\n';
     output << "Pay Period: " << slip.period.period_start_date << " - " << slip.period.period_end_date << '\n';
-    output << "Gross Earnings: " << slip.gross_earnings << '\n';
-    output << "Taxable Earnings: " << slip.taxable_earnings << '\n';
-    output << "PAYE Tax: " << slip.paye << '\n';
-    output << "ACC Earners Levy: " << slip.acc << '\n';
-    output << "Student Loan Repayment: " << slip.student_loan << '\n';
-    output << "Child Support Deduction: " << slip.child_support << '\n';
-    output << "KiwiSaver Employee Contribution: " << slip.kiwisaver_employee << '\n';
-    output << "KiwiSaver Employer Contribution: " << slip.kiwisaver_employer << '\n';
-    output << "ESCT: " << slip.esct << '\n';
-    output << "Net Pay: " << slip.net_pay << '\n';
-    output << "Sick Leave Remaining: " << slip.sick_leave_remaining << '\n';
-    output << "Annual Leave Remaining: " << slip.annual_leave_remaining << '\n';
-    output << "Parental Leave Remaining: " << slip.parental_leave_remaining << '\n';
-    output << "PDC Remaining: " << slip.pdc_remaining << '\n';
-    output << "EAP Remaining: " << slip.eap_remaining << '\n';
+    output << "Gross Earnings: " << Format_Money(slip.gross_earnings) << '\n';
+    output << "Taxable Earnings: " << Format_Money(slip.taxable_earnings) << '\n';
+    output << "PAYE Tax: " << Format_Money(slip.paye) << '\n';
+    output << "ACC Earners Levy: " << Format_Money(slip.acc) << '\n';
+    output << "Student Loan Repayment: " << Format_Money(slip.student_loan) << '\n';
+    output << "Child Support Deduction: " << Format_Money(slip.child_support) << '\n';
+    output << "KiwiSaver Employee Contribution: " << Format_Money(slip.kiwisaver_employee) << '\n';
+    output << "KiwiSaver Employer Contribution: " << Format_Money(slip.kiwisaver_employer) << '\n';
+    output << "ESCT: " << Format_Money(slip.esct) << '\n';
+    output << "Net Pay: " << Format_Money(slip.net_pay) << '\n';
+    output << "Sick Leave Remaining: " << slip.sick_leave_remaining << " days\n";
+    output << "Annual Leave Remaining: " << slip.annual_leave_remaining << " days\n";
+    output << "Parental Leave Remaining: " << slip.parental_leave_remaining << " weeks\n";
+    output << "PDC Remaining: " << Format_Money(slip.pdc_remaining) << '\n';
+    output << "EAP Remaining: " << Format_Money(slip.eap_remaining) << '\n';
 
     return static_cast<bool>(output);
 }

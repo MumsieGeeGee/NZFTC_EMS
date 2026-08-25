@@ -1,0 +1,224 @@
+@using System.Text.Json
+@model NZFTC_EMS.Models.SelectedEmployeeActionTargetViewModel
+
+@{
+    Layout = null;
+    var submitAction = Url.Action("SubmitGrievanceReport", "Admin");
+    var hasTargetEmployee = !string.IsNullOrWhiteSpace(Model.SelectedUsername);
+    var employeeName = string.IsNullOrWhiteSpace(Model.SelectedEmployeeName) ? Model.SelectedUsername : Model.SelectedEmployeeName;
+}
+
+<style>
+    .grievance-panel { color: #2A5D8F; }
+    .grievance-panel h2 { margin-bottom: 10px; }
+    .grievance-intro { color: #4A4A4A; margin-bottom: 16px; }
+    .grievance-form { max-width: 720px; display: flex; flex-direction: column; gap: 16px; }
+    .field-row { display: flex; flex-direction: column; gap: 8px; color: #4A4A4A; }
+    .field-row input, .field-row select, .field-row textarea { border: 1px solid #C7CED6; border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+    .field-row textarea { min-height: 140px; resize: vertical; }
+    .primary-action-button, .selected-target-load-button { background: #2A5D8F; color: #FFFFFF; border: none; border-radius: 6px; padding: 10px 18px; font-weight: 700; cursor: pointer; width: fit-content; }
+    .primary-action-button:hover, .selected-target-load-button:hover { background: #5BA6A6; }
+    .selected-target-controls {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 10px;
+        align-items: flex-end;
+        margin-bottom: 16px;
+        overflow-x: auto;
+    }
+    .selected-target-controls label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-weight: 700;
+        color: #4A4A4A;
+    }
+    .selected-target-controls select {
+        width: 240px;
+        min-width: 240px;
+        max-width: 240px;
+        padding: 8px;
+        border: 1px solid #C7CED6;
+        border-radius: 4px;
+        background: #FFFFFF;
+        color: #4A4A4A;
+    }
+</style>
+
+<div class="grievance-panel"
+     data-selected-target-root
+     data-endpoint="@Model.ContentEndpoint"
+     data-action-key="submit-grievance-report-on-behalf-of-user"
+     data-usernames-by-group="@JsonSerializer.Serialize(Model.UsernamesByGroup)"
+     data-display-names="@JsonSerializer.Serialize(Model.UsernameDisplayNames)">
+    <h2>NZFTC Employee Complaint Form</h2>
+    <p class="grievance-intro">
+        @(hasTargetEmployee
+            ? $"Complete the complaint details for {employeeName}."
+            : "Select a department and employee, then click Load.")
+    </p>
+
+    <div class="selected-target-controls">
+        <label>
+            Business Department
+            <select data-selected-group>
+                <option value="">Select a department...</option>
+                <option value="admin" selected="@(Model.SelectedGroup == "admin" ? "selected" : null)">Admin</option>
+                <option value="finance" selected="@(Model.SelectedGroup == "finance" ? "selected" : null)">Finance</option>
+                <option value="trade" selected="@(Model.SelectedGroup == "trade" ? "selected" : null)">Trade</option>
+            </select>
+        </label>
+
+        <label>
+            Employee
+            <select data-selected-username>
+                <option value="">Select an employee...</option>
+                @foreach (var username in Model.Usernames)
+                {
+                    var displayName = Model.UsernameDisplayNames.TryGetValue(username, out var resolvedDisplayName) ? resolvedDisplayName : username;
+                    <option value="@username" selected="@(Model.SelectedUsername == username ? "selected" : null)">@displayName</option>
+                }
+            </select>
+        </label>
+
+        <button type="button" class="selected-target-load-button" data-load-selected-target>Load</button>
+    </div>
+
+    @if (hasTargetEmployee)
+    {
+        <form method="post" action="@submitAction" class="grievance-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="submittedForUsername" name="submittedForUsername" value="@Model.SelectedUsername" />
+
+            <div class="field-row">
+                <label>Employee</label>
+                <input value="@employeeName" readonly />
+            </div>
+
+            <div class="field-row">
+                <label for="attendingSupervisor">Attending Supervisor</label>
+                <input id="attendingSupervisor" name="attendingSupervisor" required placeholder="Name of the attending supervisor" />
+            </div>
+
+            <div class="field-row">
+                <label for="personsInvolved">Persons Involved</label>
+                <textarea id="personsInvolved" name="personsInvolved" rows="3" required placeholder="Describe who was/is involved"></textarea>
+            </div>
+
+            <div class="field-row">
+                <label for="eventDate">Event Date</label>
+                <input id="eventDate" name="eventDate" required placeholder="DD-MM-YYYY" />
+            </div>
+
+            <div class="field-row">
+                <label for="eventDetails">Event Details</label>
+                <textarea id="eventDetails" name="eventDetails" rows="6" required placeholder="Describe the event or complaint in detail"></textarea>
+            </div>
+
+            <div class="field-row">
+                <label for="affectDetails">Affect on Job/State of Mind Details</label>
+                <textarea id="affectDetails" name="affectDetails" rows="4" required placeholder="Describe how this has affected the employee and their work"></textarea>
+            </div>
+
+            <div class="field-row">
+                <label for="suggestions">Suggestions</label>
+                <textarea id="suggestions" name="suggestions" rows="3" placeholder="Optional suggestions to help resolve the complaint"></textarea>
+            </div>
+
+            <div class="field-row">
+                <label for="additionalComments">Additional Comments / Questions</label>
+                <textarea id="additionalComments" name="additionalComments" rows="3" placeholder="Optional additional comments or questions"></textarea>
+            </div>
+
+            <div class="field-row">
+                <label for="declarationAgreement">Declaration Agreement</label>
+                <input id="declarationAgreement" name="declarationAgreement" required placeholder="Enter 'I do' here" />
+            </div>
+
+            <div class="field-row">
+                <label for="signedDate">Date Signed</label>
+                <input id="signedDate" name="signedDate" required placeholder="DD-MM-YYYY" />
+            </div>
+
+            <button type="submit" class="primary-action-button">Submit Complaint</button>
+        </form>
+    }
+</div>
+
+<script>
+    (function () {
+        const root = document.querySelector("[data-selected-target-root]");
+        if (!root || root.dataset.bound === "true") {
+            return;
+        }
+
+        root.dataset.bound = "true";
+        const endpoint = root.dataset.endpoint || "";
+        const actionKey = root.dataset.actionKey || "";
+        const usernamesByGroup = JSON.parse(root.dataset.usernamesByGroup || "{}");
+        const displayNames = JSON.parse(root.dataset.displayNames || "{}");
+        const groupSelect = root.querySelector("[data-selected-group]");
+        const usernameSelect = root.querySelector("[data-selected-username]");
+        const loadButton = root.querySelector("[data-load-selected-target]");
+        const host = root.closest("[data-account-content-host]");
+
+        if (!endpoint || !actionKey || !groupSelect || !usernameSelect || !loadButton || !host) {
+            return;
+        }
+
+        function normalizeGroup(group) {
+            return (group || "").trim().toLowerCase();
+        }
+
+        function setUsernameOptions(group, selectedUsername) {
+            const usernames = Array.isArray(usernamesByGroup[normalizeGroup(group)]) ? usernamesByGroup[normalizeGroup(group)] : [];
+            const safeSelectedUsername = (selectedUsername || "").trim();
+            usernameSelect.innerHTML = '<option value="">Select an employee...</option>' + usernames.map((username) => {
+                const selected = username === safeSelectedUsername ? " selected" : "";
+                const displayName = displayNames[username] || username;
+                return `<option value="${username.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}"${selected}>${displayName.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</option>`;
+            }).join("");
+
+            if (safeSelectedUsername && usernames.includes(safeSelectedUsername)) {
+                usernameSelect.value = safeSelectedUsername;
+            } else {
+                usernameSelect.value = "";
+            }
+        }
+
+        async function loadSelected(group, username) {
+            if (!username) {
+                return;
+            }
+
+            loadButton.disabled = true;
+            try {
+                const response = await fetch(`${endpoint}?actionKey=${encodeURIComponent(actionKey)}&group=${encodeURIComponent(group)}&username=${encodeURIComponent(username)}`, { credentials: "same-origin" });
+                if (!response.ok) {
+                    return;
+                }
+
+                const html = await response.text();
+                if (typeof window.nzftcSetLeaveContentHostHtml === "function") {
+                    window.nzftcSetLeaveContentHostHtml(host, html);
+                } else if (typeof window.nzftcSetAccountContentHostHtml === "function") {
+                    window.nzftcSetAccountContentHostHtml(host, html);
+                } else {
+                    host.innerHTML = html;
+                }
+            } catch (error) {
+                console.error(error);
+            } finally {
+                loadButton.disabled = false;
+            }
+        }
+
+        setUsernameOptions(groupSelect.value, usernameSelect.value);
+        groupSelect.addEventListener("change", () => {
+            setUsernameOptions(groupSelect.value, "");
+        });
+        loadButton.addEventListener("click", () => {
+            loadSelected(groupSelect.value, usernameSelect.value);
+        });
+    })();
+</script>

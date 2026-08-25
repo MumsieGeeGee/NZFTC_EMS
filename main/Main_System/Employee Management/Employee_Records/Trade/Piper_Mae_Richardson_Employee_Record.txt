@@ -6,11 +6,55 @@ Last Name: Richardson
 Date of Birth: 24-04-1997
 Business Role: Trade
 Job Role: Senior Trainee Trade Staff
+Employment Type: Fixed-term
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 26.92
+Approximate Annual Salary: 56000
+Annual Salary: 56000
+Monthly Salary: 4666.67
+Fortnightly Salary: 2153.85
+Weekly Salary: 1076.92
+Annual Leave Entitlement: 20
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 0
+Annual Leave Total Entitlement: 20
+Sick Leave Entitlement: 10
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 0
+Sick Leave Total Entitlement: 10
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 0
+Maternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Special Leave Entitlement: 3
+Special Leave Package Extra: 3
+KiwiSaver Employer Contribution: 4%
+Superannuation Contribution: 0%
+Health Insurance Contribution: $0 per year
+Professional Development Contribution: $2000 per year
+Employee Assistance Program Contribution: $800 per year
 Address: 30 Test Road, Central, Christchurch, 8011, PO Box: 130
 Email Address: piper.richardson@example.test
 Phone Number: 021-000-1030
 Username: trade_st_piper_mae_richardson
 Password: 64d5c6912f9a369a
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000030
+
+Emergency Contact: Oakley Kai Hughes | Partner | 021-555-2026
+Diagnosed Health Conditions: None known
+Allergies: Dairy
+Approved Emergency Steps and Medicines: Avoid allergen exposure and escalate if required.
+Prior Training and Qualifications: Trade operations training complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

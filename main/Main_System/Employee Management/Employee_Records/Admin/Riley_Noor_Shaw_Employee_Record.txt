@@ -6,11 +6,55 @@ Last Name: Shaw
 Date of Birth: 03-09-2001
 Business Role: Admin
 Job Role: Junior Trainee Administrator
+Employment Type: Fixed-term
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 23.08
+Approximate Annual Salary: 48000
+Annual Salary: 48000
+Monthly Salary: 4000
+Fortnightly Salary: 1846.15
+Weekly Salary: 923.08
+Annual Leave Entitlement: 20
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 0
+Annual Leave Total Entitlement: 20
+Sick Leave Entitlement: 10
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 0
+Sick Leave Total Entitlement: 10
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 0
+Maternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Special Leave Entitlement: 3
+Special Leave Package Extra: 3
+KiwiSaver Employer Contribution: 3%
+Superannuation Contribution: 0%
+Health Insurance Contribution: $0 per year
+Professional Development Contribution: $1000 per year
+Employee Assistance Program Contribution: $800 per year
 Address: 13 Southern Cross Road, Frankton, Hamilton, 3204, PO Box: 113
 Email Address: riley.shaw@example.test
 Phone Number: 021-000-1013
 Username: admin_jt_riley_noor_shaw
 Password: d34139a057a889b3
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000013
+
+Emergency Contact: Jordan Mae Quinn | Parent | 021-555-2029
+Diagnosed Health Conditions: None known
+Allergies: Dust
+Approved Emergency Steps and Medicines: Avoid exposure and escalate if needed.
+Prior Training and Qualifications: Admin support training complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

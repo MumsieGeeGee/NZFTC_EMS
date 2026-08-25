@@ -1,0 +1,94 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<style>
+    .error-page {
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: #F5F7FA;
+    }
+
+    .error-card {
+        width: min(680px, 100%);
+        background: #FFFFFF;
+        border: 1px solid #C7CED6;
+        border-radius: 10px;
+        box-shadow: 0 10px 22px rgba(42, 93, 143, 0.12);
+        overflow: hidden;
+    }
+
+    .error-header {
+        background: #2A5D8F;
+        color: #F5F7FA;
+        padding: 16px 20px;
+        font-weight: 700;
+        font-size: 20px;
+    }
+
+    .error-content {
+        padding: 20px;
+        color: #4A4A4A;
+    }
+
+    .error-content p {
+        margin-bottom: 14px;
+    }
+
+    .error-request-id {
+        margin: 14px 0 20px;
+        padding: 10px 12px;
+        background: #F5F7FA;
+        border-left: 4px solid #5BA6A6;
+        border-radius: 4px;
+    }
+
+    .error-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .error-actions a {
+        text-decoration: none;
+        border-radius: 4px;
+        padding: 10px 14px;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .error-primary-action {
+        background: #1A73E8;
+        color: #FFFFFF;
+    }
+
+    .error-secondary-action {
+        background: #C7CED6;
+        color: #2A5D8F;
+    }
+</style>
+
+<div class="error-page">
+    <section class="error-card" aria-labelledby="error-title">
+        <header class="error-header" id="error-title">Something went wrong</header>
+        <div class="error-content">
+            <p>We couldn't complete your request right now. Please try again.</p>
+
+            @if (Model.ShowRequestId)
+            {
+                <div class="error-request-id">
+                    <strong>Request ID:</strong> <code>@Model.RequestId</code>
+                </div>
+            }
+
+            <div class="error-actions">
+                <a class="error-primary-action" asp-controller="Login" asp-action="Login">Return to Login</a>
+                <a class="error-secondary-action" asp-controller="Privacy" asp-action="Privacy_Policy">Privacy Policy</a>
+            </div>
+        </div>
+    </section>
+</div>

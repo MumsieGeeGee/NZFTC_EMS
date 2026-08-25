@@ -1,0 +1,270 @@
+@model NZFTC_EMS.Models.SelectedEmployeeAccountDetailsViewModel
+@{
+    Layout = null;
+}
+
+<style>
+    .selected-account-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: end;
+        margin-bottom: 12px;
+    }
+
+    .selected-account-controls label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-weight: 700;
+        color: #4A4A4A;
+    }
+
+    .selected-account-controls select,
+    .selected-account-controls input {
+        min-width: 220px;
+        padding: 8px;
+        border: 1px solid #C7CED6;
+        border-radius: 4px;
+        background: #FFFFFF;
+        color: #4A4A4A;
+    }
+
+    .selected-account-load-button,
+    .selected-account-apply-button {
+        background: #5BA6A6;
+        color: #4A4A4A;
+        border: 1px solid rgba(42, 93, 143, 0.2);
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .selected-account-load-button:hover,
+    .selected-account-apply-button:hover {
+        background: #C7CED6;
+    }
+
+    .selected-account-apply-button[disabled] {
+        opacity: 0.6;
+        cursor: default;
+    }
+</style>
+
+<div data-selected-account-root data-endpoint="@Model.ContentEndpoint" data-action-key="edit-selected-employee-account-details">
+    <h2 style="color:#2A5D8F; font-size:22px; margin:0 0 12px;">Edit an Employee's Account Details</h2>
+
+    <div class="selected-account-controls">
+        <label>
+            Business Department
+            <select data-selected-group>
+                <option value="">Select a department...</option>
+                @if (Model.SelectedGroup == "admin")
+                {
+                    <option value="admin" selected>Admin</option>
+                }
+                else
+                {
+                    <option value="admin">Admin</option>
+                }
+                @if (Model.SelectedGroup == "finance")
+                {
+                    <option value="finance" selected>Finance</option>
+                }
+                else
+                {
+                    <option value="finance">Finance</option>
+                }
+                @if (Model.SelectedGroup == "trade")
+                {
+                    <option value="trade" selected>Trade</option>
+                }
+                else
+                {
+                    <option value="trade">Trade</option>
+                }
+            </select>
+        </label>
+
+        <label>
+            Employee
+            <select data-selected-username>
+                <option value="">Select an employee...</option>
+                @foreach (var username in Model.Usernames)
+                {
+                    var displayName = Model.UsernameDisplayNames.TryGetValue(username, out var resolvedDisplayName) ? resolvedDisplayName : username;
+                    if (Model.SelectedUsername == username)
+                    {
+                        <option value="@username" selected>@displayName</option>
+                    }
+                    else
+                    {
+                        <option value="@username">@displayName</option>
+                    }
+                }
+            </select>
+        </label>
+
+        <button type="button" class="selected-account-load-button" data-load-selected-account>Load</button>
+    </div>
+
+    @if (Model.Details != null)
+    {
+        <form style="margin-top:12px;">
+            <div style="display:flex; flex-direction:column; gap:10px; max-width:460px;">
+                <label style="font-weight:700; color:#4A4A4A;">
+                    Account Type
+                    <input type="text" value="@Model.Details.AccountType" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A;">
+                    First Name
+                    <input type="text" value="@Model.Details.FirstName" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A;">
+                    Middle Name
+                    <input type="text" value="@Model.Details.MiddleName" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A;">
+                    Last Name
+                    <input type="text" value="@Model.Details.LastName" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A;">
+                    Date of Birth
+                    <input type="text" value="@Model.Details.DateOfBirth" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A;">
+                    Address
+                    <input type="text" value="@Model.Details.Address" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A;">
+                    Email Address
+                    <input type="email" value="@Model.Details.EmailAddress" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A;">
+                    Phone Number
+                    <input type="text" value="@Model.Details.PhoneNumber" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A;">
+                    Business Department
+                    <input type="text" value="@Model.Details.BusinessRole" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A;">
+                    Job Role
+                    <input type="text" value="@Model.Details.JobRole" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A;">
+                    New Password
+                    <input type="password" value="" autocomplete="new-password" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A;">
+                    Confirm New Password
+                    <input type="password" value="" autocomplete="new-password" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; font-weight:700; color:#4A4A4A;">
+                    <input type="checkbox" />
+                    Unlock Locked Account
+                </label>
+                <p style="margin:0; color:#4A4A4A;">
+                    Secondary authentication is required for sensitive changes (for example: account type, password, and unlock actions).
+                </p>
+                @{
+                    var editAuthViewData = new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary(ViewData)
+                    {
+                        ["SecondaryAuthPurpose"] = "applying sensitive account edits"
+                    };
+                }
+                @await Html.PartialAsync("~/Views/Shared/Secondary_Authentication.cshtml", model: null, viewData: editAuthViewData)
+                <button type="button" disabled style="background:#C7CED6; color:#4A4A4A; border:none; border-radius:4px; padding:10px 14px; font-weight:700; width:max-content;">
+                    Save Changes (Next Integration)
+                </button>
+            </div>
+        </form>
+    }
+    else
+    {
+        <p style="margin:0; color:#4A4A4A;">Select a group and employee, then click Load.</p>
+    }
+</div>
+
+<script>
+    (function () {
+        const root = document.querySelector("[data-selected-account-root]");
+        if (!root || root.dataset.bound === "true") {
+            return;
+        }
+
+        root.dataset.bound = "true";
+        const endpoint = root.dataset.endpoint || "";
+        const actionKey = root.dataset.actionKey || "edit-selected-employee-account-details";
+        const groupSelect = root.querySelector("[data-selected-group]");
+        const usernameSelect = root.querySelector("[data-selected-username]");
+        const loadButton = root.querySelector("[data-load-selected-account]");
+        const host = root.closest("[data-account-content-host]");
+
+        if (!endpoint || !groupSelect || !usernameSelect || !loadButton || !host) {
+            return;
+        }
+
+        async function refreshForGroup(group) {
+            loadButton.disabled = true;
+            try {
+                const response = await fetch(`${endpoint}?actionKey=${encodeURIComponent(actionKey)}&group=${encodeURIComponent(group)}&username=`, { credentials: "same-origin" });
+                if (!response.ok) {
+                    return;
+                }
+
+                const html = await response.text();
+                if (typeof window.nzftcSetAccountContentHostHtml === "function") {
+                    window.nzftcSetAccountContentHostHtml(host, html);
+                } else {
+                    host.innerHTML = html;
+                }
+            } catch (error) {
+                console.error(error);
+            } finally {
+                loadButton.disabled = false;
+            }
+        }
+
+        async function loadSelected(group, username) {
+            if (!username) {
+                host.querySelector("p")?.remove();
+                const message = document.createElement("p");
+                message.style.margin = "0";
+                message.style.color = "#4A4A4A";
+                message.textContent = "Please select an employee first.";
+                host.appendChild(message);
+                return;
+            }
+
+            loadButton.disabled = true;
+            try {
+                const response = await fetch(`${endpoint}?actionKey=${encodeURIComponent(actionKey)}&group=${encodeURIComponent(group)}&username=${encodeURIComponent(username)}`, { credentials: "same-origin" });
+                if (!response.ok) {
+                    return;
+                }
+
+                const html = await response.text();
+                if (typeof window.nzftcSetAccountContentHostHtml === "function") {
+                    window.nzftcSetAccountContentHostHtml(host, html);
+                } else {
+                    host.innerHTML = html;
+                }
+            } catch (error) {
+                console.error(error);
+            } finally {
+                loadButton.disabled = false;
+            }
+        }
+
+        groupSelect.addEventListener("change", () => {
+            refreshForGroup(groupSelect.value);
+        });
+
+        loadButton.addEventListener("click", () => {
+            loadSelected(groupSelect.value, usernameSelect.value);
+        });
+    })();
+</script>

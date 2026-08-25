@@ -1,0 +1,73 @@
+@model NZFTC_EMS.Models.EmployeeRecordDetailsViewModel
+@{
+    Layout = null;
+    var firstAidValue = (Model.FirstAidCertification ?? string.Empty).Trim();
+    var firstAidYesSelected =
+        firstAidValue.Equals("Certified", System.StringComparison.OrdinalIgnoreCase) ||
+        firstAidValue.Equals("Yes", System.StringComparison.OrdinalIgnoreCase);
+    var firstAidNoSelected =
+        firstAidValue.Equals("Uncertified", System.StringComparison.OrdinalIgnoreCase) ||
+        firstAidValue.Equals("No", System.StringComparison.OrdinalIgnoreCase);
+    var emergencyContactRaw = (Model.EmergencyContact ?? string.Empty).Trim();
+    var emergencyContactParts = emergencyContactRaw.Split('|', System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries);
+    if (emergencyContactParts.Length < 3)
+    {
+        emergencyContactParts = emergencyContactRaw.Split(',', System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries);
+    }
+    var emergencyContactName = emergencyContactParts.Length > 0 ? emergencyContactParts[0] : string.Empty;
+    var emergencyContactRelationship = emergencyContactParts.Length > 1 ? emergencyContactParts[1] : string.Empty;
+    var emergencyContactPhoneNumber = emergencyContactParts.Length > 2 ? emergencyContactParts[2] : string.Empty;
+}
+
+<div>
+    <h2 style="color:#2A5D8F; font-size:22px; margin:0 0 12px;">Edit my Employee Information</h2>
+    <form>
+        <div style="display:flex; flex-direction:column; gap:10px; max-width:460px;">
+            <fieldset style="border:1px solid #C7CED6; border-radius:4px; padding:10px; background:#fff;">
+                <legend style="font-weight:700; color:#4A4A4A; padding:0 6px;">Emergency Contact</legend>
+                <label style="font-weight:700; color:#4A4A4A; display:flex; flex-direction:column; gap:6px; margin-bottom:8px;">
+                    Name
+                    <input type="text" required value="@emergencyContactName" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A; display:flex; flex-direction:column; gap:6px; margin-bottom:8px;">
+                    Relationship
+                    <input type="text" required value="@emergencyContactRelationship" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A; display:flex; flex-direction:column; gap:6px;">
+                    Phone Number
+                    <input type="text" required value="@emergencyContactPhoneNumber" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+            </fieldset>
+            <label style="font-weight:700; color:#4A4A4A;">
+                Diagnosed Health Conditions
+                <input type="text" value="@Model.DiagnosedHealthConditions" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+            </label>
+            <label style="font-weight:700; color:#4A4A4A;">
+                Allergies
+                <input type="text" value="@Model.Allergies" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+            </label>
+            <label style="font-weight:700; color:#4A4A4A;">
+                Approved Emergency Steps and Medicines
+                <input type="text" value="@Model.ApprovedEmergencyStepsAndMedicines" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+            </label>
+            <label style="font-weight:700; color:#4A4A4A;">
+                Prior Training and Qualifications
+                <input type="text" value="@Model.PriorTrainingAndQualifications" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+            </label>
+            <fieldset style="border:1px solid #C7CED6; border-radius:4px; padding:10px; background:#fff;">
+                <legend style="font-weight:700; color:#4A4A4A; padding:0 6px;">First Aid Certification</legend>
+                <label style="display:flex; align-items:center; gap:8px; color:#4A4A4A; font-weight:700; margin-bottom:6px;">
+                    <input type="radio" name="firstAidCertification" value="Yes" @(firstAidYesSelected ? "checked" : null) />
+                    Yes
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; color:#4A4A4A; font-weight:700;">
+                    <input type="radio" name="firstAidCertification" value="No" @(firstAidNoSelected ? "checked" : null) />
+                    No
+                </label>
+            </fieldset>
+            <button type="button" disabled style="background:#C7CED6; color:#4A4A4A; border:none; border-radius:4px; padding:10px 14px; font-weight:700; width:max-content;">
+                Save Changes (Next Integration)
+            </button>
+        </div>
+    </form>
+</div>

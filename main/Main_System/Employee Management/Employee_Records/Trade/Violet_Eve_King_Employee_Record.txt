@@ -6,11 +6,55 @@ Last Name: King
 Date of Birth: 02-10-1995
 Business Role: Trade
 Job Role: Sales Representative
+Employment Type: Full-time
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 30.29
+Approximate Annual Salary: 63000
+Annual Salary: 63000
+Monthly Salary: 5250
+Fortnightly Salary: 2423.08
+Weekly Salary: 1211.54
+Annual Leave Entitlement: 25
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 5
+Annual Leave Total Entitlement: 25
+Sick Leave Entitlement: 14
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 4
+Sick Leave Total Entitlement: 14
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 2
+Maternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Special Leave Entitlement: 4
+Special Leave Package Extra: 4
+KiwiSaver Employer Contribution: 4%
+Superannuation Contribution: 4%
+Health Insurance Contribution: $1000 per year
+Professional Development Contribution: $500 per year
+Employee Assistance Program Contribution: $500 per year
 Address: 36 Test Road, Central, Christchurch, 8011, PO Box: 136
 Email Address: violet.king@example.test
 Phone Number: 021-000-1036
 Username: trade_sal_violet_eve_king
 Password: 64c11e912f887018
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000036
+
+Emergency Contact: Urban Kai James | Partner | 021-555-2036
+Diagnosed Health Conditions: None known
+Allergies: None known
+Approved Emergency Steps and Medicines: Standard first aid response; escalate if required.
+Prior Training and Qualifications: Trade safety complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

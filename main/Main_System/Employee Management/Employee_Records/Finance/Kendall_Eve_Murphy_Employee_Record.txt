@@ -6,11 +6,55 @@ Last Name: Murphy
 Date of Birth: 19-10-1989
 Business Role: Finance
 Job Role: Junior Finance Manager
+Employment Type: Full-time
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 33.65
+Approximate Annual Salary: 70000
+Annual Salary: 70000
+Monthly Salary: 5833.33
+Fortnightly Salary: 2692.31
+Weekly Salary: 1346.15
+Annual Leave Entitlement: 25
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 5
+Annual Leave Total Entitlement: 25
+Sick Leave Entitlement: 14
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 4
+Sick Leave Total Entitlement: 14
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 2
+Maternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Special Leave Entitlement: 4
+Special Leave Package Extra: 4
+KiwiSaver Employer Contribution: 4%
+Superannuation Contribution: 4%
+Health Insurance Contribution: $800 per year
+Professional Development Contribution: $1000 per year
+Employee Assistance Program Contribution: $500 per year
 Address: 25 Test Street, Central, Wellington, 6011, PO Box: 125
 Email Address: kendall.murphy@example.test
 Phone Number: 021-000-1025
 Username: finance_jfm_kendall_eve_murphy
 Password: a1079888c09fbab7
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000025
+
+Emergency Contact: Harper Quinn Scott | Parent | 021-555-2019
+Diagnosed Health Conditions: None known
+Allergies: None known
+Approved Emergency Steps and Medicines: Standard first aid response; escalate if required.
+Prior Training and Qualifications: Finance payroll and compliance training complete.
+First Aid Certification: Uncertified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

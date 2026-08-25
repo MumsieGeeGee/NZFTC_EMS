@@ -1,0 +1,140 @@
+@using System.Collections.Generic
+@using System.Linq
+@model IEnumerable<NZFTC_EMS.Models.DashboardNotification>
+
+@{
+    var notifications = (Model ?? (ViewBag.DashboardNotifications as IEnumerable<NZFTC_EMS.Models.DashboardNotification>) ?? Enumerable.Empty<NZFTC_EMS.Models.DashboardNotification>())
+        .OrderByDescending(notification => notification.Tone == "critical" ? 3 : notification.Tone == "rejected" ? 2 : notification.Tone == "warning" ? 1 : 0)
+        .ThenByDescending(notification => notification.CreatedOn)
+        .ToList();
+}
+
+<div class="notification-panel">
+    <h3>Notifications</h3>
+
+    @if (!notifications.Any())
+    {
+        <div class="empty-state">No notifications right now.</div>
+    }
+    else
+    {
+        foreach (var notification in notifications)
+        {
+            var icon = notification.Tone switch
+            {
+                "critical" => "!",
+                "approved" => "+",
+                "rejected" => "x",
+                "pending" => "~",
+                "warning" => "!",
+                _ => "i"
+            };
+            <div class="notification-card" data-tone="@notification.Tone">
+                <div class="notification-meta">
+                    <strong><span class="notification-icon" aria-hidden="true">@icon</span> @notification.Category</strong>
+                    <span>@notification.CreatedOn.ToString("dd MMM yyyy HH:mm")</span>
+                </div>
+                <div class="notification-title">@notification.Title</div>
+                <div class="notification-message">@notification.Message</div>
+                @if (!string.IsNullOrWhiteSpace(notification.LinkUrl) && !string.IsNullOrWhiteSpace(notification.LinkText))
+                {
+                    <a class="notification-link" href="@notification.LinkUrl">@notification.LinkText</a>
+                }
+            </div>
+        }
+    }
+</div>
+
+<style>
+.notification-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.notification-card {
+    background: #FFFFFF;
+    border: 1px solid #C7CED6;
+    border-left: 6px solid #5BA6A6;
+    border-radius: 8px;
+    padding: 12px 14px;
+}
+
+.notification-card[data-tone="approved"] { border-left-color: #2F8F4E; }
+.notification-card[data-tone="pending"] { border-left-color: #D6A100; }
+.notification-card[data-tone="warning"] { border-left-color: #D6A100; }
+.notification-card[data-tone="rejected"] { border-left-color: #B33A3A; }
+.notification-card[data-tone="critical"] { border-left-color: #7A1C1C; background: #FFF3F3; }
+
+.notification-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    color: #2A5D8F;
+    font-size: 12px;
+    margin-bottom: 6px;
+}
+
+.notification-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.notification-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #5BA6A6;
+    color: #FFFFFF;
+    font-size: 12px;
+    margin-right: 6px;
+}
+
+.notification-card[data-tone="critical"] .notification-icon {
+    background: #7A1C1C;
+}
+
+.notification-card[data-tone="approved"] .notification-icon {
+    background: #2F8F4E;
+}
+
+.notification-card[data-tone="pending"] .notification-icon,
+.notification-card[data-tone="warning"] .notification-icon {
+    background: #D6A100;
+    color: #4A4A4A;
+}
+
+.notification-card[data-tone="rejected"] .notification-icon {
+    background: #B33A3A;
+}
+
+.notification-message {
+    color: #4A4A4A;
+    margin-bottom: 8px;
+}
+
+.notification-link {
+    display: inline-block;
+    font-weight: 700;
+    text-decoration: none;
+    color: #2A5D8F;
+}
+
+.notification-link:hover {
+    color: #5BA6A6;
+}
+
+.empty-state {
+    background: #F5F7FA;
+    border: 1px dashed #C7CED6;
+    padding: 14px;
+    border-radius: 8px;
+    color: #4A4A4A;
+}
+</style>

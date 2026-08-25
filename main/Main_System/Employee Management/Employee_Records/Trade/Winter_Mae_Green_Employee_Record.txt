@@ -6,11 +6,55 @@ Last Name: Green
 Date of Birth: 03-11-1990
 Business Role: Trade
 Job Role: Junior Trade Manager
+Employment Type: Full-time
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 31.25
+Approximate Annual Salary: 65000
+Annual Salary: 65000
+Monthly Salary: 5416.67
+Fortnightly Salary: 2500
+Weekly Salary: 1250
+Annual Leave Entitlement: 28
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 8
+Annual Leave Total Entitlement: 28
+Sick Leave Entitlement: 16
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 6
+Sick Leave Total Entitlement: 16
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 3
+Maternity Leave Entitlement: 26 weeks lawful + 3 weeks extra = 29 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 3 weeks extra = 29 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 3 weeks extra = 29 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 3 weeks extra = 29 weeks total
+Special Leave Entitlement: 4
+Special Leave Package Extra: 4
+KiwiSaver Employer Contribution: 4%
+Superannuation Contribution: 4%
+Health Insurance Contribution: $1000 per year
+Professional Development Contribution: $1000 per year
+Employee Assistance Program Contribution: $500 per year
 Address: 37 Test Road, Central, Christchurch, 8011, PO Box: 137
 Email Address: winter.green@example.test
 Phone Number: 021-000-1037
 Username: trade_jtm_winter_mae_green
 Password: 64bdbe912f859721
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000037
+
+Emergency Contact: Zion Lee Baker | Partner | 021-555-2037
+Diagnosed Health Conditions: None known
+Allergies: None known
+Approved Emergency Steps and Medicines: Standard first aid response; escalate if required.
+Prior Training and Qualifications: Trade compliance complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

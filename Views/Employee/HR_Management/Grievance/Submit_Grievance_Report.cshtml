@@ -1,0 +1,68 @@
+@model NZFTC_EMS.Models.GrievanceRequest
+
+<div class="grievance-panel">
+    <h2>NZFTC Employee Complaint Form</h2>
+    <p class="grievance-intro">Please complete the complaint details below.</p>
+
+    <form method="post" action="@Url.Action("SubmitGrievanceReport", "Employee")" class="grievance-form">
+        @Html.AntiForgeryToken()
+        <div class="field-row">
+            <label for="attendingSupervisor">Attending Supervisor</label>
+            <input id="attendingSupervisor" name="attendingSupervisor" required placeholder="Name of the attending supervisor" />
+        </div>
+
+        <div class="field-row">
+            <label for="personsInvolved">Persons Involved</label>
+            <textarea id="personsInvolved" name="personsInvolved" rows="3" required placeholder="Describe who was/is involved"></textarea>
+        </div>
+
+        <div class="field-row">
+            <label for="eventDate">Event Date</label>
+            <input id="eventDate" name="eventDate" required placeholder="DD-MM-YYYY" />
+        </div>
+
+        <div class="field-row">
+            <label for="eventDetails">Event Details</label>
+            <textarea id="eventDetails" name="eventDetails" rows="6" required placeholder="Describe the event or complaint in detail"></textarea>
+        </div>
+
+        <div class="field-row">
+            <label for="affectDetails">Affect on Job/State of Mind Details</label>
+            <textarea id="affectDetails" name="affectDetails" rows="4" required placeholder="Describe how this has affected you and your work"></textarea>
+        </div>
+
+        <div class="field-row">
+            <label for="suggestions">Suggestions</label>
+            <textarea id="suggestions" name="suggestions" rows="3" placeholder="Optional suggestions to help resolve the complaint"></textarea>
+        </div>
+
+        <div class="field-row">
+            <label for="additionalComments">Additional Comments / Questions</label>
+            <textarea id="additionalComments" name="additionalComments" rows="3" placeholder="Optional additional comments or questions"></textarea>
+        </div>
+
+        <div class="field-row">
+            <label for="declarationAgreement">Declaration Agreement</label>
+            <input id="declarationAgreement" name="declarationAgreement" required placeholder="Enter 'I do' here" />
+        </div>
+
+        <div class="field-row">
+            <label for="signedDate">Date Signed</label>
+            <input id="signedDate" name="signedDate" required placeholder="DD-MM-YYYY" />
+        </div>
+
+        <button type="submit" class="primary-action-button">Submit Complaint</button>
+    </form>
+</div>
+
+<style>
+    .grievance-panel { color: #2A5D8F; }
+    .grievance-panel h2 { margin-bottom: 10px; }
+    .grievance-intro { color: #4A4A4A; margin-bottom: 16px; }
+    .grievance-form { max-width: 720px; display: flex; flex-direction: column; gap: 16px; }
+    .field-row { display: flex; flex-direction: column; gap: 8px; color: #4A4A4A; }
+    .field-row input, .field-row select, .field-row textarea { border: 1px solid #C7CED6; border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+    .field-row textarea { min-height: 140px; resize: vertical; }
+    .primary-action-button { background: #2A5D8F; color: #FFFFFF; border: none; border-radius: 6px; padding: 10px 18px; font-weight: 700; cursor: pointer; width: fit-content; }
+    .primary-action-button:hover { background: #5BA6A6; }
+</style>

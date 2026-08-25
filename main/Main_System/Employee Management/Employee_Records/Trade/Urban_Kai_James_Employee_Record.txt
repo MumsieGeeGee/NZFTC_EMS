@@ -6,11 +6,55 @@ Last Name: James
 Date of Birth: 01-09-1986
 Business Role: Trade
 Job Role: Safety Officer
+Employment Type: Full-time
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 29.81
+Approximate Annual Salary: 62000
+Annual Salary: 62000
+Monthly Salary: 5166.67
+Fortnightly Salary: 2384.62
+Weekly Salary: 1192.31
+Annual Leave Entitlement: 25
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 5
+Annual Leave Total Entitlement: 25
+Sick Leave Entitlement: 14
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 4
+Sick Leave Total Entitlement: 14
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 2
+Maternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Special Leave Entitlement: 4
+Special Leave Package Extra: 4
+KiwiSaver Employer Contribution: 4%
+Superannuation Contribution: 4%
+Health Insurance Contribution: $1500 per year
+Professional Development Contribution: $1000 per year
+Employee Assistance Program Contribution: $800 per year
 Address: 35 Test Road, Central, Christchurch, 8011, PO Box: 135
 Email Address: urban.james@example.test
 Phone Number: 021-000-1035
 Username: trade_saf_urban_kai_james
 Password: 64c4c6912f8bc367
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000035
+
+Emergency Contact: Violet Eve King | Parent | 021-555-2035
+Diagnosed Health Conditions: None known
+Allergies: None known
+Approved Emergency Steps and Medicines: Standard first aid response; escalate if required.
+Prior Training and Qualifications: Trade manual handling complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

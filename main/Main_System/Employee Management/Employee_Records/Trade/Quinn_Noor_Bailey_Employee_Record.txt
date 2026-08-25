@@ -6,11 +6,55 @@ Last Name: Bailey
 Date of Birth: 25-05-2001
 Business Role: Trade
 Job Role: Junior Casual Trade Staff
+Employment Type: Casual
+Pay Type: Casual
+Pay Frequency: Weekly
+Contracted Weekly Hours: 20
+Contracted Hourly Rate: 52.88
+Approximate Annual Salary: 55000
+Annual Salary: 
+Monthly Salary: 
+Fortnightly Salary: 
+Weekly Salary: 
+Annual Leave Entitlement: 20
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 0
+Annual Leave Total Entitlement: 20
+Sick Leave Entitlement: 10
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 0
+Sick Leave Total Entitlement: 10
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 0
+Maternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Special Leave Entitlement: 3
+Special Leave Package Extra: 3
+KiwiSaver Employer Contribution: 3%
+Superannuation Contribution: 0%
+Health Insurance Contribution: $0 per year
+Professional Development Contribution: $0 per year
+Employee Assistance Program Contribution: $0 per year
 Address: 31 Test Road, Central, Christchurch, 8011, PO Box: 131
 Email Address: quinn.bailey@example.test
 Phone Number: 021-000-1031
 Username: trade_jc_quinn_noor_bailey
 Password: 64d21e912f96e34b
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000031
+
+Emergency Contact: Rowan Jade Kelly | Parent | 021-555-2027
+Diagnosed Health Conditions: None known
+Allergies: None known
+Approved Emergency Steps and Medicines: Standard first aid response; escalate if required.
+Prior Training and Qualifications: Trade compliance and safety complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

@@ -1,0 +1,29 @@
+@model NZFTC_EMS.Models.PayrollTaxInformation
+@{
+    var taxInfo = Model;
+}
+
+<h3>Employee Tax Information</h3>
+@if (taxInfo == null || string.IsNullOrWhiteSpace(taxInfo.Username))
+{
+    <p>No tax information is available for this employee yet.</p>
+}
+else
+{
+    <dl class="row">
+        <dt class="col-sm-4">Employee</dt>
+        <dd class="col-sm-8">@taxInfo.EmployeeName</dd>
+
+        <dt class="col-sm-4">IRD Number</dt>
+        <dd class="col-sm-8">@taxInfo.IRDNumber</dd>
+
+        <dt class="col-sm-4">Tax Code</dt>
+        <dd class="col-sm-8">@taxInfo.TaxCode</dd>
+
+        <dt class="col-sm-4">Pay Frequency</dt>
+        <dd class="col-sm-8">@taxInfo.PayFrequency</dd>
+
+        <dt class="col-sm-4">IRD Status</dt>
+        <dd class="col-sm-8">@taxInfo.IRDConfirmationStatus</dd>
+    </dl>
+}

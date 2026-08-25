@@ -1,0 +1,144 @@
+<style>
+    .dashboard-calendar-widget {
+        margin-top: 0;
+        width: 100%;
+        border: 1px solid #C7CED6;
+        border-radius: 0;
+        background: #FFFFFF;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        align-items: stretch;
+    }
+
+    .dashboard-calendar-widget .calendar-header {
+        display: grid;
+        grid-template-columns: 40px 1fr 40px;
+        align-items: center;
+    }
+
+    .dashboard-calendar-widget .calendar-nav-btn {
+        height: 100%;
+        border: none;
+        background: #F5F7FA;
+        color: #4A4A4A;
+        font-size: 20px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .dashboard-calendar-widget .calendar-nav-btn[disabled] {
+        opacity: 0.4;
+        cursor: default;
+    }
+
+    .dashboard-calendar-widget .calendar-month-label {
+        text-align: center;
+        font-weight: 700;
+        font-size: 34px;
+        color: #4A4A4A;
+        line-height: 1.2;
+        min-height: 42px;
+        padding: 8px 0;
+    }
+
+    .dashboard-calendar-widget .calendar-table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        border: 2px solid #BFC6CF;
+        background: #FFFFFF;
+    }
+
+    .dashboard-calendar-widget .calendar-table thead th {
+        border: 2px solid #BFC6CF;
+        color: #4A4A4A;
+        font-size: 16px;
+        font-weight: 700;
+        background: #F7F8FA;
+        height: 40px;
+    }
+
+    .dashboard-calendar-widget .calendar-table tbody td {
+        border: 1.5px solid #C7CED6;
+        padding: 0;
+        background: #FFFFFF;
+        vertical-align: top;
+    }
+
+    .dashboard-calendar-widget .calendar-day-cell {
+        height: 64px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 7px;
+        box-sizing: border-box;
+        border: 1px solid transparent;
+    }
+
+    .dashboard-calendar-widget .calendar-day-cell.has-day:hover {
+        background: #eef6ff;
+        border-color: #bfcfe0;
+    }
+
+    .dashboard-calendar-widget .day-badge {
+        width: 26px;
+        height: 26px;
+        margin-left: auto;
+        border-radius: 3px;
+        background: #4A4A4A;
+        color: #FFFFFF;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+
+    .dashboard-calendar-widget .day-badge.spillover {
+        background: #C7CED6;
+        color: #4A4A4A;
+    }
+
+    .dashboard-calendar-widget .event-bars {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .dashboard-calendar-widget .event-bar {
+        height: 8px;
+        border-radius: 1px;
+        background: #4CAF50;
+    }
+
+    .dashboard-calendar-widget .calendar-note {
+        margin-top: 4px;
+        width: 340px;
+        font-size: 12px;
+        color: #4A4A4A;
+    }
+
+    .dashboard-calendar-widget .calendar-scope {
+        display: none;
+    }
+
+    .dashboard-calendar-widget [data-calendar-grid] {
+        flex: 1;
+    }
+
+</style>
+
+<div class="dashboard-calendar-widget" data-calendar-endpoint="@Url.Action("GetEvents", "Calendar")">
+    <div class="calendar-header">
+        <button type="button" class="calendar-nav-btn" data-calendar-prev aria-label="Previous month">‹</button>
+        <div class="calendar-month-label" data-calendar-month-label></div>
+        <button type="button" class="calendar-nav-btn" data-calendar-next aria-label="Next month">›</button>
+    </div>
+    <div class="calendar-scope" data-calendar-scope></div>
+    <div data-calendar-grid></div>
+</div>
+
+<script src="~/js/calendar-widget.js" asp-append-version="true"></script>

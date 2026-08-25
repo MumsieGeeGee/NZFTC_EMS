@@ -1,0 +1,519 @@
+@using System.Collections.Generic
+@using System.Linq
+@{
+    var menuOptions = ViewBag.MainContentMenuOptions as IReadOnlyList<string>;
+    var activeSection = ((string?)ViewBag.ActiveSection ?? string.Empty).Trim().ToLowerInvariant();
+    var accountContentEndpoint = (string?)ViewBag.AccountManagementContentEndpoint ?? (string?)ViewBag.PersonalAccountContentEndpoint ?? string.Empty;
+    var employeeContentEndpoint = (string?)ViewBag.EmployeeManagementContentEndpoint ?? string.Empty;
+    var hrContentEndpoint = (string?)ViewBag.HRManagementContentEndpoint ?? string.Empty;
+    var currentController = ((string?)ViewContext.RouteData.Values["controller"] ?? string.Empty).Trim().ToLowerInvariant();
+    var fallbackHrContentEndpoint = currentController == "admin"
+        ? Url.Action("HRManagementContent", "Admin") ?? string.Empty
+        : Url.Action("HRManagementContent", "Employee") ?? string.Empty;
+    var isAccountSection = activeSection == "account";
+    var isEmployeeSection = activeSection == "employee";
+    var isHrSection = activeSection == "hr";
+    var isInteractiveSection = isAccountSection || isEmployeeSection || isHrSection;
+
+    var accountActions = new Dictionary<string, string>
+    {
+        ["View My Account Details"] = "view-own-account-details",
+        ["Edit My Account Details"] = "edit-own-account-details",
+        ["View an Employee's Account Details"] = "view-selected-employee-account-details",
+        ["Edit an Employee's Account Details"] = "edit-selected-employee-account-details",
+        ["Create New Account"] = "create-employee-account",
+        ["Delete Account"] = "delete-employee-account"
+    };
+    var accountActionDisplayOrder = new[]
+    {
+        "View My Account Details",
+        "Edit My Account Details",
+        "View an Employee's Account Details",
+        "Edit an Employee's Account Details",
+        "Create New Account",
+        "Delete Account"
+    };
+
+    var employeeActions = new Dictionary<string, string>
+    {
+        ["View My Employee Record"] = "view-own-employee-details",
+        ["Edit My Employee Information"] = "edit-own-employee-details",
+        ["View an Employee's Details"] = "view-selected-employee-employee-details",
+        ["Edit an Existing Employee's Details"] = "edit-selected-employee-employee-details"
+    };
+    var employeeActionDisplayOrder = new[]
+    {
+        "View My Employee Record",
+        "Edit My Employee Information",
+        "View an Employee's Details",
+        "Edit an Existing Employee's Details"
+    };
+
+    var hrActionGroups = new[]
+    {
+        new
+        {
+            Header = "My Leave",
+            Buttons = new[]
+            {
+                new { Label = "View My Leave and Holiday entitlements", ActionKey = "view-my-leave-and-holiday-entitlements" },
+                new { Label = "Apply for Leave", ActionKey = "request-leave" },
+                new { Label = "View My Open Leave Requests", ActionKey = "view-my-open-leave-requests" },
+                new { Label = "View My Temporarily Denied Leave Requests", ActionKey = "view-my-temporarily-denied-leave-requests" },
+                new { Label = "View My Resolved Leave Requests", ActionKey = "view-my-resolved-leave-requests" }
+            }
+        },
+        new
+        {
+            Header = "My PAYE/Tax",
+            Buttons = new[]
+            {
+                new { Label = "View My Payslips", ActionKey = "view-my-payslips" },
+                new { Label = "My Tax Details", ActionKey = "view-my-tax-information" },
+                new { Label = "Edit My Tax Details", ActionKey = "edit-my-tax-information" }
+            }
+        },
+        new
+        {
+            Header = "My Grievances",
+            Buttons = new[]
+            {
+                new { Label = "Submit a Grievance Report", ActionKey = "submit-grievance-report" },
+                new { Label = "View My Open Grievance Reports", ActionKey = "view-my-open-grievance-reports" },
+                new { Label = "View My Resolved Grievance Reports", ActionKey = "view-my-resolved-grievance-reports" }
+            }
+        },
+        new
+        {
+            Header = "Employee Leave",
+            Buttons = new[]
+            {
+                new { Label = "View Employees Leave and Holiday entitlements", ActionKey = "view-selected-employee-leave-and-holiday-entitlements" },
+                new { Label = "Request Leave on behalf of Employee", ActionKey = "request-leave-on-behalf-of-user" },
+                new { Label = "View Employees Open Leave Requests", ActionKey = "view-selected-employee-open-leave-requests" },
+                new { Label = "View Employees Temporarily Denied Leave Requests", ActionKey = "view-selected-employee-temporarily-denied-leave-requests" },
+                new { Label = "View Employees Resolved Leave Requests", ActionKey = "view-selected-employee-resolved-leave-requests" }
+            }
+        },
+        new
+        {
+            Header = "Employee PAYE/Tax",
+            Buttons = new[]
+            {
+                new { Label = "View Employees Payslips", ActionKey = "view-selected-employee-payslips" },
+                new { Label = "View Employees Tax Information", ActionKey = "view-selected-employee-tax-information" },
+                new { Label = "Edit Employees Tax Information", ActionKey = "edit-selected-employee-tax-information" },
+                new { Label = "Generate Payslip for Employee", ActionKey = "create-payslip-for-employee" }
+            }
+        },
+        new
+        {
+            Header = "Employee Grievances",
+            Buttons = new[]
+            {
+                new { Label = "View Employees Open Grievance Reports", ActionKey = "view-users-open-grievance-reports" },
+                new { Label = "View Employees Resolved Grievance Reports", ActionKey = "view-users-resolved-grievance-reports" },
+                new { Label = "Submit a Grievance Report on behalf of Employee", ActionKey = "submit-grievance-report-on-behalf-of-user" },
+                new { Label = "Review Grievance Report", ActionKey = "review-grievance-report" }
+            }
+        }
+    };
+
+    var hrActions = hrActionGroups
+        .SelectMany(group => group.Buttons)
+        .ToDictionary(button => button.Label, button => button.ActionKey);
+    var hrActionDisplayOrder = hrActionGroups
+        .SelectMany(group => group.Buttons.Select(button => button.Label))
+        .ToArray();
+
+    var sectionActions = isAccountSection ? accountActions : isEmployeeSection ? employeeActions : hrActions;
+    var sectionActionDisplayOrder = isAccountSection ? accountActionDisplayOrder : isEmployeeSection ? employeeActionDisplayOrder : hrActionDisplayOrder;
+    var contentEndpoint = isAccountSection
+        ? accountContentEndpoint
+        : isEmployeeSection
+            ? employeeContentEndpoint
+            : string.IsNullOrWhiteSpace(hrContentEndpoint) ? fallbackHrContentEndpoint : hrContentEndpoint;
+    var initialHostMessage = isEmployeeSection
+        ? "Select an employee action to begin."
+        : isHrSection
+            ? "Select an HR action to begin."
+            : "Select an account action to begin.";
+    var loadErrorMessage = isEmployeeSection
+        ? "Unable to load employee details right now."
+        : isHrSection
+            ? "Unable to load HR details right now."
+            : "Unable to load account details right now.";
+}
+
+<style>
+    .account-actions-container {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .action-banner-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin: 0 0 14px 0;
+    }
+
+    .action-banner {
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-weight: 700;
+        border: 1px solid transparent;
+    }
+
+    .action-banner.success {
+        background: #E6F4EA;
+        color: #1E6B3A;
+        border-color: #A7D7B8;
+    }
+
+    .action-banner.error {
+        background: #FDEBEC;
+        color: #A61B1B;
+        border-color: #F2B4B8;
+    }
+
+    .account-action-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+        gap: 10px;
+        max-width: 760px;
+    }
+
+    .hr-action-buttons {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        max-width: none;
+    }
+
+    .hr-management-layout {
+        display: flex;
+        gap: 16px;
+        min-height: 0;
+        flex: 1;
+    }
+
+    .hr-management-menu-panel {
+        flex: 0 0 320px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-height: 0;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+
+    .hr-management-content-panel {
+        flex: 1;
+        min-width: 0;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    .hr-management-layout .account-action-button {
+        max-width: 100%;
+        font-size: 13px;
+        padding: 8px 12px;
+        line-height: 1.15;
+    }
+
+    .hr-management-layout .hr-section-header {
+        margin-top: 0;
+    }
+
+    .account-action-button {
+        background: #2A5D8F;
+        color: white;
+        border: 1px solid rgba(42, 93, 143, 0.2);
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s;
+    }
+
+    .account-action-button:hover {
+        background: #5BA6A6;
+    }
+
+    .account-action-button.active {
+        background: #5BA6A6;
+        color: #4A4A4A;
+    }
+
+    .account-action-button:disabled {
+        opacity: 0.7;
+        cursor: default;
+    }
+
+    .account-content-host {
+        border: 1px solid #C7CED6;
+        border-radius: 8px;
+        background: #F5F7FA;
+        padding: 14px;
+        min-height: 180px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .account-menu-list {
+        margin: 0;
+        padding-left: 20px;
+    }
+
+    .hr-section-header {
+        margin-top: 12px;
+        margin-bottom: 8px;
+        color: #2A5D8F;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+    }
+
+    .account-action-button.disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        background: #8EA4B8;
+    }
+</style>
+
+<h1>@ViewData["Title"]</h1>
+@{
+    var leaveSuccess = TempData["LeaveSuccess"] as string;
+    var leaveError = TempData["LeaveError"] as string;
+    var employeeSuccess = TempData["EmployeeSuccess"] as string;
+    var employeeError = TempData["EmployeeError"] as string;
+    var grievanceSuccess = TempData["GrievanceSuccess"] as string;
+    var grievanceError = TempData["GrievanceError"] as string;
+    var payrollSuccess = TempData["PayrollSuccess"] as string;
+    var payrollError = TempData["PayrollError"] as string;
+}
+
+@if (!string.IsNullOrWhiteSpace(leaveSuccess) || !string.IsNullOrWhiteSpace(leaveError) || !string.IsNullOrWhiteSpace(employeeSuccess) || !string.IsNullOrWhiteSpace(employeeError) || !string.IsNullOrWhiteSpace(grievanceSuccess) || !string.IsNullOrWhiteSpace(grievanceError) || !string.IsNullOrWhiteSpace(payrollSuccess) || !string.IsNullOrWhiteSpace(payrollError))
+{
+    <div class="action-banner-stack">
+        @if (!string.IsNullOrWhiteSpace(leaveSuccess))
+        {
+            <div class="action-banner success">@leaveSuccess</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(leaveError))
+        {
+            <div class="action-banner error">@leaveError</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(employeeSuccess))
+        {
+            <div class="action-banner success">@employeeSuccess</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(employeeError))
+        {
+            <div class="action-banner error">@employeeError</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(grievanceSuccess))
+        {
+            <div class="action-banner success">@grievanceSuccess</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(grievanceError))
+        {
+            <div class="action-banner error">@grievanceError</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(payrollSuccess))
+        {
+            <div class="action-banner success">@payrollSuccess</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(payrollError))
+        {
+            <div class="action-banner error">@payrollError</div>
+        }
+    </div>
+}
+@if (menuOptions != null && menuOptions.Count > 0)
+{
+    if (isInteractiveSection)
+    {
+        var interactiveOptions = sectionActionDisplayOrder
+            .Where(option => menuOptions.Contains(option))
+            .ToList();
+        var managedOptions = menuOptions
+            .Where(option => !interactiveOptions.Contains(option))
+            .ToList();
+
+        <div class="account-actions-container"
+             data-account-actions-root
+             data-endpoint="@contentEndpoint"
+             data-load-error-message="@loadErrorMessage">
+            @if (isHrSection)
+            {
+               <div class="hr-management-layout">
+                   <div class="hr-management-menu-panel">
+                       @foreach (var group in hrActionGroups)
+                       {
+                           var visibleButtons = group.Buttons
+                               .Where(button => menuOptions.Contains(button.Label))
+                               .ToList();
+
+                           if (visibleButtons.Count == 0)
+                           {
+                               continue;
+                           }
+
+                           <div class="hr-section-header">@group.Header</div>
+                           <div class="hr-action-buttons">
+                               @foreach (var button in visibleButtons)
+                               {
+                                   var actionKey = button.ActionKey ?? string.Empty;
+                                   var isDisabled = string.IsNullOrWhiteSpace(actionKey);
+                                   <button type="button"
+                                           class="account-action-button @(isDisabled ? "disabled" : string.Empty)"
+                                           data-account-action="@actionKey"
+                                           @(isDisabled ? "disabled" : null)>
+                                       @button.Label
+                                   </button>
+                               }
+                           </div>
+                       }
+                   </div>
+                   <div class="hr-management-content-panel">
+                       <div class="account-content-host" data-account-content-host data-leave-content-host>
+                           @initialHostMessage
+                       </div>
+                   </div>
+               </div>
+            }
+            else
+            {
+               <div class="account-action-buttons">
+                   @foreach (var option in interactiveOptions)
+                   {
+                       <button type="button"
+                               class="account-action-button"
+                               data-account-action="@sectionActions[option]">
+                           @option
+                       </button>
+                   }
+               </div>
+            }
+
+            @if (managedOptions.Count > 0)
+            {
+               <ul class="account-menu-list">
+                   @foreach (var option in managedOptions)
+                   {
+                       <li>@option</li>
+                   }
+               </ul>
+            }
+
+            @if (!isHrSection)
+            {
+                <div class="account-content-host" data-account-content-host data-leave-content-host>
+                   @initialHostMessage
+                </div>
+            }
+        </div>
+
+        <script>
+            (function () {
+                const root = document.querySelector("[data-account-actions-root]");
+                if (!root || root.dataset.bound === "true") {
+                    return;
+                }
+
+                root.dataset.bound = "true";
+                const endpoint = root.dataset.endpoint || "";
+                const loadErrorMessage = root.dataset.loadErrorMessage || "Unable to load details right now.";
+                const host = root.querySelector("[data-account-content-host]");
+                const buttons = Array.from(root.querySelectorAll("[data-account-action]"));
+                if (!host || !buttons.length || !endpoint) {
+                    return;
+                }
+
+                window.nzftcSetAccountContentHostHtml = function (hostElement, html) {
+                    hostElement.innerHTML = html;
+                    const scripts = Array.from(hostElement.querySelectorAll("script"));
+                    scripts.forEach((oldScript) => {
+                        const newScript = document.createElement("script");
+                        Array.from(oldScript.attributes).forEach((attribute) => {
+                            newScript.setAttribute(attribute.name, attribute.value);
+                        });
+                        newScript.text = oldScript.textContent || "";
+                        oldScript.replaceWith(newScript);
+                    });
+                };
+                window.nzftcSetLeaveContentHostHtml = window.nzftcSetAccountContentHostHtml;
+
+                async function loadAction(actionKey, clickedButton, extraParams) {
+                    buttons.forEach((button) => {
+                        button.disabled = true;
+                        button.classList.remove("active");
+                    });
+                    host.textContent = "Loading...";
+
+                    try {
+                        const query = new URLSearchParams({ actionKey });
+                        if (extraParams) {
+                            Object.entries(extraParams).forEach(([key, value]) => {
+                                if (value !== undefined && value !== null && value !== "") {
+                                    query.set(key, String(value));
+                                }
+                            });
+                        }
+
+                        const response = await fetch(`${endpoint}?${query.toString()}`, { credentials: "same-origin" });
+                        if (!response.ok) {
+                            host.textContent = loadErrorMessage;
+                            return;
+                        }
+
+                        const html = await response.text();
+                        window.nzftcSetAccountContentHostHtml(host, html);
+                        clickedButton?.classList.add("active");
+                    } catch (error) {
+                        console.error(error);
+                        host.textContent = loadErrorMessage;
+                    } finally {
+                        buttons.forEach((button) => {
+                            button.disabled = false;
+                        });
+                    }
+                }
+
+                buttons.forEach((button) => {
+                    button.addEventListener("click", () => {
+                        const actionKey = button.dataset.accountAction;
+                        if (!actionKey) {
+                            return;
+                        }
+
+                        loadAction(actionKey, button);
+                    });
+                });
+
+                const pageUrl = new URL(window.location.href);
+                const initialActionKey = pageUrl.searchParams.get("actionKey");
+                if (initialActionKey) {
+                    const initialLeaveRequestId = pageUrl.searchParams.get("leaveRequestId");
+                    const initialGrievanceId = pageUrl.searchParams.get("grievanceId");
+                    const matchingButton = buttons.find((button) => button.dataset.accountAction === initialActionKey) || null;
+                    loadAction(initialActionKey, matchingButton, { leaveRequestId: initialLeaveRequestId, grievanceId: initialGrievanceId });
+                }
+            })();
+        </script>
+    }
+    else
+    {
+        <ul>
+            @foreach (var option in menuOptions)
+            {
+                <li>@option</li>
+            }
+        </ul>
+    }
+}

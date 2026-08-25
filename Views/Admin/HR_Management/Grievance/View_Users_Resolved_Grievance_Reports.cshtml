@@ -1,0 +1,45 @@
+@using System.Linq
+@using NZFTC_EMS.Models
+@model IEnumerable<GrievanceRequest>
+
+@{
+    var reports = Model ?? Enumerable.Empty<GrievanceRequest>();
+}
+
+<div class="grievance-panel">
+    <h2>Users' Resolved Grievance Reports</h2>
+    <p class="grievance-intro">Closed reports and outcomes recorded for the team.</p>
+
+    @if (!reports.Any())
+    {
+        <div class="empty-state">No resolved grievance reports yet.</div>
+    }
+    else
+    {
+        @foreach (var item in reports)
+        {
+            <div class="grievance-card">
+                <div class="grievance-card-header">
+                    <span class="grievance-badge">Resolved</span>
+                    <strong>#@item.Id</strong>
+                </div>
+                <h3>@item.Subject</h3>
+                <p><strong>Employee:</strong> @item.EmployeeName</p>
+                <p><strong>Status:</strong> @item.Status</p>
+                <p><strong>Outcome:</strong> @(!string.IsNullOrWhiteSpace(item.Outcome) ? item.Outcome : "No summary recorded yet.")</p>
+                <p><strong>Decision reason:</strong> @(!string.IsNullOrWhiteSpace(item.DecisionReason) ? item.DecisionReason : "No reason recorded.")</p>
+                <p>@item.Description</p>
+            </div>
+        }
+    }
+</div>
+
+<style>
+    .grievance-panel { color: #2A5D8F; }
+    .grievance-panel h2 { margin-bottom: 10px; }
+    .grievance-intro { color: #4A4A4A; margin-bottom: 16px; }
+    .grievance-card { background: #FFFFFF; border: 1px solid #C7CED6; border-radius: 8px; padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 2px rgba(42, 93, 143, 0.08); }
+    .grievance-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .grievance-badge { background: #2A5D8F; color: #FFFFFF; padding: 4px 8px; border-radius: 14px; font-size: 12px; font-weight: 700; }
+    .empty-state { background: #F5F7FA; border: 1px dashed #C7CED6; padding: 18px; border-radius: 8px; color: #4A4A4A; }
+</style>

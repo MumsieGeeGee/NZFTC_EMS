@@ -6,11 +6,55 @@ Last Name: Parker
 Date of Birth: 13-04-1997
 Business Role: Finance
 Job Role: Senior Trainee Finance Staff
+Employment Type: Fixed-term
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 28.85
+Approximate Annual Salary: 60000
+Annual Salary: 60000
+Monthly Salary: 5000
+Fortnightly Salary: 2307.69
+Weekly Salary: 1153.85
+Annual Leave Entitlement: 20
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 0
+Annual Leave Total Entitlement: 20
+Sick Leave Entitlement: 10
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 0
+Sick Leave Total Entitlement: 10
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 0
+Maternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Special Leave Entitlement: 3
+Special Leave Package Extra: 3
+KiwiSaver Employer Contribution: 4%
+Superannuation Contribution: 0%
+Health Insurance Contribution: $0 per year
+Professional Development Contribution: $2000 per year
+Employee Assistance Program Contribution: $800 per year
 Address: 19 Test Street, Central, Wellington, 6011, PO Box: 119
 Email Address: eden.parker@example.test
 Phone Number: 021-000-1019
 Username: finance_st_eden_mae_parker
 Password: a9e0a988c5b02906
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000019
+
+Emergency Contact: Drew Kai Morgan | Partner | 021-555-2010
+Diagnosed Health Conditions: None known
+Allergies: None known
+Approved Emergency Steps and Medicines: Standard first aid response; escalate if required.
+Prior Training and Qualifications: Finance payroll systems induction complete.
+First Aid Certification: Uncertified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

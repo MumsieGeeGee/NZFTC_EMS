@@ -1,0 +1,284 @@
+@model NZFTC_EMS.Models.SelectedEmployeeRecordDetailsViewModel
+@{
+    Layout = null;
+    var firstAidValue = (Model.Details?.FirstAidCertification ?? string.Empty).Trim();
+    var firstAidYesSelected =
+        firstAidValue.Equals("Certified", System.StringComparison.OrdinalIgnoreCase) ||
+        firstAidValue.Equals("Yes", System.StringComparison.OrdinalIgnoreCase);
+    var firstAidNoSelected =
+        firstAidValue.Equals("Uncertified", System.StringComparison.OrdinalIgnoreCase) ||
+        firstAidValue.Equals("No", System.StringComparison.OrdinalIgnoreCase);
+    var emergencyContactRaw = (Model.Details?.EmergencyContact ?? string.Empty).Trim();
+    var emergencyContactParts = emergencyContactRaw.Split('|', System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries);
+    if (emergencyContactParts.Length < 3)
+    {
+        emergencyContactParts = emergencyContactRaw.Split(',', System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries);
+    }
+    var emergencyContactName = emergencyContactParts.Length > 0 ? emergencyContactParts[0] : string.Empty;
+    var emergencyContactRelationship = emergencyContactParts.Length > 1 ? emergencyContactParts[1] : string.Empty;
+    var emergencyContactPhoneNumber = emergencyContactParts.Length > 2 ? emergencyContactParts[2] : string.Empty;
+    var requiresCompletion =
+        string.IsNullOrWhiteSpace(emergencyContactName) ||
+        string.IsNullOrWhiteSpace(emergencyContactRelationship) ||
+        string.IsNullOrWhiteSpace(emergencyContactPhoneNumber) ||
+        string.IsNullOrWhiteSpace(Model.Details?.DiagnosedHealthConditions) ||
+        string.IsNullOrWhiteSpace(Model.Details?.Allergies) ||
+        string.IsNullOrWhiteSpace(Model.Details?.ApprovedEmergencyStepsAndMedicines) ||
+        string.IsNullOrWhiteSpace(Model.Details?.PriorTrainingAndQualifications) ||
+        string.IsNullOrWhiteSpace(Model.Details?.FirstAidCertification);
+}
+
+<style>
+    .selected-employee-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: end;
+        margin-bottom: 12px;
+    }
+
+    .selected-employee-controls label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-weight: 700;
+        color: #4A4A4A;
+    }
+
+    .selected-employee-controls select,
+    .selected-employee-controls input {
+        min-width: 220px;
+        padding: 8px;
+        border: 1px solid #C7CED6;
+        border-radius: 4px;
+        background: #FFFFFF;
+        color: #4A4A4A;
+    }
+
+    .selected-employee-load-button,
+    .selected-employee-save-button {
+        background: #5BA6A6;
+        color: #4A4A4A;
+        border: 1px solid rgba(42, 93, 143, 0.2);
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .selected-employee-load-button:hover,
+    .selected-employee-save-button:hover {
+        background: #C7CED6;
+    }
+
+    .selected-employee-save-button[disabled] {
+        opacity: 0.6;
+        cursor: default;
+    }
+</style>
+
+<div data-selected-employee-root data-endpoint="@Model.ContentEndpoint" data-action-key="edit-selected-employee-employee-details">
+    <h2 style="color:#2A5D8F; font-size:22px; margin:0 0 12px;">Edit an Existing Employee's Details</h2>
+
+    <div class="selected-employee-controls">
+        <label>
+            Business Department
+            <select data-selected-group>
+                <option value="">Select a department...</option>
+                @if (Model.SelectedGroup == "admin")
+                {
+                    <option value="admin" selected>Admin</option>
+                }
+                else
+                {
+                    <option value="admin">Admin</option>
+                }
+                @if (Model.SelectedGroup == "finance")
+                {
+                    <option value="finance" selected>Finance</option>
+                }
+                else
+                {
+                    <option value="finance">Finance</option>
+                }
+                @if (Model.SelectedGroup == "trade")
+                {
+                    <option value="trade" selected>Trade</option>
+                }
+                else
+                {
+                    <option value="trade">Trade</option>
+                }
+            </select>
+        </label>
+
+        <label>
+            Employee
+            <select data-selected-username>
+                <option value="">Select an employee...</option>
+                @foreach (var username in Model.Usernames)
+                {
+                    var displayName = Model.UsernameDisplayNames.TryGetValue(username, out var resolvedDisplayName) ? resolvedDisplayName : username;
+                    if (Model.SelectedUsername == username)
+                    {
+                        <option value="@username" selected>@displayName</option>
+                    }
+                    else
+                    {
+                        <option value="@username">@displayName</option>
+                    }
+                }
+            </select>
+        </label>
+
+        <button type="button" class="selected-employee-load-button" data-load-selected-employee>Load</button>
+    </div>
+
+    @if (Model.Details != null)
+    {
+        @if (requiresCompletion)
+        {
+            <div style="margin:0 0 12px; padding:12px 14px; border:1px solid #D6A100; border-radius:8px; background:#FFF8E1; color:#4A4A4A; max-width:760px;">
+                Some employee details are missing. Managers or HR must complete every field before saving.
+            </div>
+        }
+        <form method="post" action="@Url.Action("UpdateSelectedEmployeeEmployeeDetails", "Admin")" style="margin-top:12px;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="group" value="@Model.SelectedGroup" />
+            <input type="hidden" name="username" value="@Model.SelectedUsername" />
+            <div style="display:flex; flex-direction:column; gap:10px; max-width:460px;">
+                <fieldset style="border:1px solid #C7CED6; border-radius:4px; padding:10px; background:#fff;">
+                    <legend style="font-weight:700; color:#4A4A4A; padding:0 6px;">Emergency Contact</legend>
+                    <label style="font-weight:700; color:#4A4A4A; display:flex; flex-direction:column; gap:6px; margin-bottom:8px;">
+                        Name
+                        <input type="text" name="emergencyContactName" required value="@emergencyContactName" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                    </label>
+                    <label style="font-weight:700; color:#4A4A4A; display:flex; flex-direction:column; gap:6px; margin-bottom:8px;">
+                        Relationship
+                        <input type="text" name="emergencyContactRelationship" required value="@emergencyContactRelationship" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                    </label>
+                    <label style="font-weight:700; color:#4A4A4A; display:flex; flex-direction:column; gap:6px;">
+                        Phone Number
+                        <input type="text" name="emergencyContactPhoneNumber" required value="@emergencyContactPhoneNumber" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                    </label>
+                </fieldset>
+                <label style="font-weight:700; color:#4A4A4A;">
+                    Diagnosed Health Conditions
+                    <input type="text" name="diagnosedHealthConditions" required value="@Model.Details.DiagnosedHealthConditions" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A;">
+                    Allergies
+                    <input type="text" name="allergies" required value="@Model.Details.Allergies" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A;">
+                    Approved Emergency Steps and Medicines
+                    <input type="text" name="approvedEmergencyStepsAndMedicines" required value="@Model.Details.ApprovedEmergencyStepsAndMedicines" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <label style="font-weight:700; color:#4A4A4A;">
+                    Prior Training and Qualifications
+                    <input type="text" name="priorTrainingAndQualifications" required value="@Model.Details.PriorTrainingAndQualifications" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                </label>
+                <fieldset style="border:1px solid #C7CED6; border-radius:4px; padding:10px; background:#fff;">
+                    <legend style="font-weight:700; color:#4A4A4A; padding:0 6px;">First Aid Certification</legend>
+                    <label style="display:flex; align-items:center; gap:8px; color:#4A4A4A; font-weight:700; margin-bottom:6px;">
+                        <input type="radio" name="firstAidCertification" value="Yes" required @(firstAidYesSelected ? "checked" : null) />
+                        Yes
+                    </label>
+                    <label style="display:flex; align-items:center; gap:8px; color:#4A4A4A; font-weight:700;">
+                        <input type="radio" name="firstAidCertification" value="No" required @(firstAidNoSelected ? "checked" : null) />
+                        No
+                    </label>
+                </fieldset>
+                <button type="submit" class="selected-employee-save-button">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    }
+    else
+    {
+        <p style="margin:0; color:#4A4A4A;">Select a group and employee, then click Load. Managers or HR must complete the employee details if any are missing.</p>
+    }
+</div>
+
+<script>
+    (function () {
+        const root = document.querySelector("[data-selected-employee-root]");
+        if (!root || root.dataset.bound === "true") {
+            return;
+        }
+
+        root.dataset.bound = "true";
+        const endpoint = root.dataset.endpoint || "";
+        const actionKey = root.dataset.actionKey || "edit-selected-employee-employee-details";
+        const groupSelect = root.querySelector("[data-selected-group]");
+        const usernameSelect = root.querySelector("[data-selected-username]");
+        const loadButton = root.querySelector("[data-load-selected-employee]");
+        const host = root.closest("[data-account-content-host]");
+
+        if (!endpoint || !groupSelect || !usernameSelect || !loadButton || !host) {
+            return;
+        }
+
+        async function refreshForGroup(group) {
+            loadButton.disabled = true;
+            try {
+                const response = await fetch(`${endpoint}?actionKey=${encodeURIComponent(actionKey)}&group=${encodeURIComponent(group)}&username=`, { credentials: "same-origin" });
+                if (!response.ok) {
+                    return;
+                }
+
+                const html = await response.text();
+                if (typeof window.nzftcSetAccountContentHostHtml === "function") {
+                    window.nzftcSetAccountContentHostHtml(host, html);
+                } else {
+                    host.innerHTML = html;
+                }
+            } catch (error) {
+                console.error(error);
+            } finally {
+                loadButton.disabled = false;
+            }
+        }
+
+        async function loadSelected(group, username) {
+            if (!username) {
+                host.querySelector("p")?.remove();
+                const message = document.createElement("p");
+                message.style.margin = "0";
+                message.style.color = "#4A4A4A";
+                message.textContent = "Please select an employee first.";
+                host.appendChild(message);
+                return;
+            }
+
+            loadButton.disabled = true;
+            try {
+                const response = await fetch(`${endpoint}?actionKey=${encodeURIComponent(actionKey)}&group=${encodeURIComponent(group)}&username=${encodeURIComponent(username)}`, { credentials: "same-origin" });
+                if (!response.ok) {
+                    return;
+                }
+
+                const html = await response.text();
+                if (typeof window.nzftcSetAccountContentHostHtml === "function") {
+                    window.nzftcSetAccountContentHostHtml(host, html);
+                } else {
+                    host.innerHTML = html;
+                }
+            } catch (error) {
+                console.error(error);
+            } finally {
+                loadButton.disabled = false;
+            }
+        }
+
+        groupSelect.addEventListener("change", () => {
+            refreshForGroup(groupSelect.value);
+        });
+
+        loadButton.addEventListener("click", () => {
+            loadSelected(groupSelect.value, usernameSelect.value);
+        });
+    })();
+</script>

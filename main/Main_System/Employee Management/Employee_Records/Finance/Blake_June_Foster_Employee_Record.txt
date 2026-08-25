@@ -6,11 +6,55 @@ Last Name: Foster
 Date of Birth: 11-02-1992
 Business Role: Finance
 Job Role: Senior General Finance Staff
+Employment Type: Full-time
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 31.73
+Approximate Annual Salary: 66000
+Annual Salary: 66000
+Monthly Salary: 5500
+Fortnightly Salary: 2538.46
+Weekly Salary: 1269.23
+Annual Leave Entitlement: 22
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 2
+Annual Leave Total Entitlement: 22
+Sick Leave Entitlement: 12
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 2
+Sick Leave Total Entitlement: 12
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 2
+Maternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Special Leave Entitlement: 4
+Special Leave Package Extra: 4
+KiwiSaver Employer Contribution: 4%
+Superannuation Contribution: 3%
+Health Insurance Contribution: $500 per year
+Professional Development Contribution: $1000 per year
+Employee Assistance Program Contribution: $800 per year
 Address: 17 Test Street, Central, Wellington, 6011, PO Box: 117
 Email Address: blake.foster@example.test
 Phone Number: 021-000-1017
 Username: finance_sg_blake_june_foster
 Password: a9cc4188c59ecf44
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000017
+
+Emergency Contact: Alex Rose Carter | Partner | 021-555-2005
+Diagnosed Health Conditions: None known
+Allergies: Shellfish
+Approved Emergency Steps and Medicines: Avoid known allergen exposure and escalate if symptoms appear.
+Prior Training and Qualifications: Finance systems and compliance training complete.
+First Aid Certification: Uncertified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

@@ -35,53 +35,88 @@ bool Username_Has_Token(const std::string& username, const std::string& token) {
     }
 }
 
+bool Try_Get_Admin_Role_From_Username(
+        const std::string& username,
+        Admin_Role* role_out) {
+    if (role_out == nullptr) {
+        return false;
+    }
+
+    if (Username_Has_Token(username, "r")) {
+        *role_out = Admin_Role::Receptionist;
+    } else if (Username_Has_Token(username, "cc")) {
+        *role_out = Admin_Role::Call_Centre_Operator;
+    } else if (Username_Has_Token(username, "ea")) {
+        *role_out = Admin_Role::Executive_Assistant;
+    } else if (Username_Has_Token(username, "pa")) {
+        *role_out = Admin_Role::Personal_Assistant;
+    } else if (Username_Has_Token(username, "hr")) {
+        *role_out = Admin_Role::Human_Resources_Administrator;
+    } else if (Username_Has_Token(username, "jit")) {
+        *role_out = Admin_Role::Junior_IT_Support_Administrator;
+    } else if (Username_Has_Token(username, "sit")) {
+        *role_out = Admin_Role::Senior_IT_Support_Administrator;
+    } else if (Username_Has_Token(username, "jlm")) {
+        *role_out = Admin_Role::Junior_Level_Manager;
+    } else if (Username_Has_Token(username, "slm")) {
+        *role_out = Admin_Role::Senior_Level_Manager;
+    } else if (Username_Has_Token(username, "jt")) {
+        *role_out = Admin_Role::Junior_Trainee_Administrator;
+    } else if (Username_Has_Token(username, "st")) {
+        *role_out = Admin_Role::Senior_Trainee_Administrator;
+    } else if (Username_Has_Token(username, "jc")) {
+        *role_out = Admin_Role::Junior_Casual_Administrator;
+    } else if (Username_Has_Token(username, "sc")) {
+        *role_out = Admin_Role::Senior_Casual_Administrator;
+    } else if (Username_Has_Token(username, "jg")) {
+        *role_out = Admin_Role::Junior_General_Administrator;
+    } else if (Username_Has_Token(username, "sg")) {
+        *role_out = Admin_Role::Senior_General_Administrator;
+    } else {
+        return false;
+    }
+
+    return true;
+}
+
 bool Route_Admin_Role_From_Username(const std::string& username) {
     Admin_Role role = Admin_Role::Junior_General_Administrator;
-    if (Username_Has_Token(username, "r")) {
-        role = Admin_Role::Receptionist;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "cc")) {
-        role = Admin_Role::Call_Centre_Operator;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "ea")) {
-        role = Admin_Role::Executive_Assistant;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "pa")) {
-        role = Admin_Role::Personal_Assistant;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "hr")) {
-        role = Admin_Role::Human_Resources_Administrator;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "jit")) {
-        role = Admin_Role::Junior_IT_Support_Administrator;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "sit")) {
-        role = Admin_Role::Senior_IT_Support_Administrator;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "jlm")) {
-        role = Admin_Role::Junior_Level_Manager;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "slm")) {
-        role = Admin_Role::Senior_Level_Manager;
-        Display_Menu_for_Role_Type(role);
+    if (!Try_Get_Admin_Role_From_Username(username, &role)) {
+        return false;
+    }
+    Display_Menu_for_Role_Type(role);
+    return true;
+}
+
+bool Try_Get_Finance_Role_From_Username(
+        const std::string& username,
+        Finance_Role* role_out) {
+    if (role_out == nullptr) {
+        return false;
+    }
+
+    if (Username_Has_Token(username, "pr")) {
+        *role_out = Finance_Role::Payroll_Administrator;
+    } else if (Username_Has_Token(username, "ap")) {
+        *role_out = Finance_Role::Accounts_Payable_Administrator;
+    } else if (Username_Has_Token(username, "ar")) {
+        *role_out = Finance_Role::Accounts_Receivable_Administrator;
+    } else if (Username_Has_Token(username, "jfm")) {
+        *role_out = Finance_Role::Junior_Finance_Manager;
+    } else if (Username_Has_Token(username, "sfm")) {
+        *role_out = Finance_Role::Senior_Finance_Manager;
     } else if (Username_Has_Token(username, "jt")) {
-        role = Admin_Role::Junior_Trainee_Administrator;
-        Display_Menu_for_Role_Type(role);
+        *role_out = Finance_Role::Junior_Trainee_Finance_Staff;
     } else if (Username_Has_Token(username, "st")) {
-        role = Admin_Role::Senior_Trainee_Administrator;
-        Display_Menu_for_Role_Type(role);
+        *role_out = Finance_Role::Senior_Trainee_Finance_Staff;
     } else if (Username_Has_Token(username, "jc")) {
-        role = Admin_Role::Junior_Casual_Administrator;
-        Display_Menu_for_Role_Type(role);
+        *role_out = Finance_Role::Junior_Casual_Finance_Staff;
     } else if (Username_Has_Token(username, "sc")) {
-        role = Admin_Role::Senior_Casual_Administrator;
-        Display_Menu_for_Role_Type(role);
+        *role_out = Finance_Role::Senior_Casual_Finance_Staff;
     } else if (Username_Has_Token(username, "jg")) {
-        role = Admin_Role::Junior_General_Administrator;
-        Display_Menu_for_Role_Type(role);
+        *role_out = Finance_Role::Junior_General_Finance_Staff;
     } else if (Username_Has_Token(username, "sg")) {
-        role = Admin_Role::Senior_General_Administrator;
-        Display_Menu_for_Role_Type(role);
+        *role_out = Finance_Role::Senior_General_Finance_Staff;
     } else {
         return false;
     }
@@ -91,39 +126,44 @@ bool Route_Admin_Role_From_Username(const std::string& username) {
 
 bool Route_Finance_Role_From_Username(const std::string& username) {
     Finance_Role role = Finance_Role::Junior_General_Finance_Staff;
-    if (Username_Has_Token(username, "pr")) {
-        role = Finance_Role::Payroll_Administrator;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "ap")) {
-        role = Finance_Role::Accounts_Payable_Administrator;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "ar")) {
-        role = Finance_Role::Accounts_Receivable_Administrator;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "jfm")) {
-        role = Finance_Role::Junior_Finance_Manager;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "sfm")) {
-        role = Finance_Role::Senior_Finance_Manager;
-        Display_Menu_for_Role_Type(role);
+    if (!Try_Get_Finance_Role_From_Username(username, &role)) {
+        return false;
+    }
+    Display_Menu_for_Role_Type(role);
+    return true;
+}
+
+bool Try_Get_Trade_Role_From_Username(
+        const std::string& username,
+        Trade_Role* role_out) {
+    if (role_out == nullptr) {
+        return false;
+    }
+
+    if (Username_Has_Token(username, "app")) {
+        *role_out = Trade_Role::Junior_Apprentice;
+    } else if (Username_Has_Token(username, "men")) {
+        *role_out = Trade_Role::Senior_Mentor;
+    } else if (Username_Has_Token(username, "saf")) {
+        *role_out = Trade_Role::Safety_Officer;
+    } else if (Username_Has_Token(username, "sal")) {
+        *role_out = Trade_Role::Sales_Representative;
+    } else if (Username_Has_Token(username, "jtm")) {
+        *role_out = Trade_Role::Junior_Trade_Manager;
+    } else if (Username_Has_Token(username, "stm")) {
+        *role_out = Trade_Role::Senior_Trade_Manager;
     } else if (Username_Has_Token(username, "jt")) {
-        role = Finance_Role::Junior_Trainee_Finance_Staff;
-        Display_Menu_for_Role_Type(role);
+        *role_out = Trade_Role::Junior_Trainee_Trade_Staff;
     } else if (Username_Has_Token(username, "st")) {
-        role = Finance_Role::Senior_Trainee_Finance_Staff;
-        Display_Menu_for_Role_Type(role);
+        *role_out = Trade_Role::Senior_Trainee_Trade_Staff;
     } else if (Username_Has_Token(username, "jc")) {
-        role = Finance_Role::Junior_Casual_Finance_Staff;
-        Display_Menu_for_Role_Type(role);
+        *role_out = Trade_Role::Junior_Casual_Trade_Staff;
     } else if (Username_Has_Token(username, "sc")) {
-        role = Finance_Role::Senior_Casual_Finance_Staff;
-        Display_Menu_for_Role_Type(role);
+        *role_out = Trade_Role::Senior_Casual_Trade_Staff;
     } else if (Username_Has_Token(username, "jg")) {
-        role = Finance_Role::Junior_General_Finance_Staff;
-        Display_Menu_for_Role_Type(role);
+        *role_out = Trade_Role::Junior_General_Trade_Staff;
     } else if (Username_Has_Token(username, "sg")) {
-        role = Finance_Role::Senior_General_Finance_Staff;
-        Display_Menu_for_Role_Type(role);
+        *role_out = Trade_Role::Senior_General_Trade_Staff;
     } else {
         return false;
     }
@@ -133,46 +173,10 @@ bool Route_Finance_Role_From_Username(const std::string& username) {
 
 bool Route_Trade_Role_From_Username(const std::string& username) {
     Trade_Role role = Trade_Role::Junior_General_Trade_Staff;
-    if (Username_Has_Token(username, "app")) {
-        role = Trade_Role::Junior_Apprentice;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "men")) {
-        role = Trade_Role::Senior_Mentor;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "saf")) {
-        role = Trade_Role::Safety_Officer;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "sal")) {
-        role = Trade_Role::Sales_Representative;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "jtm")) {
-        role = Trade_Role::Junior_Trade_Manager;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "stm")) {
-        role = Trade_Role::Senior_Trade_Manager;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "jt")) {
-        role = Trade_Role::Junior_Trainee_Trade_Staff;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "st")) {
-        role = Trade_Role::Senior_Trainee_Trade_Staff;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "jc")) {
-        role = Trade_Role::Junior_Casual_Trade_Staff;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "sc")) {
-        role = Trade_Role::Senior_Casual_Trade_Staff;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "jg")) {
-        role = Trade_Role::Junior_General_Trade_Staff;
-        Display_Menu_for_Role_Type(role);
-    } else if (Username_Has_Token(username, "sg")) {
-        role = Trade_Role::Senior_General_Trade_Staff;
-        Display_Menu_for_Role_Type(role);
-    } else {
+    if (!Try_Get_Trade_Role_From_Username(username, &role)) {
         return false;
     }
-
+    Display_Menu_for_Role_Type(role);
     return true;
 }
 
@@ -216,6 +220,250 @@ bool Secondary_Authenticators(const std::string& business_role, const std::strin
     }
 
     return false;
+}
+
+void Set_Common_Profile_Defaults(Account_Access_Profile* profile) {
+    if (profile == nullptr) {
+        return;
+    }
+    profile->can_manage_requests = true;
+}
+
+void Apply_Employee_Dashboard_Profile(
+        const std::string& business_role,
+        const std::string& job_role,
+        Account_Access_Profile* profile) {
+    if (profile == nullptr) {
+        return;
+    }
+    Set_Common_Profile_Defaults(profile);
+    profile->business_role = business_role;
+    profile->job_role = job_role;
+    profile->dashboard_mode = "employee-dashboard";
+    profile->can_view_assigned_team =
+        job_role == Senior_Mentor ||
+        job_role == "Junior Level Manager" ||
+        job_role == "Senior Level Manager" ||
+        job_role == Junior_Finance_Manager ||
+        job_role == Senior_Finance_Manager ||
+        job_role == Junior_Trade_Manager ||
+        job_role == Senior_Trade_Manager;
+}
+
+void Apply_Admin_Role_Profile(
+        Admin_Role role,
+        Account_Access_Profile* profile) {
+    if (profile == nullptr) {
+        return;
+    }
+
+    if (role == Admin_Role::Executive_Assistant) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Admin, Admin_Executive_Assistant, profile);
+        profile->dashboard_mode = "hr-management-only";
+        profile->can_manage_all_hr = true;
+        profile->assistant_delegated_scope_only = true;
+        return;
+    }
+    if (role == Admin_Role::Personal_Assistant) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Admin, Admin_Personal_Assistant, profile);
+        profile->dashboard_mode = "hr-management-only";
+        profile->can_manage_all_hr = true;
+        profile->assistant_delegated_scope_only = true;
+        return;
+    }
+    if (role == Admin_Role::Human_Resources_Administrator) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Admin, Admin_Human_Resources, profile);
+        profile->dashboard_mode = "partial-admin-dashboard";
+        profile->can_manage_all_employees = true;
+        profile->can_manage_all_hr = true;
+        return;
+    }
+    if (role == Admin_Role::Junior_IT_Support_Administrator) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Admin, Junior_IT_Support_Administrator_Role_Label, profile);
+        profile->dashboard_mode = "account-management-only";
+        profile->can_manage_all_accounts = true;
+        return;
+    }
+    if (role == Admin_Role::Senior_IT_Support_Administrator) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Admin, Senior_IT_Support_Administrator_Role_Label, profile);
+        profile->dashboard_mode = "full-admin-dashboard";
+        profile->can_manage_all_accounts = true;
+        profile->can_manage_all_employees = true;
+        profile->can_manage_all_hr = true;
+        return;
+    }
+    if (role == Admin_Role::Junior_Level_Manager) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Admin, Admin_Junior_Manager, profile);
+        profile->dashboard_mode = "employee-management-only";
+        profile->can_manage_all_employees = true;
+        profile->can_view_assigned_team = true;
+        return;
+    }
+    if (role == Admin_Role::Senior_Level_Manager) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Admin, Admin_Senior_Manager, profile);
+        profile->dashboard_mode = "full-admin-dashboard";
+        profile->can_manage_all_accounts = true;
+        profile->can_manage_all_employees = true;
+        profile->can_manage_all_hr = true;
+        profile->can_view_assigned_team = true;
+        return;
+    }
+    if (role == Admin_Role::Receptionist) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Admin, Admin_Receptionist, profile);
+        return;
+    }
+    if (role == Admin_Role::Call_Centre_Operator) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Admin, Admin_Call_Centre_Operator, profile);
+        return;
+    }
+    if (role == Admin_Role::Junior_Trainee_Administrator) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Admin, Junior_Trainee_Administrator_Role_Label, profile);
+        return;
+    }
+    if (role == Admin_Role::Senior_Trainee_Administrator) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Admin, Senior_Trainee_Administrator_Role_Label, profile);
+        return;
+    }
+    if (role == Admin_Role::Junior_Casual_Administrator) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Admin, Junior_Casual_Administrator_Role_Label, profile);
+        return;
+    }
+    if (role == Admin_Role::Senior_Casual_Administrator) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Admin, Senior_Casual_Administrator_Role_Label, profile);
+        return;
+    }
+    if (role == Admin_Role::Junior_General_Administrator) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Admin, Junior_General_Administrator_Role_Label, profile);
+        return;
+    }
+    Apply_Employee_Dashboard_Profile(Role_Type_Label_Admin, Senior_General_Administrator_Role_Label, profile);
+}
+
+void Apply_Finance_Role_Profile(
+        Finance_Role role,
+        Account_Access_Profile* profile) {
+    if (profile == nullptr) {
+        return;
+    }
+
+    if (role == Finance_Role::Payroll_Administrator) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Finance, Payroll_Administrator, profile);
+        profile->dashboard_mode = "hr-management-only";
+        profile->can_manage_all_hr = true;
+        profile->can_use_payroll_features = true;
+        return;
+    }
+    if (role == Finance_Role::Junior_Finance_Manager) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Finance, Junior_Finance_Manager, profile);
+        profile->dashboard_mode = "employee-management-only";
+        profile->can_manage_all_employees = true;
+        profile->can_view_assigned_team = true;
+        return;
+    }
+    if (role == Finance_Role::Senior_Finance_Manager) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Finance, Senior_Finance_Manager, profile);
+        profile->dashboard_mode = "employee-management-only";
+        profile->can_manage_all_employees = true;
+        profile->can_view_assigned_team = true;
+        return;
+    }
+    if (role == Finance_Role::Accounts_Payable_Administrator) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Finance, Accounts_Payable_Administrator, profile);
+        return;
+    }
+    if (role == Finance_Role::Accounts_Receivable_Administrator) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Finance, Accounts_Receivable_Administrator, profile);
+        return;
+    }
+    if (role == Finance_Role::Junior_Trainee_Finance_Staff) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Finance, Junior_Trainee_Finance_Staff_Member, profile);
+        return;
+    }
+    if (role == Finance_Role::Senior_Trainee_Finance_Staff) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Finance, Senior_Trainee_Finance_Staff_Member, profile);
+        return;
+    }
+    if (role == Finance_Role::Junior_Casual_Finance_Staff) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Finance, Junior_Casual_Finance_Staff_Member, profile);
+        return;
+    }
+    if (role == Finance_Role::Senior_Casual_Finance_Staff) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Finance, Senior_Casual_Finance_Staff_Member, profile);
+        return;
+    }
+    if (role == Finance_Role::Junior_General_Finance_Staff) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Finance, Junior_General_Finance_Staff_Member, profile);
+        return;
+    }
+    Apply_Employee_Dashboard_Profile(Role_Type_Label_Finance, Senior_General_Finance_Staff_Member, profile);
+}
+
+void Apply_Trade_Role_Profile(
+        Trade_Role role,
+        Account_Access_Profile* profile) {
+    if (profile == nullptr) {
+        return;
+    }
+
+    if (role == Trade_Role::Safety_Officer) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Trade, Safety_Officer, profile);
+        profile->dashboard_mode = "partial-admin-dashboard";
+        profile->can_manage_all_employees = true;
+        profile->can_manage_all_hr = true;
+        return;
+    }
+    if (role == Trade_Role::Senior_Trade_Manager) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Trade, Senior_Trade_Manager, profile);
+        profile->dashboard_mode = "full-admin-dashboard";
+        profile->can_manage_all_accounts = true;
+        profile->can_manage_all_employees = true;
+        profile->can_manage_all_hr = true;
+        profile->can_view_assigned_team = true;
+        return;
+    }
+    if (role == Trade_Role::Junior_Trade_Manager) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Trade, Junior_Trade_Manager, profile);
+        profile->dashboard_mode = "employee-management-only";
+        profile->can_manage_all_employees = true;
+        profile->can_view_assigned_team = true;
+        return;
+    }
+    if (role == Trade_Role::Senior_Mentor) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Trade, Senior_Mentor, profile);
+        profile->dashboard_mode = "employee-management-only";
+        profile->can_manage_all_employees = true;
+        profile->can_view_assigned_team = true;
+        return;
+    }
+    if (role == Trade_Role::Junior_Apprentice) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Trade, Junior_Apprentice, profile);
+        return;
+    }
+    if (role == Trade_Role::Sales_Representative) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Trade, Sales_Representative, profile);
+        return;
+    }
+    if (role == Trade_Role::Junior_Trainee_Trade_Staff) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Trade, Junior_Trainee_Trade_Staff_Member, profile);
+        return;
+    }
+    if (role == Trade_Role::Senior_Trainee_Trade_Staff) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Trade, Senior_Trainee_Trade_Staff_Member, profile);
+        return;
+    }
+    if (role == Trade_Role::Junior_Casual_Trade_Staff) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Trade, Junior_Casual_Trade_Staff_Member, profile);
+        return;
+    }
+    if (role == Trade_Role::Senior_Casual_Trade_Staff) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Trade, Senior_Casual_Trade_Staff_Member, profile);
+        return;
+    }
+    if (role == Trade_Role::Junior_General_Trade_Staff) {
+        Apply_Employee_Dashboard_Profile(Role_Type_Label_Trade, Junior_General_Trade_Staff_Member, profile);
+        return;
+    }
+    Apply_Employee_Dashboard_Profile(Role_Type_Label_Trade, Senior_General_Trade_Staff_Member, profile);
 }
 
 
@@ -571,6 +819,70 @@ void Display_Menu_for_Role_Type(Trade_Role& trade_role) {
     }
 }
 
+
+bool Resolve_Access_Profile_For_User(
+        const std::string& account_type,
+        const std::string& username,
+        Account_Access_Profile* profile_out) {
+    if (profile_out == nullptr) {
+        return false;
+    }
+
+    Account_Access_Profile profile{};
+    profile.username = username;
+    profile.account_type = account_type;
+
+    if (Starts_With(username, "admin")) {
+        Admin_Role role = Admin_Role::Junior_General_Administrator;
+        if (!Try_Get_Admin_Role_From_Username(username, &role)) {
+            return false;
+        }
+        Apply_Admin_Role_Profile(role, &profile);
+        profile.requires_secondary_auth = Secondary_Authenticators(
+            profile.business_role,
+            profile.job_role);
+        profile.resolved = true;
+        *profile_out = profile;
+        return true;
+    }
+
+    if (Starts_With(username, "finance")) {
+        Finance_Role role = Finance_Role::Junior_General_Finance_Staff;
+        if (!Try_Get_Finance_Role_From_Username(username, &role)) {
+            return false;
+        }
+        Apply_Finance_Role_Profile(role, &profile);
+        profile.requires_secondary_auth = Secondary_Authenticators(
+            profile.business_role,
+            profile.job_role);
+        profile.resolved = true;
+        *profile_out = profile;
+        return true;
+    }
+
+    if (Starts_With(username, "trade")) {
+        Trade_Role role = Trade_Role::Junior_General_Trade_Staff;
+        if (!Try_Get_Trade_Role_From_Username(username, &role)) {
+            return false;
+        }
+        Apply_Trade_Role_Profile(role, &profile);
+        profile.requires_secondary_auth = Secondary_Authenticators(
+            profile.business_role,
+            profile.job_role);
+        profile.resolved = true;
+        *profile_out = profile;
+        return true;
+    }
+
+    if (account_type == "Employee" || account_type == "Admin") {
+        Apply_Employee_Dashboard_Profile(Unknown_Label, Unknown_Label, &profile);
+        profile.resolved = true;
+        *profile_out = profile;
+        return true;
+    }
+
+    return false;
+}
 
 void Display_Account_Access_For_Type(const std::string& account_type) {
     Display_Account_Access_For_Type(account_type, "");

@@ -6,12 +6,55 @@ Last Name: Watson
 Date of Birth: 27-07-2002
 Business Role: Trade
 Job Role: Junior Apprentice
-Assigned Mentor: trade_men_tatum_rae_gray
+Employment Type: Fixed-term
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 25.48
+Approximate Annual Salary: 53000
+Annual Salary: 53000
+Monthly Salary: 4416.67
+Fortnightly Salary: 2038.46
+Weekly Salary: 1019.23
+Annual Leave Entitlement: 20
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 0
+Annual Leave Total Entitlement: 20
+Sick Leave Entitlement: 10
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 0
+Sick Leave Total Entitlement: 10
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 1
+Maternity Leave Entitlement: 26 weeks lawful + 1 weeks extra = 27 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 1 weeks extra = 27 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 1 weeks extra = 27 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 1 weeks extra = 27 weeks total
+Special Leave Entitlement: 3
+Special Leave Package Extra: 3
+KiwiSaver Employer Contribution: 3%
+Superannuation Contribution: 3%
+Health Insurance Contribution: $800 per year
+Professional Development Contribution: $5000 per year
+Employee Assistance Program Contribution: $500 per year
 Address: 33 Test Road, Central, Christchurch, 8011, PO Box: 133
 Email Address: sage.watson@example.test
 Phone Number: 021-000-1033
 Username: trade_app_sage_lee_watson
 Password: 64cb96912f919085
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000033
+
+Emergency Contact: Tatum Rae Gray | Partner | 021-555-2031
+Diagnosed Health Conditions: None known
+Allergies: None known
+Approved Emergency Steps and Medicines: Standard first aid response; escalate if required.
+Prior Training and Qualifications: Trade operations and safety complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

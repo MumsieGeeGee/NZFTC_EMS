@@ -1,0 +1,111 @@
+@model NZFTC_EMS.Models.LeaveEntitlement
+
+@{
+    var entitlement = Model ?? new NZFTC_EMS.Models.LeaveEntitlement();
+}
+
+<div class="leave-summary-grid">
+    <div class="entitlement-card">
+        <h3>Package</h3>
+        <p class="entitlement-value">@entitlement.SalaryPackageDisplayName</p>
+        <p>Annual salary: <strong>@($"${entitlement.ApproximateAnnualSalary:N0}")</strong></p>
+    </div>
+
+    <div class="entitlement-card">
+        <h3>Annual Leave</h3>
+        <p>Standard Leave: <strong>@entitlement.AnnualLeaveLawfulDays days</strong></p>
+        <p>Salary Pack Extra: <strong>@entitlement.AnnualLeavePackageExtraDays days</strong></p>
+        <p>Total Leave: <strong>@entitlement.AnnualLeaveDays days</strong></p>
+        <p>Taken Leave: <strong>@entitlement.AnnualLeaveTakenDays days</strong></p>
+        <p>Scheduled Leave: <strong>@entitlement.AnnualLeaveScheduledDays days</strong></p>
+        <p>Remaining Balance: <strong>@entitlement.RemainingAnnualLeaveDays days</strong></p>
+    </div>
+
+    <div class="entitlement-card">
+        <h3>Sick Leave</h3>
+        <p>Standard Leave: <strong>@entitlement.SickLeaveLawfulDays days</strong></p>
+        <p>Salary Pack Extra: <strong>@entitlement.SickLeavePackageExtraDays days</strong></p>
+        <p>Total Leave: <strong>@entitlement.SickLeaveDays days</strong></p>
+        <p>Taken Leave: <strong>@entitlement.SickLeaveTakenDays days</strong></p>
+        <p>Scheduled Leave: <strong>@entitlement.SickLeaveScheduledDays days</strong></p>
+        <p>Remaining Balance: <strong>@entitlement.RemainingSickLeaveDays days</strong></p>
+    </div>
+
+    <div class="entitlement-card">
+        <h3>Special Leave</h3>
+        <p>Standard Leave: <strong>@entitlement.SpecialLeaveLawfulDays days</strong></p>
+        <p>Salary Pack Extra: <strong>@entitlement.SpecialLeavePackageExtraDays days</strong></p>
+        <p>Total Leave: <strong>@entitlement.SpecialLeaveDays days</strong></p>
+        <p>Taken Leave: <strong>@entitlement.SpecialLeaveTakenDays days</strong></p>
+        <p>Scheduled Leave: <strong>@entitlement.SpecialLeaveScheduledDays days</strong></p>
+        <p>Remaining Balance: <strong>@entitlement.RemainingSpecialLeaveDays days</strong></p>
+        <p class="leave-note">Legacy special leave reasons are grouped into this standard bucket.</p>
+    </div>
+
+    <div class="entitlement-card">
+        <h3>Parental Leave</h3>
+        <p>Standard Leave: <strong>@entitlement.ParentalLeaveLawfulWeeks weeks</strong></p>
+        <p>Salary Pack Extra: <strong>@entitlement.ParentalLeavePackageExtraWeeks weeks</strong></p>
+        <p>Total Leave: <strong>@entitlement.ParentalLeaveWeeks weeks</strong></p>
+        <p>Taken Leave: <strong>@entitlement.ParentalLeaveTakenWeeks weeks</strong></p>
+        <p>Scheduled Leave: <strong>@entitlement.ParentalLeaveScheduledWeeks weeks</strong></p>
+        <p>Remaining Balance: <strong>@entitlement.RemainingParentalLeaveWeeks weeks</strong></p>
+        <p class="leave-note">Legacy parental variants are grouped into this standard bucket.</p>
+    </div>
+
+    <div class="entitlement-card">
+        <h3>Public Holidays</h3>
+        <p>Standard Leave: <strong>@entitlement.PublicHolidayLawfulDays days</strong></p>
+        <p>Salary Pack Extra: <strong>@entitlement.PublicHolidayPackageExtraDays days</strong></p>
+        <p>Total Leave: <strong>@entitlement.PublicHolidayDays days</strong></p>
+        <p class="leave-note">This comes from the current holiday calendar and is carried through the package data.</p>
+    </div>
+
+    <div class="entitlement-card">
+        <h3>Package Extras</h3>
+        <p>KiwiSaver employer contribution: <strong>@entitlement.KiwiSaverEmployerContribution%</strong></p>
+        <p>Superannuation contribution: <strong>@entitlement.SuperannuationContribution%</strong></p>
+        <p>Health insurance contribution: <strong>@($"${entitlement.HealthInsuranceContribution:N0}")</strong></p>
+        <p>Professional development contribution: <strong>@($"${entitlement.ProfessionalDevelopmentContribution:N0}")</strong></p>
+        <p>Employee assistance program: <strong>@($"${entitlement.EmployeeAssistanceProgramContribution:N0}")</strong></p>
+    </div>
+</div>
+
+<style>
+    .leave-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+    }
+
+    .entitlement-card {
+        background: #FFFFFF;
+        border: 1px solid #C7CED6;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 1px 2px rgba(42, 93, 143, 0.08);
+    }
+
+    .entitlement-card h3 {
+        margin-bottom: 8px;
+        color: #2A5D8F;
+    }
+
+    .entitlement-value {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #5BA6A6;
+    }
+
+    .entitlement-card p {
+        margin-bottom: 6px;
+        color: #4A4A4A;
+    }
+
+    .leave-note {
+        margin-top: 6px;
+        color: #8A5A00;
+        font-size: 12px;
+    }
+</style>

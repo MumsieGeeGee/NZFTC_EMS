@@ -6,11 +6,55 @@ Last Name: Black
 Date of Birth: 04-04-1994
 Business Role: Admin
 Job Role: Human Resources Administrator
+Employment Type: Full-time
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 29.33
+Approximate Annual Salary: 61000
+Annual Salary: 61000
+Monthly Salary: 5083.33
+Fortnightly Salary: 2346.15
+Weekly Salary: 1173.08
+Annual Leave Entitlement: 25
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 5
+Annual Leave Total Entitlement: 25
+Sick Leave Entitlement: 14
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 4
+Sick Leave Total Entitlement: 14
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 2
+Maternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Special Leave Entitlement: 4
+Special Leave Package Extra: 4
+KiwiSaver Employer Contribution: 4%
+Superannuation Contribution: 4%
+Health Insurance Contribution: $800 per year
+Professional Development Contribution: $1000 per year
+Employee Assistance Program Contribution: $800 per year
 Address: 12 Grimmauld Place, Rangiora, Chch, 0000, PO Box: 0
 Email Address: sirius@email.com
 Phone Number: 02121343244
 Username: admin_hr_sirius_orion_black
 Password: e64f7906bc6ecbb6
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000005
+
+Emergency Contact: Lily Evie Potter | Partner | 021-555-2032
+Diagnosed Health Conditions: None known
+Allergies: None known
+Approved Emergency Steps and Medicines: Standard first aid response; escalate if required.
+Prior Training and Qualifications: Admin leadership training complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

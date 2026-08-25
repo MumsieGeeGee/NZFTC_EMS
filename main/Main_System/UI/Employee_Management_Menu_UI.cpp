@@ -18,10 +18,8 @@
 void Display_Employee_Management_Menu_UI() {
     std::cout << "Employee Management System Menu:\n";
     std::cout << "1. View Employees\n";
-    std::cout << "2. Add Employee\n";
-    std::cout << "3. Update Employee\n";
-    std::cout << "4. Delete Employee\n";
-    std::cout << "5. Exit\n";
+    std::cout << "2. Update Employee\n";
+    std::cout << "3. Exit\n";
 }
 // View Employees Menu
 void Display_View_Employees_UI() {

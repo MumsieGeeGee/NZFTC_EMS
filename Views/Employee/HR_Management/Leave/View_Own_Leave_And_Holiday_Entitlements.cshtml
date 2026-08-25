@@ -1,0 +1,24 @@
+@model NZFTC_EMS.Models.LeaveEntitlement
+
+@{
+    var entitlement = Model ?? new NZFTC_EMS.Models.LeaveEntitlement();
+}
+
+<div class="leave-panel">
+    <h2>My Leave and Holiday Entitlements</h2>
+    <p class="leave-intro">Current balances for @entitlement.JobRole within @entitlement.BusinessRole.</p>
+
+    @if (!string.IsNullOrWhiteSpace(entitlement.ResolutionMessage))
+    {
+        <p class="leave-note">@entitlement.ResolutionMessage</p>
+    }
+
+    @await Html.PartialAsync("~/Views/Shared/Leave/Leave_Entitlement_Summary.cshtml", entitlement)
+</div>
+
+<style>
+    .leave-panel { color: #2A5D8F; }
+    .leave-panel h2 { margin-bottom: 10px; }
+    .leave-intro { color: #4A4A4A; margin-bottom: 16px; }
+    .leave-note { color: #8A5A00; margin-bottom: 16px; }
+</style>

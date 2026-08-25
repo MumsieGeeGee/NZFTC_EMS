@@ -1,10 +1,11 @@
 New Years Day: 01/01/2026
 Day after New Years Day: 02/01/2026
-Waitangi Day: 
-Good Friday: 
-Easter Monday: 
-ANZAC Day: 
-Queens/Kings Birthday: 
-Labour Day: 
+Waitangi Day: 06/02/2026
+Good Friday: 03/04/2026
+Easter Monday: 06/04/2026
+ANZAC Day: 27/04/2026
+Queens/Kings Birthday: 01/06/2026
+Matariki: 10/07/2026
+Labour Day: 26/10/2026
 Christmas Day: 25/12/2026
-Boxing Day: 26/12/2026
+Boxing Day: 28/12/2026

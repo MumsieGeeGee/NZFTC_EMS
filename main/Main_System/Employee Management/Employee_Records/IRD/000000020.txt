@@ -1,3 +1,52 @@
 Employee Tax Information Record
 IRD Number: 000000020
-IRD Confirmation Status: Unconfirmed
+IRD Confirmation Status: Confirmed
+PAYE Frequency: Weekly
+PAYE Table Version: 2026
+Extra PAYE Voluntary Deductions: 0
+Tax Codes Job Type: Primary
+Primary Tax Code: ME
+Secondary Tax Code: 
+Special Tax Code: None
+STC Rate: 
+STC Letter Received: No
+STC Expiry Date: 
+ACC Levy Type: Earners Levy Rate
+ACC Earners Levy: active
+ACC Earners Levy Rate: 1.75%
+ACC Workplace Levy: inactive
+ACC Workplace Levy Rate: 0%
+ACC Levy Maximum Earnings Threshold: 142283
+Student Loan Existence: No
+Student Loan Tax Code: None
+Student Loan SDR IRD Letter seen by Admin: No
+Student Loan Special Deduction Rate (SDR) Percentage: 12%
+Student Loan Repayment Exemption Existence: No
+Student Loan Repayment Exemption Reason: None
+Student Loan Repayment Exemption Expiry Date: 
+Student Loan Repayment Threshold: 24128
+Child Support Status: inactive
+Child Support Standard Deduction: 0
+Child Support Voluntary Deduction: 0
+Child Support Protected Net Earnings: 0
+Child Support Shortfall Calculation: 0
+Child Support IRD Notice of Deduction Existence: No
+Child Support IRD Notice of Deduction Amount: 0
+Child Support IRD Notice of Deduction Effective Date: 
+Child Support IRD Notice of Deduction Expiry Date: 
+Child Support IRD Notice of Deduction Reference Number: 
+KiwiSaver Status: opt-in
+KiwiSaver Employee Contribution Rate: 3%
+KiwiSaver Employer Contribution Rate: 3%
+KiwiSaver Opt Out Date: 
+Employee Extras: inactive
+Employee Extra Rate: 0%
+Employee Extra Type(s): None
+Pay Type: Casual
+Employment Type: Casual
+Contracted Weekly Hours: 20
+Contracted Hourly Rate: 50
+Annual Salary: 
+Monthly Salary: 
+Fortnightly Salary: 
+Weekly Salary:

@@ -98,11 +98,9 @@ void Display_Assigned_Team_Members_UI(
 void Display_Admin_Employee_Management_Menu_UI() {
 	std::cout << "Employee Management Menu:" << std::endl;
 	std::cout << "1. View an Employees Details" << std::endl;
-	std::cout << "2. Add New Employee" << std::endl;
-	std::cout << "3. Edit an Existing Employees Details" << std::endl;
-	std::cout << "4. Delete an Employee" << std::endl;
-	std::cout << "5. " << Return_to_Admin_Dashboard_Main_Menu_Label << std::endl;
-	std::cout << Please_Select_an_Option_Label << " (1-5): ";
+	std::cout << "2. Edit an Existing Employees Details" << std::endl;
+	std::cout << "3. " << Return_to_Admin_Dashboard_Main_Menu_Label << std::endl;
+	std::cout << Please_Select_an_Option_Label << " (1-3): ";
 }
 
 void Display_Partial_Admin_Dashboard_Main_Menu_UI() {

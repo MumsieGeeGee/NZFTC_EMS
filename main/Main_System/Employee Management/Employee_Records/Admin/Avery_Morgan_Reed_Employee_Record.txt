@@ -6,11 +6,55 @@ Last Name: Reed
 Date of Birth: 12-03-1994
 Business Role: Admin
 Job Role: Receptionist
+Employment Type: Full-time
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 24.04
+Approximate Annual Salary: 50000
+Annual Salary: 50000
+Monthly Salary: 4166.67
+Fortnightly Salary: 1923.08
+Weekly Salary: 961.54
+Annual Leave Entitlement: 22
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 2
+Annual Leave Total Entitlement: 22
+Sick Leave Entitlement: 12
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 2
+Sick Leave Total Entitlement: 12
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 1
+Maternity Leave Entitlement: 26 weeks lawful + 1 weeks extra = 27 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 1 weeks extra = 27 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 1 weeks extra = 27 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 1 weeks extra = 27 weeks total
+Special Leave Entitlement: 4
+Special Leave Package Extra: 4
+KiwiSaver Employer Contribution: 3%
+Superannuation Contribution: 3%
+Health Insurance Contribution: $500 per year
+Professional Development Contribution: $500 per year
+Employee Assistance Program Contribution: $800 per year
 Address: 9 Harbour Road, Te Aro, Wellington, 6011, PO Box: 109
 Email Address: avery.reed@example.test
 Phone Number: 021-000-1009
 Username: admin_r_avery_morgan_reed
 Password: e6b86f1e295b93ad
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000009
+
+Emergency Contact: Jordan Mae Quinn | Partner | 021-555-2003
+Diagnosed Health Conditions: Hay fever
+Allergies: Latex
+Approved Emergency Steps and Medicines: Use standard antihistamine procedure if supplied and escalate as needed.
+Prior Training and Qualifications: Reception and compliance induction complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

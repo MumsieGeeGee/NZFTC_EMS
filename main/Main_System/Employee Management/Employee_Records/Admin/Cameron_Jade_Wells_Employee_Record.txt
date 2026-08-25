@@ -6,11 +6,55 @@ Last Name: Wells
 Date of Birth: 27-06-1987
 Business Role: Admin
 Job Role: Senior General Administrator
+Employment Type: Full-time
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 27.4
+Approximate Annual Salary: 57000
+Annual Salary: 57000
+Monthly Salary: 4750
+Fortnightly Salary: 2192.31
+Weekly Salary: 1096.15
+Annual Leave Entitlement: 22
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 2
+Annual Leave Total Entitlement: 22
+Sick Leave Entitlement: 12
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 2
+Sick Leave Total Entitlement: 12
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 2
+Maternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Special Leave Entitlement: 4
+Special Leave Package Extra: 4
+KiwiSaver Employer Contribution: 4%
+Superannuation Contribution: 3%
+Health Insurance Contribution: $500 per year
+Professional Development Contribution: $1000 per year
+Employee Assistance Program Contribution: $800 per year
 Address: 15 Rimu Crescent, Stoke, Nelson, 7011, PO Box: 115
 Email Address: cameron.wells@example.test
 Phone Number: 021-000-1015
 Username: admin_sg_cameron_jade_wells
 Password: 5ff3d92d916cef50
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000015
+
+Emergency Contact: Morgan Elise Hart | Parent | 021-555-2006
+Diagnosed Health Conditions: Type 1 diabetes
+Allergies: None known
+Approved Emergency Steps and Medicines: Follow approved glucose response plan and escalate if required.
+Prior Training and Qualifications: Admin support and emergency response briefing complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

@@ -1,0 +1,72 @@
+@model NZFTC_EMS.Models.LeaveRequest
+@{
+    Layout = null;
+    var leaveRequest = Model ?? new NZFTC_EMS.Models.LeaveRequest();
+}
+
+<style>
+    * { box-sizing: border-box; }
+    .panel {
+        max-width: 900px;
+        background: #FFFFFF;
+        border: 1px solid #C7CED6;
+        border-radius: 10px;
+        padding: 24px;
+        color: #2A5D8F;
+        box-shadow: 0 2px 6px rgba(42, 93, 143, 0.08);
+    }
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+        gap: 16px;
+        margin: 20px 0;
+    }
+    .card {
+        background: #F5F7FA;
+        border: 1px solid #C7CED6;
+        border-radius: 8px;
+        padding: 14px;
+    }
+    .actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 18px;
+    }
+    .danger-btn, .secondary-link {
+        display: inline-block;
+        border-radius: 6px;
+        padding: 10px 16px;
+        font-weight: 700;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+    .danger-btn { background: #A94442; color: #FFFFFF; }
+    .secondary-link { background: #C7CED6; color: #4A4A4A; }
+</style>
+
+<div class="panel">
+    <h2>Delete Leave Request #@leaveRequest.Id</h2>
+    <p>Delete this leave request only if it was created in error.</p>
+
+    <div class="grid">
+        <div class="card"><strong>Employee</strong><div>@leaveRequest.EmployeeName</div></div>
+        <div class="card"><strong>Status</strong><div>@leaveRequest.Status</div></div>
+        <div class="card"><strong>Leave type</strong><div>@leaveRequest.LeaveType</div></div>
+        <div class="card"><strong>Dates</strong><div>@leaveRequest.StartDate.ToString("dd MMM yyyy") to @leaveRequest.EndDate.ToString("dd MMM yyyy")</div></div>
+    </div>
+
+    <div class="card">
+        <strong>Reason</strong>
+        <div>@leaveRequest.Reason</div>
+    </div>
+
+    <form method="post" action="@Url.Action("ConfirmDeleteLeaveRequest", "Admin")">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="leaveRequestId" value="@leaveRequest.Id" />
+        <div class="actions">
+            <button type="submit" class="danger-btn">Delete leave request</button>
+            <a class="secondary-link" href="@Url.Action("HRManagement", "Admin", new { actionKey = "view-selected-employee-open-leave-requests" })">Back to HR management</a>
+        </div>
+    </form>
+</div>

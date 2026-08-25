@@ -1,0 +1,39 @@
+@using System.Linq
+@model IEnumerable<NZFTC_EMS.Models.LeaveRequest>
+
+@{
+    var requests = Model ?? Enumerable.Empty<NZFTC_EMS.Models.LeaveRequest>();
+}
+
+<div class="leave-panel">
+    <h2>My Temporarily Denied Leave Requests</h2>
+    <p class="leave-intro">These leaves have been paused pending review or further information.</p>
+
+    @if (!requests.Any())
+    {
+        <div class="empty-state">No temporarily denied leave requests.</div>
+    }
+    else
+    {
+        foreach (var request in requests)
+        {
+            <div class="leave-card">
+                <div class="leave-card-header">
+                    <span class="leave-badge">@request.Status</span>
+                    <strong>#@request.Id</strong>
+                </div>
+                <h3>@request.LeaveType</h3>
+                <p><strong>Dates:</strong> @request.StartDate.ToString("dd MMM yyyy") to @request.EndDate.ToString("dd MMM yyyy")</p>
+                <p><strong>Decision:</strong> @request.DecisionReason</p>
+            </div>
+        }
+    }
+</div>
+
+<style>
+    .leave-panel { color: #2A5D8F; }
+    .leave-card { background: #FFFFFF; border: 1px solid #C7CED6; border-radius: 8px; padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 2px rgba(42, 93, 143, 0.08); }
+    .leave-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .leave-badge { background: #C7CED6; color: #4A4A4A; padding: 4px 8px; border-radius: 14px; font-size: 12px; font-weight: 700; }
+    .empty-state { background: #F5F7FA; border: 1px dashed #C7CED6; padding: 18px; border-radius: 8px; color: #4A4A4A; }
+</style>

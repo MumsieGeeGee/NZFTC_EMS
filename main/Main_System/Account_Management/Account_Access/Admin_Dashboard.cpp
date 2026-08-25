@@ -501,24 +501,18 @@ void Get_Personal_Employee_Management_Menu_Choice(Admin_Role admin_role, Finance
 }
 
 void Get_Admin_Employee_Management_Menu_Choice(Admin_Role admin_role, Finance_Role finance_role, Trade_Role trade_role, int& choice) {
+    (void)admin_role;
+    (void)finance_role;
+    (void)trade_role;
     std::cin >> choice;
     switch (choice) {
         case 1:
             View_Selected_Users_Employee_Details();
             break;
         case 2:
-            Display_Account_User_Details_Required_UI();
-            Display_Continue_Account_Creation_Question_UI();
-            Get_Continue_Account_Creation_Question_Options();
-            break;
-        case 3:
             Edit_Selected_Users_Employee_Details();
             break;
-        case 4:
-            Display_Delete_Accounts_Menu_UI();
-            Get_Delete_Accounts_Menu_Options();
-            break;
-        case 5:
+        case 3:
             return;
         default:
             std::cout << Display_Error << Invalid_Input_Try_Again << std::endl;

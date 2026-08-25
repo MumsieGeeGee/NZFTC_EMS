@@ -1,0 +1,70 @@
+@using System.Globalization
+@using System.Linq
+@model IReadOnlyList<NZFTC_EMS.Models.PayslipRecord>
+@{
+    var payslips = Model ?? Array.Empty<NZFTC_EMS.Models.PayslipRecord>();
+}
+
+<h3>My Payslips</h3>
+@if (!payslips.Any())
+{
+    <p>No payslips are currently available for this employee.</p>
+}
+else
+{
+    <table class="table table-striped table-bordered" style="width: 100%;">
+        <thead>
+            <tr>
+                <th>Package</th>
+                <th>Pay Period</th>
+                <th>Base Pay</th>
+                <th>OT</th>
+                <th>Bonus</th>
+                <th>Allowances</th>
+                <th>Gross Pay</th>
+                <th>Pre-tax</th>
+                <th>Taxable</th>
+                <th>PAYE</th>
+                <th>Student Loan</th>
+                <th>KiwiSaver (Employee)</th>
+                <th>KiwiSaver (Employer)</th>
+                <th>ESCT</th>
+                <th>ACC</th>
+                <th>Post-tax</th>
+                <th>Net Pay</th>
+                <th>Annual Leave</th>
+                <th>Generated</th>
+                <th>View</th>
+                <th>Download</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var payslip in payslips)
+            {
+                <tr>
+                    <td>@(string.IsNullOrWhiteSpace(payslip.SalaryPackageDisplayName) ? payslip.SalaryPackageName : payslip.SalaryPackageDisplayName)</td>
+                    <td>@payslip.PayPeriod</td>
+                    <td>@payslip.BasePay.ToString("C2")</td>
+                    <td>@payslip.OvertimePay.ToString("C2")</td>
+                    <td>@payslip.BonusPay.ToString("C2")</td>
+                    <td>@payslip.AllowancePay.ToString("C2")</td>
+                    <td>@payslip.GrossPay.ToString("C2")</td>
+                    <td>@payslip.PreTaxDeductions.ToString("C2")</td>
+                    <td>@payslip.TaxableIncome.ToString("C2")</td>
+                    <td>@payslip.PAYE.ToString("C2")</td>
+                    <td>@payslip.StudentLoan.ToString("C2")</td>
+                    <td>@payslip.KiwiSaverEmployeeContribution.ToString("C2")</td>
+                    <td>@payslip.KiwiSaverEmployerContribution.ToString("C2")</td>
+                    <td>@payslip.ESCT.ToString("C2")</td>
+                    <td>@payslip.ACCLevy.ToString("C2")</td>
+                    <td>@payslip.PostTaxDeductions.ToString("C2")</td>
+                    <td>@payslip.NetPay.ToString("C2")</td>
+                    <td>@payslip.AnnualLeaveRemainingDays days</td>
+                    <td>@payslip.CreatedOn.ToString("dd MMM yyyy")</td>
+                    <td><a href="@Url.Action("ViewPayslip", "Employee", new { payslipId = payslip.Id })" target="_blank" rel="noopener">Open</a></td>
+                    <td><a href="@Url.Action("DownloadPayslip", "Employee", new { payslipId = payslip.Id })">TXT</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

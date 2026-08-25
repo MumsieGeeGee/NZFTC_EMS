@@ -6,11 +6,55 @@ Last Name: Hayes
 Date of Birth: 14-05-2001
 Business Role: Finance
 Job Role: Junior Casual Finance Staff
+Employment Type: Casual
+Pay Type: Casual
+Pay Frequency: Weekly
+Contracted Weekly Hours: 20
+Contracted Hourly Rate: 50
+Approximate Annual Salary: 52000
+Annual Salary: 
+Monthly Salary: 
+Fortnightly Salary: 
+Weekly Salary: 
+Annual Leave Entitlement: 20
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 0
+Annual Leave Total Entitlement: 20
+Sick Leave Entitlement: 10
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 0
+Sick Leave Total Entitlement: 10
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 0
+Maternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Special Leave Entitlement: 3
+Special Leave Package Extra: 3
+KiwiSaver Employer Contribution: 3%
+Superannuation Contribution: 0%
+Health Insurance Contribution: $0 per year
+Professional Development Contribution: $0 per year
+Employee Assistance Program Contribution: $0 per year
 Address: 20 Test Street, Central, Wellington, 6011, PO Box: 120
 Email Address: flynn.hayes@example.test
 Phone Number: 021-000-1020
 Username: finance_jc_flynn_noor_hayes
 Password: a1189888c0ae2dea
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000020
+
+Emergency Contact: Grace Lee Turner | Parent | 021-555-2011
+Diagnosed Health Conditions: None known
+Allergies: Pollen
+Approved Emergency Steps and Medicines: Monitor for allergy response and escalate if needed.
+Prior Training and Qualifications: Finance operations induction complete.
+First Aid Certification: Uncertified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

@@ -9,5 +9,6 @@ namespace NZFTC_EMS.Models
         public string IRDNumber { get; set; } = string.Empty;
         public bool IsAuthenticated { get; set; } = false;
         public DateTime LoginTime { get; set; }
+        public AccessProfile AccessProfile { get; set; } = new();
     }
 }

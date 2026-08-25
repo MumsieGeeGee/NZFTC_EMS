@@ -6,11 +6,55 @@ Last Name: Button
 Date of Birth: 01-01-1991
 Business Role: Admin
 Job Role: Junior Level Manager
+Employment Type: Full-time
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 27.88
+Approximate Annual Salary: 58000
+Annual Salary: 58000
+Monthly Salary: 4833.33
+Fortnightly Salary: 2230.77
+Weekly Salary: 1115.38
+Annual Leave Entitlement: 28
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 8
+Annual Leave Total Entitlement: 28
+Sick Leave Entitlement: 16
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 6
+Sick Leave Total Entitlement: 16
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 2
+Maternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Special Leave Entitlement: 4
+Special Leave Package Extra: 4
+KiwiSaver Employer Contribution: 4%
+Superannuation Contribution: 4%
+Health Insurance Contribution: $800 per year
+Professional Development Contribution: $1000 per year
+Employee Assistance Program Contribution: $800 per year
 Address: 1 Barbie St, Rangiora, Chch, 0000, PO Box: 0
 Email Address: Barbie@email.com
 Phone Number: 021-091-02292
 Username: admin_jlm_barbara_bonnie_button
 Password: e7e40460fd3d2bd7
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000002
+
+Emergency Contact: Jane Sarah Doe | Partner | 021-555-2002
+Diagnosed Health Conditions: None known
+Allergies: None known
+Approved Emergency Steps and Medicines: Standard first aid response; monitor and escalate if required.
+Prior Training and Qualifications: Leadership and first aid refresher complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

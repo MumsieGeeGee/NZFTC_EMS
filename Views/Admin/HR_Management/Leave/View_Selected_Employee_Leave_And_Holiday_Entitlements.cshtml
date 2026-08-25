@@ -1,0 +1,217 @@
+@using System.Text.Json
+@model NZFTC_EMS.Models.SelectedEmployeeLeaveDetailsViewModel
+@{
+    Layout = null;
+}
+
+<style>
+    .selected-leave-controls {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 10px;
+        align-items: flex-end;
+        margin-bottom: 12px;
+        overflow-x: auto;
+    }
+
+    .selected-leave-controls label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-weight: 700;
+        color: #4A4A4A;
+    }
+
+    .selected-leave-controls select {
+        width: 240px;
+        min-width: 240px;
+        max-width: 240px;
+        padding: 8px;
+        border: 1px solid #C7CED6;
+        border-radius: 4px;
+        background: #FFFFFF;
+        color: #4A4A4A;
+    }
+
+    .selected-leave-load-button {
+        background: #5BA6A6;
+        color: #4A4A4A;
+        border: 1px solid rgba(42, 93, 143, 0.2);
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .selected-leave-load-button:hover {
+        background: #C7CED6;
+    }
+</style>
+
+<div data-selected-leave-root data-endpoint="@Model.ContentEndpoint" data-action-key="view-selected-employee-leave-and-holiday-entitlements" data-usernames-by-group="@JsonSerializer.Serialize(Model.UsernamesByGroup)" data-display-names="@JsonSerializer.Serialize(Model.UsernameDisplayNames)">
+    <h2 style="color:#2A5D8F; font-size:22px; margin:0 0 12px;">View an Employee's Leave and Holiday Entitlements</h2>
+
+    <div class="selected-leave-controls">
+        <label>
+            Business Department
+            <select data-selected-group>
+                <option value="">Select a department...</option>
+                @if (Model.SelectedGroup == "admin")
+                {
+                    <option value="admin" selected>Admin</option>
+                }
+                else
+                {
+                    <option value="admin">Admin</option>
+                }
+                @if (Model.SelectedGroup == "finance")
+                {
+                    <option value="finance" selected>Finance</option>
+                }
+                else
+                {
+                    <option value="finance">Finance</option>
+                }
+                @if (Model.SelectedGroup == "trade")
+                {
+                    <option value="trade" selected>Trade</option>
+                }
+                else
+                {
+                    <option value="trade">Trade</option>
+                }
+            </select>
+        </label>
+
+        <label>
+            Employee
+            <select data-selected-username>
+                <option value="">Select an employee...</option>
+                @foreach (var username in Model.Usernames)
+                {
+                    var displayName = Model.UsernameDisplayNames.TryGetValue(username, out var resolvedDisplayName) ? resolvedDisplayName : username;
+                    if (Model.SelectedUsername == username)
+                    {
+                        <option value="@username" selected>@displayName</option>
+                    }
+                    else
+                    {
+                        <option value="@username">@displayName</option>
+                    }
+                }
+            </select>
+        </label>
+
+        <button type="button" class="selected-leave-load-button" data-load-selected-leave>Load</button>
+    </div>
+
+    <div data-selected-leave-host data-leave-content-host>
+        @if (Model.Details != null)
+        {
+            @await Html.PartialAsync("~/Views/Shared/Leave/Leave_Entitlement_Summary.cshtml", Model.Details)
+        }
+        else
+        {
+            <p style="margin:0; color:#4A4A4A;">Select a group and employee, then click Load. If the employee record is missing details, the employee record must be completed first.</p>
+        }
+    </div>
+</div>
+
+<script>
+    (function () {
+        const root = document.querySelector("[data-selected-leave-root]");
+        if (!root || root.dataset.bound === "true") {
+            return;
+        }
+
+        root.dataset.bound = "true";
+        const endpoint = root.dataset.endpoint || "";
+        const groupSelect = root.querySelector("[data-selected-group]");
+        const usernameSelect = root.querySelector("[data-selected-username]");
+        const loadButton = root.querySelector("[data-load-selected-leave]");
+        const host = root.querySelector("[data-selected-leave-host]");
+
+        if (!endpoint || !groupSelect || !usernameSelect || !loadButton || !host) {
+            return;
+        }
+
+        async function loadSelected(group, username) {
+            loadButton.disabled = true;
+            try {
+                if (!username) {
+                    host.innerHTML = '<p style="margin:0; color:#4A4A4A;">Please select an employee first.</p>';
+                    return;
+                }
+
+                const actionKey = root.dataset.actionKey || "view-selected-employee-leave-and-holiday-entitlements";
+                const response = await fetch(`${endpoint}?actionKey=${encodeURIComponent(actionKey)}&group=${encodeURIComponent(group)}&username=${encodeURIComponent(username)}`, { credentials: "same-origin" });
+                if (!response.ok) {
+                    host.innerHTML = '<p style="margin:0; color:#A61B1B;">Unable to load employee leave details right now.</p>';
+                    return;
+                }
+
+                const html = await response.text();
+                if (typeof window.nzftcSetLeaveContentHostHtml === "function") {
+                    window.nzftcSetLeaveContentHostHtml(host, html);
+                } else {
+                    host.innerHTML = html;
+                }
+            } catch (error) {
+                console.error(error);
+                host.innerHTML = '<p style="margin:0; color:#A61B1B;">Unable to load employee leave details right now.</p>';
+            } finally {
+                loadButton.disabled = false;
+            }
+        }
+
+        loadButton.addEventListener("click", () => {
+            loadSelected(groupSelect.value, usernameSelect.value);
+        });
+    })();
+</script>
+
+<script>
+    (function () {
+        const root = document.querySelector("[data-selected-leave-root]");
+        if (!root) {
+            return;
+        }
+
+        const usernamesByGroup = JSON.parse(root.dataset.usernamesByGroup || "{}");
+        const displayNames = JSON.parse(root.dataset.displayNames || "{}");
+        const groupSelect = root.querySelector("[data-selected-group]");
+        const usernameSelect = root.querySelector("[data-selected-username]");
+        const loadButton = root.querySelector("[data-load-selected-leave]");
+        const host = root.querySelector("[data-selected-leave-host]");
+        const initialMessage = "Select a group and employee, then click Load.";
+
+        function normalizeGroup(group) {
+            return (group || "").trim().toLowerCase();
+        }
+
+        function setUsernameOptions(group, selectedUsername) {
+            const usernames = Array.isArray(usernamesByGroup[normalizeGroup(group)]) ? usernamesByGroup[normalizeGroup(group)] : [];
+            const safeSelectedUsername = (selectedUsername || "").trim();
+            usernameSelect.innerHTML = '<option value="">Select an employee...</option>' + usernames.map((username) => {
+                const selected = username === safeSelectedUsername ? " selected" : "";
+                const displayName = displayNames[username] || username;
+                return `<option value="${username.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}"${selected}>${displayName.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</option>`;
+            }).join("");
+
+            if (safeSelectedUsername && usernames.includes(safeSelectedUsername)) {
+                usernameSelect.value = safeSelectedUsername;
+            } else if (usernames.length > 0) {
+                usernameSelect.value = "";
+            }
+        }
+
+        if (groupSelect && usernameSelect && loadButton && host) {
+            setUsernameOptions(groupSelect.value, usernameSelect.value);
+            groupSelect.addEventListener("change", () => {
+                setUsernameOptions(groupSelect.value, "");
+                host.innerHTML = `<p style="margin:0; color:#4A4A4A;">${initialMessage}</p>`;
+            });
+        }
+    })();
+</script>

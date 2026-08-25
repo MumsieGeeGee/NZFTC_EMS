@@ -6,12 +6,55 @@ Last Name: Lupin
 Date of Birth: 05-06-1984
 Business Role: Admin
 Job Role: Personal Assistant
-Assigned Manager: admin_jlm_barbara_bonnie_button
+Employment Type: Full-time
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 28.37
+Approximate Annual Salary: 59000
+Annual Salary: 59000
+Monthly Salary: 4916.67
+Fortnightly Salary: 2269.23
+Weekly Salary: 1134.62
+Annual Leave Entitlement: 25
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 5
+Annual Leave Total Entitlement: 25
+Sick Leave Entitlement: 14
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 4
+Sick Leave Total Entitlement: 14
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 2
+Maternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 2 weeks extra = 28 weeks total
+Special Leave Entitlement: 4
+Special Leave Package Extra: 4
+KiwiSaver Employer Contribution: 4%
+Superannuation Contribution: 4%
+Health Insurance Contribution: $800 per year
+Professional Development Contribution: $500 per year
+Employee Assistance Program Contribution: $800 per year
 Address: 3 Nowhere St, The Woods, Auckland, 0000, PO Box: 0
 Email Address: remus@professor.com
 Phone Number: 02192342324
 Username: admin_pa_remus_james_lupin
 Password: 9a0a324d178d0c24
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000006
+
+Emergency Contact: Lily Evie Potter | Partner | 021-555-2028
+Diagnosed Health Conditions: None known
+Allergies: None known
+Approved Emergency Steps and Medicines: Standard first aid response; escalate if required.
+Prior Training and Qualifications: Admin leadership and wellbeing complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

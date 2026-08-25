@@ -1,0 +1,93 @@
+@model NZFTC_EMS.Models.LeaveRequest
+@{
+    Layout = null;
+    var leaveRequest = Model ?? new NZFTC_EMS.Models.LeaveRequest();
+    var selectedLeaveType = NZFTC_EMS.Services.LeaveRequestService.CanonicalizeLeaveType(leaveRequest.LeaveType);
+}
+
+<style>
+    * { box-sizing: border-box; }
+    .panel {
+        max-width: 900px;
+        background: #FFFFFF;
+        border: 1px solid #C7CED6;
+        border-radius: 10px;
+        padding: 24px;
+        color: #2A5D8F;
+        box-shadow: 0 2px 6px rgba(42, 93, 143, 0.08);
+    }
+    .form-row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    .two-column {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+        gap: 16px;
+    }
+    label { font-weight: 700; }
+    input, select, textarea {
+        width: 100%;
+        border: 1px solid #C7CED6;
+        border-radius: 6px;
+        padding: 10px 12px;
+        font-size: 14px;
+        font-family: inherit;
+    }
+    textarea { min-height: 130px; resize: vertical; }
+    .actions { display: flex; gap: 12px; margin-top: 18px; }
+    .primary-btn, .secondary-link {
+        display: inline-block;
+        border-radius: 6px;
+        padding: 10px 16px;
+        font-weight: 700;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+    .primary-btn { background: #2A5D8F; color: #FFFFFF; }
+    .secondary-link { background: #C7CED6; color: #4A4A4A; }
+</style>
+
+<div class="panel">
+    <h2>Edit Leave Request #@leaveRequest.Id</h2>
+    <p>Update the leave details and save the revised request.</p>
+
+    <form method="post" action="@Url.Action("UpdateLeaveRequest", "Admin")">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="leaveRequestId" value="@leaveRequest.Id" />
+
+        <div class="form-row">
+            <label for="leaveType">Leave Type</label>
+            <select id="leaveType" name="leaveType">
+                <option value="Annual Leave" selected="@(selectedLeaveType == "Annual Leave")">Annual Leave</option>
+                <option value="Sick Leave" selected="@(selectedLeaveType == "Sick Leave")">Sick Leave</option>
+                <option value="Parental Leave" selected="@(selectedLeaveType == "Parental Leave")">Parental Leave</option>
+                <option value="Special Leave" selected="@(selectedLeaveType == "Special Leave")">Special Leave</option>
+            </select>
+        </div>
+
+        <div class="form-row two-column">
+            <div>
+                <label for="startDate">Start Date</label>
+                <input id="startDate" name="startDate" type="date" value="@leaveRequest.StartDate.ToString("yyyy-MM-dd")" />
+            </div>
+            <div>
+                <label for="endDate">End Date</label>
+                <input id="endDate" name="endDate" type="date" value="@leaveRequest.EndDate.ToString("yyyy-MM-dd")" />
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label for="reason">Reason</label>
+            <textarea id="reason" name="reason">@leaveRequest.Reason</textarea>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="primary-btn">Save changes</button>
+            <a class="secondary-link" href="@Url.Action("HRManagement", "Admin", new { actionKey = "view-selected-employee-open-leave-requests" })">Back to HR management</a>
+        </div>
+    </form>
+</div>

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using NZFTC_EMS.Models;
 using NZFTC_EMS.Services;
 using NZFTC_EMS.Utilities;
+using System.Text.Json;
 
 namespace NZFTC_EMS.Controllers
 {
@@ -60,7 +61,7 @@ namespace NZFTC_EMS.Controllers
 
                 if (!success || userSession == null)
                 {
-                    SetPageMessage(MainSystemAuthMessages.AsError(message));
+                    SetPageMessage(FormatAuthMessage(message));
                     _logger.LogWarning($"Failed login attempt for username: {model.Username}. Reason: {message}");
                     return RenderLoginView(model);
                 }
@@ -71,6 +72,11 @@ namespace NZFTC_EMS.Controllers
                 HttpContext.Session.SetString("IRDNumber", userSession.IRDNumber);
                 HttpContext.Session.SetString("IsAuthenticated", userSession.IsAuthenticated.ToString());
                 HttpContext.Session.SetString("LoginTime", userSession.LoginTime.ToString("O"));
+                HttpContext.Session.SetString("AccessProfile", JsonSerializer.Serialize(userSession.AccessProfile));
+                HttpContext.Session.SetString("BusinessRole", userSession.AccessProfile.BusinessRole);
+                HttpContext.Session.SetString("JobRole", userSession.AccessProfile.JobRole);
+                HttpContext.Session.SetString("DashboardMode", userSession.AccessProfile.DashboardMode);
+                HttpContext.Session.SetString("RequiresSecondaryAuth", userSession.AccessProfile.RequiresSecondaryAuth.ToString());
 
                 _logger.LogInformation($"User '{model.Username}' logged in successfully from IP: {HttpContext.Connection.RemoteIpAddress}");
 
@@ -97,7 +103,7 @@ namespace NZFTC_EMS.Controllers
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
             var username = HttpContext.Session.GetString("Username");
 
@@ -107,6 +113,7 @@ namespace NZFTC_EMS.Controllers
                 return RedirectToAction(nameof(Login));
             }
 
+            await _authService.LogoutUserAsync(username);
             HttpContext.Session.Clear();
 
             _logger.LogInformation($"User '{username}' logged out");
@@ -121,13 +128,25 @@ namespace NZFTC_EMS.Controllers
         private IActionResult RedirectToDashboard()
         {
             var accountType = HttpContext.Session.GetString("AccountType");
-
-            return accountType switch
+            if (AccessProfileSessionHelper.TryGetAccessProfile(HttpContext.Session, out var accessProfile))
             {
-                "Admin" => RedirectToAction("Dashboard", "Admin"),
-                "User" => RedirectToAction("Dashboard", "Employee"),
-                "Finance" => RedirectToAction("Dashboard", "Employee"),
-                "Trade" => RedirectToAction("Dashboard", "Employee"),
+                if (AccessProfileSessionHelper.IsAdminPortalProfile(accessProfile))
+                {
+                    return RedirectToAction("Dashboard", "Admin");
+                }
+
+                if (AccessProfileSessionHelper.IsEmployeePortalProfile(accessProfile))
+                {
+                    return RedirectToAction("Dashboard", "Employee");
+                }
+            }
+
+            return (accountType ?? string.Empty).Trim().ToLowerInvariant() switch
+            {
+                "admin" => RedirectToAction("Dashboard", "Admin"),
+                "employee" => RedirectToAction("Dashboard", "Employee"),
+                "finance" => RedirectToAction("Dashboard", "Employee"),
+                "trade" => RedirectToAction("Dashboard", "Employee"),
                 _ => RedirectToAction("Login", "Login")
             };
         }
@@ -185,6 +204,22 @@ namespace NZFTC_EMS.Controllers
             }
 
             return MainSystemAuthMessages.AsError(MainSystemAuthMessages.InvalidInputTryAgain);
+        }
+
+        private static string FormatAuthMessage(string message)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return MainSystemAuthMessages.AsError(MainSystemAuthMessages.LoginFailed);
+            }
+
+            if (message.StartsWith(MainSystemAuthMessages.DisplayError, StringComparison.OrdinalIgnoreCase) ||
+                message.StartsWith(MainSystemAuthMessages.DisplayInfo, StringComparison.OrdinalIgnoreCase))
+            {
+                return message;
+            }
+
+            return MainSystemAuthMessages.AsError(message);
         }
     }
 }

@@ -6,11 +6,55 @@ Last Name: Bell
 Date of Birth: 08-11-1998
 Business Role: Admin
 Job Role: Junior Casual Administrator
+Employment Type: Casual
+Pay Type: Casual
+Pay Frequency: Weekly
+Contracted Weekly Hours: 20
+Contracted Hourly Rate: 46.15
+Approximate Annual Salary: 48000
+Annual Salary: 
+Monthly Salary: 
+Fortnightly Salary: 
+Weekly Salary: 
+Annual Leave Entitlement: 20
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 0
+Annual Leave Total Entitlement: 20
+Sick Leave Entitlement: 10
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 0
+Sick Leave Total Entitlement: 10
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 0
+Maternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Special Leave Entitlement: 3
+Special Leave Package Extra: 3
+KiwiSaver Employer Contribution: 3%
+Superannuation Contribution: 0%
+Health Insurance Contribution: $0 per year
+Professional Development Contribution: $0 per year
+Employee Assistance Program Contribution: $0 per year
 Address: 11 Tui Street, Mount Eden, Auckland, 1024, PO Box: 111
 Email Address: casey.bell@example.test
 Phone Number: 021-000-1011
 Username: admin_jc_casey_rowan_bell
 Password: 60d1f831e993ee10
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000011
+
+Emergency Contact: Riley Noor Shaw | Partner | 021-555-2007
+Diagnosed Health Conditions: None known
+Allergies: None known
+Approved Emergency Steps and Medicines: Standard first aid response; escalate if required.
+Prior Training and Qualifications: Records and compliance induction complete.
+First Aid Certification: Certified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

@@ -1,0 +1,48 @@
+@model NZFTC_EMS.Models.PayrollTaxInformation
+@{
+    var taxInfo = Model;
+}
+
+<h3>My Tax Information</h3>
+@if (taxInfo == null || string.IsNullOrWhiteSpace(taxInfo.Username))
+{
+    <p>No tax information is available for this employee yet.</p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-5">Employee</dt>
+                <dd class="col-sm-7">@taxInfo.EmployeeName</dd>
+
+                <dt class="col-sm-5">IRD Number</dt>
+                <dd class="col-sm-7">@taxInfo.IRDNumber</dd>
+
+                <dt class="col-sm-5">Tax Code</dt>
+                <dd class="col-sm-7">@taxInfo.TaxCode</dd>
+
+                <dt class="col-sm-5">Pay Frequency</dt>
+                <dd class="col-sm-7">@taxInfo.PayFrequency</dd>
+
+                <dt class="col-sm-5">IRD Status</dt>
+                <dd class="col-sm-7">@taxInfo.IRDConfirmationStatus</dd>
+            </dl>
+        </div>
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-6">Student Loan</dt>
+                <dd class="col-sm-6">@taxInfo.StudentLoanStatus</dd>
+
+                <dt class="col-sm-6">KiwiSaver</dt>
+                <dd class="col-sm-6">@taxInfo.KiwiSaverEmployerContributionRate%</dd>
+
+                <dt class="col-sm-6">ACC Levy</dt>
+                <dd class="col-sm-6">@taxInfo.ACCLevyRate%</dd>
+
+                <dt class="col-sm-6">PAYE Version</dt>
+                <dd class="col-sm-6">@taxInfo.PAYETableVersion</dd>
+            </dl>
+        </div>
+    </div>
+}

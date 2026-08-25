@@ -1,5 +1,7 @@
-using System;
-using System.Text;
+using System.Diagnostics;
+using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using NZFTC_EMS.Models;
 using NZFTC_EMS.Utilities;
 
@@ -8,281 +10,358 @@ namespace NZFTC_EMS.Services
     public interface IAuthenticationService
     {
         Task<(bool Success, string Message, UserSession? Session)> AuthenticateUserAsync(string username, string password);
+        Task<bool> LogoutUserAsync(string username);
     }
 
     public class AuthenticationService : IAuthenticationService
     {
         private readonly ILogger<AuthenticationService> _logger;
+        private const string BridgeUnavailableMessage = "Main_System bridge is unavailable or outdated. Rebuild the Main_System executable with UI bridge support, then retry login.";
+        private static readonly TimeSpan BridgeLoginTimeout = TimeSpan.FromSeconds(5);
+        private static readonly TimeSpan BridgeActionTimeout = TimeSpan.FromSeconds(5);
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
         public AuthenticationService(ILogger<AuthenticationService> logger)
         {
             _logger = logger;
         }
 
-        /// <summary>
-        /// Authenticates user by reading Main_System's individual employee record files
-        /// and using the same FNV-1a hashing algorithm Main_System uses.
-        /// Replicates Main_System's Find_Record_For_Username() + Check_Account_Exists() logic.
-        /// </summary>
         public async Task<(bool Success, string Message, UserSession? Session)> AuthenticateUserAsync(string username, string password)
         {
-            try
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
-                if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+                if (string.IsNullOrWhiteSpace(username))
                 {
-                    if (string.IsNullOrWhiteSpace(username))
-                    {
-                        return (false, MainSystemAuthMessages.UsernameInvalid, null);
-                    }
-
-                    return (false, MainSystemAuthMessages.PasswordMissingOrInvalid, null);
+                    return (false, MainSystemAuthMessages.UsernameInvalid, null);
                 }
 
-                // Verify against Main_System's Employee_Records using its hashing algorithm
-                var (isValid, accountType, irdNumber, failureMessage) = VerifyCredentialsAgainstMainSystem(username, password);
+                return (false, MainSystemAuthMessages.PasswordMissingOrInvalid, null);
+            }
 
-                if (!isValid)
+            var bridgeExePath = ResolveMainSystemBridgeExecutablePath();
+            if (!File.Exists(bridgeExePath))
+            {
+                _logger.LogError("Main_System bridge executable not found: {BridgeExePath}", bridgeExePath);
+                return (false, MainSystemAuthMessages.LoginFailed, null);
+            }
+
+            try
+            {
+                var processStartInfo = new ProcessStartInfo
                 {
-                    _logger.LogWarning($"Authentication failed for username: {username}");
+                    FileName = bridgeExePath,
+                    Arguments = "--ui-bridge login",
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using var process = new Process { StartInfo = processStartInfo };
+                if (!process.Start())
+                {
+                    _logger.LogError("Failed to start Main_System bridge process.");
+                    return (false, MainSystemAuthMessages.LoginFailed, null);
+                }
+
+                await process.StandardInput.WriteLineAsync(username.Trim());
+                await process.StandardInput.WriteLineAsync(password);
+                await process.StandardInput.WriteLineAsync(string.Empty);
+                process.StandardInput.Close();
+
+                var outputTask = process.StandardOutput.ReadToEndAsync();
+                var errorTask = process.StandardError.ReadToEndAsync();
+                var exited = await WaitForExitOrKillAsync(process, BridgeLoginTimeout, "login", bridgeExePath);
+                if (!exited)
+                {
+                    return (false, BridgeUnavailableMessage, null);
+                }
+
+                var output = await outputTask;
+                var errorOutput = await errorTask;
+
+                if (!string.IsNullOrWhiteSpace(errorOutput))
+                {
+                    _logger.LogWarning("Main_System bridge stderr: {BridgeError}", errorOutput);
+                }
+
+                if (string.IsNullOrWhiteSpace(output))
+                {
+                    _logger.LogError("Main_System bridge returned empty output.");
+                    return (false, BridgeUnavailableMessage, null);
+                }
+
+                BridgeLoginResponse? bridgeResponse;
+                try
+                {
+                    bridgeResponse = JsonSerializer.Deserialize<BridgeLoginResponse>(output, JsonOptions);
+                }
+                catch (JsonException jsonException)
+                {
+                    _logger.LogError(jsonException, "Failed to parse Main_System bridge JSON response: {BridgeOutput}", output);
+                    return (false, BridgeUnavailableMessage, null);
+                }
+
+                if (bridgeResponse == null)
+                {
+                    _logger.LogError("Main_System bridge response deserialized to null.");
+                    return (false, BridgeUnavailableMessage, null);
+                }
+
+                if (!bridgeResponse.Success)
+                {
+                    var failureMessage = string.IsNullOrWhiteSpace(bridgeResponse.Message)
+                        ? MainSystemAuthMessages.LoginFailed
+                        : bridgeResponse.Message;
+                    _logger.LogWarning("Bridge authentication failed for {Username}. Message: {Message}", username, failureMessage);
                     return (false, failureMessage, null);
                 }
 
-                // Create user session
-                var userSession = new UserSession
+                var accessProfileResponse = bridgeResponse.AccessProfile ?? new BridgeAccessProfileResponse();
+                var session = new UserSession
                 {
-                    Username = username,
-                    AccountType = accountType,
-                    IRDNumber = irdNumber,
+                    Username = string.IsNullOrWhiteSpace(bridgeResponse.Username) ? username.Trim() : bridgeResponse.Username,
+                    AccountType = bridgeResponse.AccountType ?? string.Empty,
+                    IRDNumber = bridgeResponse.IrdNumber ?? string.Empty,
                     IsAuthenticated = true,
-                    LoginTime = DateTime.Now
+                    LoginTime = DateTime.Now,
+                    AccessProfile = new AccessProfile
+                    {
+                        Resolved = accessProfileResponse.Resolved,
+                        BusinessRole = accessProfileResponse.BusinessRole ?? string.Empty,
+                        JobRole = accessProfileResponse.JobRole ?? string.Empty,
+                        DashboardMode = accessProfileResponse.DashboardMode ?? string.Empty,
+                        CanManageAllAccounts = accessProfileResponse.CanManageAllAccounts,
+                        CanManageAllEmployees = accessProfileResponse.CanManageAllEmployees,
+                        CanManageAllHr = accessProfileResponse.CanManageAllHr,
+                        CanManageRequests = accessProfileResponse.CanManageRequests,
+                        CanUsePayrollFeatures = accessProfileResponse.CanUsePayrollFeatures,
+                        AssistantDelegatedScopeOnly = accessProfileResponse.AssistantDelegatedScopeOnly,
+                        CanViewAssignedTeam = accessProfileResponse.CanViewAssignedTeam,
+                        RequiresSecondaryAuth = accessProfileResponse.RequiresSecondaryAuth
+                    }
                 };
 
-                _logger.LogInformation($"User '{username}' authenticated successfully as {accountType}");
-                return (true, "Login successful.", userSession);
+                var successMessage = string.IsNullOrWhiteSpace(bridgeResponse.Message)
+                    ? "Login successful."
+                    : bridgeResponse.Message;
+
+                _logger.LogInformation("Bridge authentication succeeded for '{Username}' as '{AccountType}'", session.Username, session.AccountType);
+                return (true, successMessage, session);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Authentication error: {ex.Message}");
+                _logger.LogError(ex, "Authentication bridge call failed.");
                 return (false, MainSystemAuthMessages.LoginFailed, null);
             }
         }
 
-        /// <summary>
-        /// Replicates Main_System's Find_Record_For_Username() logic exactly:
-        /// 1. Recursively search ALL .txt files in Employee_Records
-        /// 2. Read each file and look for "Username:" field inside
-        /// 3. When username matches, extract Account Type and Password from same file
-        /// 4. Hash input password with FNV-1a and compare
-        /// </summary>
-        private (bool isValid, string accountType, string irdNumber, string failureMessage) VerifyCredentialsAgainstMainSystem(string username, string password)
+        public async Task<bool> LogoutUserAsync(string username)
         {
+            var normalizedUsername = username?.Trim() ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(normalizedUsername))
+            {
+                return false;
+            }
+
+            var bridgeExePath = ResolveMainSystemBridgeExecutablePath();
+            if (!File.Exists(bridgeExePath))
+            {
+                _logger.LogWarning("Main_System bridge executable not found for logout: {BridgeExePath}", bridgeExePath);
+                return false;
+            }
+
             try
             {
-                // Path to Main_System's Employee_Records base
-                var employeeRecordsPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "main", "Main_System", "Employee Management", "Employee_Records");
-                employeeRecordsPath = Path.GetFullPath(employeeRecordsPath);
-
-                _logger.LogInformation($"Searching Employee_Records at: {employeeRecordsPath}");
-
-                if (!Directory.Exists(employeeRecordsPath))
+                var processStartInfo = new ProcessStartInfo
                 {
-                    _logger.LogError($"Employee_Records directory not found at: {employeeRecordsPath}");
-                    return (false, string.Empty, string.Empty, MainSystemAuthMessages.LoginFailed);
+                    FileName = bridgeExePath,
+                    Arguments = $"--ui-bridge action logout {normalizedUsername}",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using var process = new Process { StartInfo = processStartInfo };
+                if (!process.Start())
+                {
+                    _logger.LogWarning("Failed to start Main_System bridge logout process.");
+                    return false;
                 }
 
-                // Recursively search ALL .txt files for matching username (like Main_System does)
-                var recordsDir = new DirectoryInfo(employeeRecordsPath);
-                var allRecordFiles = recordsDir.EnumerateFiles("*.txt", SearchOption.AllDirectories).ToList();
-
-                _logger.LogInformation($"Found {allRecordFiles.Count()} employee record files to search");
-
-                string? matchedRecordPath = null;
-                string matchedAccountType = string.Empty;
-                string matchedPasswordHash = string.Empty;
-                string normalizedUsername = username.Trim();
-                string computedHash = ComputePasswordHashFnv1a(password);
-                bool passwordHashExists = false;
-
-                foreach (var recordFile in allRecordFiles)
+                var outputTask = process.StandardOutput.ReadToEndAsync();
+                var errorTask = process.StandardError.ReadToEndAsync();
+                var exited = await WaitForExitOrKillAsync(process, BridgeActionTimeout, "logout", bridgeExePath);
+                if (!exited)
                 {
-                    var (storedUsername, storedAccountType, storedPasswordHash) = ExtractFieldsFromRecord(recordFile.FullName);
+                    return false;
+                }
+                var output = await outputTask;
+                var errorOutput = await errorTask;
 
-                    if (!string.IsNullOrEmpty(storedPasswordHash) &&
-                        computedHash.Equals(storedPasswordHash.Trim(), StringComparison.OrdinalIgnoreCase))
-                    {
-                        passwordHashExists = true;
-                    }
-
-                    if (!string.IsNullOrEmpty(storedUsername) &&
-                        storedUsername.Equals(normalizedUsername, StringComparison.OrdinalIgnoreCase))
-                    {
-                        matchedRecordPath = recordFile.FullName;
-                        matchedAccountType = storedAccountType;
-                        matchedPasswordHash = storedPasswordHash.Trim();
-                    }
+                if (!string.IsNullOrWhiteSpace(errorOutput))
+                {
+                    _logger.LogWarning("Main_System bridge logout stderr: {BridgeError}", errorOutput);
                 }
 
-                if (matchedRecordPath == null)
+                if (string.IsNullOrWhiteSpace(output))
                 {
-                    _logger.LogWarning($"No employee record found with username: {username}");
-                    return (false, string.Empty, string.Empty, MainSystemAuthMessages.UsernameInvalid);
+                    return false;
                 }
 
-                _logger.LogInformation($"Found matching record: {Path.GetFileName(matchedRecordPath)}");
-
-                if (string.IsNullOrEmpty(matchedPasswordHash))
+                BridgeActionResponse? bridgeResponse;
+                try
                 {
-                    _logger.LogWarning($"Password hash not found in record file for {username}");
-                    return (false, string.Empty, string.Empty, MainSystemAuthMessages.PasswordMissingOrInvalid);
+                    bridgeResponse = JsonSerializer.Deserialize<BridgeActionResponse>(output, JsonOptions);
+                }
+                catch (JsonException jsonException)
+                {
+                    _logger.LogWarning(jsonException, "Failed to parse Main_System bridge logout response: {BridgeOutput}", output);
+                    return false;
                 }
 
-                _logger.LogInformation($"Username: {normalizedUsername}, AccountType: {matchedAccountType}");
-                _logger.LogInformation($"Stored hash: {matchedPasswordHash}");
-                _logger.LogInformation($"Computed hash: {computedHash}");
-
-                if (!passwordHashExists)
-                {
-                    _logger.LogWarning($"Password hash not found in any record for {username}");
-                    return (false, string.Empty, string.Empty, MainSystemAuthMessages.PasswordMissingOrInvalid);
-                }
-
-                if (!computedHash.Equals(matchedPasswordHash, StringComparison.OrdinalIgnoreCase))
-                {
-                    _logger.LogWarning($"Password hash mismatch for {username}");
-                    return (false, string.Empty, string.Empty, MainSystemAuthMessages.InvalidCredentials);
-                }
-
-                string irdNumber = GetIRDNumberForUsername(employeeRecordsPath, username);
-
-                _logger.LogInformation($"User '{username}' authenticated successfully as {matchedAccountType}");
-                return (true, matchedAccountType, irdNumber, string.Empty);
+                return bridgeResponse?.Success ?? false;
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Credential verification error: {ex.Message}\n{ex.StackTrace}");
-                return (false, string.Empty, string.Empty, MainSystemAuthMessages.LoginFailed);
+                _logger.LogWarning(ex, "Main_System bridge logout call failed for {Username}", normalizedUsername);
+                return false;
             }
         }
 
-        /// <summary>
-        /// Reads an employee record file and extracts Username, Account Type, and Password.
-        /// File format contains lines like:
-        /// Username: admin_slm_jane_sarah_doe
-        /// Account Type: Admin
-        /// Password: a1b2c3d4e5f6a7b8
-        /// </summary>
-        private (string username, string accountType, string passwordHash) ExtractFieldsFromRecord(string recordFilePath)
+        private async Task<bool> WaitForExitOrKillAsync(
+            Process process,
+            TimeSpan timeout,
+            string operation,
+            string bridgeExePath)
         {
+            var waitTask = process.WaitForExitAsync();
+            var completed = await Task.WhenAny(waitTask, Task.Delay(timeout));
+            if (completed == waitTask)
+            {
+                await waitTask;
+                return true;
+            }
+
+            _logger.LogError(
+                "Main_System bridge {Operation} timed out after {TimeoutSeconds}s. Executable: {BridgeExePath}",
+                operation,
+                timeout.TotalSeconds,
+                bridgeExePath);
+
             try
             {
-                var lines = File.ReadAllLines(recordFilePath);
-                string username = string.Empty;
-                string accountType = string.Empty;
-                string passwordHash = string.Empty;
-
-                foreach (var line in lines)
-                {
-                    var trimmedLine = line.Trim();
-
-                    if (trimmedLine.StartsWith("Username:", StringComparison.OrdinalIgnoreCase))
-                    {
-                        username = trimmedLine.Substring("Username:".Length).Trim();
-                    }
-                    else if (trimmedLine.StartsWith("Account Type:", StringComparison.OrdinalIgnoreCase))
-                    {
-                        accountType = trimmedLine.Substring("Account Type:".Length).Trim();
-                    }
-                    else if (trimmedLine.StartsWith("Password:", StringComparison.OrdinalIgnoreCase))
-                    {
-                        passwordHash = trimmedLine.Substring("Password:".Length).Trim();
-                    }
-                }
-
-                return (username, accountType, passwordHash);
+                process.Kill(entireProcessTree: true);
             }
-            catch (Exception ex)
+            catch (Exception killException)
             {
-                _logger.LogError($"Error reading employee record {recordFilePath}: {ex.Message}");
-                return (string.Empty, string.Empty, string.Empty);
+                _logger.LogWarning(
+                    killException,
+                    "Failed to terminate timed-out Main_System bridge process for {Operation}.",
+                    operation);
             }
+
+            return false;
         }
 
-        /// <summary>
-        /// Reads IRD_Username.txt to get IRD number for username.
-        /// Format: "IRD_NUMBER : username"
-        /// </summary>
-        private string GetIRDNumberForUsername(string employeeRecordsPath, string username)
+        private static string ResolveMainSystemBridgeExecutablePath()
         {
-            try
+            var configuredPath = Environment.GetEnvironmentVariable("NZFTC_MAIN_SYSTEM_BRIDGE_EXE");
+            if (!string.IsNullOrWhiteSpace(configuredPath))
             {
-                var irdIndexPath = Path.Combine(employeeRecordsPath, "IRD", "IRD_Username.txt");
-                if (!File.Exists(irdIndexPath))
-                {
-                    _logger.LogWarning($"IRD_Username.txt not found at: {irdIndexPath}");
-                    return "00000000";
-                }
-
-                var lines = File.ReadAllLines(irdIndexPath);
-                foreach (var line in lines)
-                {
-                    var parts = line.Split(':');
-                    if (parts.Length == 2)
-                    {
-                        var irdNumber = parts[0].Trim();
-                        var recordUsername = parts[1].Trim();
-                        if (recordUsername.Equals(username, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return irdNumber;
-                        }
-                    }
-                }
-
-                return "00000000";
+                return Path.GetFullPath(configuredPath);
             }
-            catch (Exception ex)
+
+            var repoRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+            var candidates = new[]
             {
-                _logger.LogError($"Error reading IRD number: {ex.Message}");
-                return "00000000";
+                Path.Combine(repoRoot, "main.exe"),
+                Path.Combine(repoRoot, "main", "Main_System", "main.exe")
+            };
+
+            var existingCandidates = candidates
+                .Where(File.Exists)
+                .Select(path => new FileInfo(path))
+                .OrderByDescending(file => file.LastWriteTimeUtc)
+                .ToList();
+
+            if (existingCandidates.Count > 0)
+            {
+                return existingCandidates[0].FullName;
             }
+
+            return candidates[0];
         }
 
-        /// <summary>
-        /// Implements the exact FNV-1a 64-bit hashing algorithm from Main_System Security_Protocols.cpp
-        /// Salt: "NZFTC_EMS_PASSWORD_SALT_v1"
-        /// FnvOffsetBasis: 1469598103934665603
-        /// FnvPrime: 1099511628211
-        /// </summary>
-        private string ComputePasswordHashFnv1a(string password)
+        private sealed class BridgeLoginResponse
         {
-            const ulong FnvOffsetBasis = 1469598103934665603UL;
-            const ulong FnvPrime = 1099511628211UL;
-            const string Salt = "NZFTC_EMS_PASSWORD_SALT_v1";
+            [JsonPropertyName("success")]
+            public bool Success { get; set; }
 
-            ulong hash = FnvOffsetBasis;
+            [JsonPropertyName("message")]
+            public string? Message { get; set; }
 
-            // Hash the salt first (Main_System does this)
-            foreach (byte b in Encoding.UTF8.GetBytes(Salt))
-            {
-                hash ^= b;
-                hash *= FnvPrime;
-            }
+            [JsonPropertyName("username")]
+            public string? Username { get; set; }
 
-            // Then hash the password
-            foreach (byte b in Encoding.UTF8.GetBytes(password))
-            {
-                hash ^= b;
-                hash *= FnvPrime;
-            }
+            [JsonPropertyName("accountType")]
+            public string? AccountType { get; set; }
 
-            // Convert to 16-character lowercase hex string (Main_System format)
-            var result = new StringBuilder(16);
-            for (int i = 15; i >= 0; i--)
-            {
-                byte nibble = (byte)((hash >> (i * 4)) & 0x0F);
-                result.Append("0123456789abcdef"[nibble]);
-            }
+            [JsonPropertyName("irdNumber")]
+            public string? IrdNumber { get; set; }
 
-            return result.ToString();
+            [JsonPropertyName("accessProfile")]
+            public BridgeAccessProfileResponse? AccessProfile { get; set; }
+        }
+
+        private sealed class BridgeAccessProfileResponse
+        {
+            [JsonPropertyName("resolved")]
+            public bool Resolved { get; set; }
+
+            [JsonPropertyName("businessRole")]
+            public string? BusinessRole { get; set; }
+
+            [JsonPropertyName("jobRole")]
+            public string? JobRole { get; set; }
+
+            [JsonPropertyName("dashboardMode")]
+            public string? DashboardMode { get; set; }
+
+            [JsonPropertyName("canManageAllAccounts")]
+            public bool CanManageAllAccounts { get; set; }
+
+            [JsonPropertyName("canManageAllEmployees")]
+            public bool CanManageAllEmployees { get; set; }
+
+            [JsonPropertyName("canManageAllHr")]
+            public bool CanManageAllHr { get; set; }
+
+            [JsonPropertyName("canManageRequests")]
+            public bool CanManageRequests { get; set; }
+
+            [JsonPropertyName("canUsePayrollFeatures")]
+            public bool CanUsePayrollFeatures { get; set; }
+
+            [JsonPropertyName("assistantDelegatedScopeOnly")]
+            public bool AssistantDelegatedScopeOnly { get; set; }
+
+            [JsonPropertyName("canViewAssignedTeam")]
+            public bool CanViewAssignedTeam { get; set; }
+
+            [JsonPropertyName("requiresSecondaryAuth")]
+            public bool RequiresSecondaryAuth { get; set; }
+        }
+
+        private sealed class BridgeActionResponse
+        {
+            [JsonPropertyName("success")]
+            public bool Success { get; set; }
         }
     }
 }

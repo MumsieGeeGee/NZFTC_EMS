@@ -1,0 +1,45 @@
+@model NZFTC_EMS.Models.EmployeeRecordDetailsViewModel
+@{
+    Layout = null;
+    var emergencyContactRaw = (Model.EmergencyContact ?? string.Empty).Trim();
+    var emergencyContactParts = emergencyContactRaw.Split('|', System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries);
+    if (emergencyContactParts.Length < 3)
+    {
+        emergencyContactParts = emergencyContactRaw.Split(',', System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries);
+    }
+    var emergencyContactName = emergencyContactParts.Length > 0 ? emergencyContactParts[0] : "Not set";
+    var emergencyContactRelationship = emergencyContactParts.Length > 1 ? emergencyContactParts[1] : "Not set";
+    var emergencyContactPhoneNumber = emergencyContactParts.Length > 2 ? emergencyContactParts[2] : "Not set";
+}
+
+<div>
+    <h2 style="color:#2A5D8F; font-size:22px; margin:0 0 12px;">View my Employee Details</h2>
+    <dl style="margin:0; color:#4A4A4A; display:grid; grid-template-columns:220px 1fr; row-gap:8px;">
+        <dt style="font-weight:700;">Username</dt>
+        <dd style="margin:0;">@Model.Username</dd>
+
+        <dt style="font-weight:700;">Emergency Contact Name</dt>
+        <dd style="margin:0;">@emergencyContactName</dd>
+
+        <dt style="font-weight:700;">Emergency Contact Relationship</dt>
+        <dd style="margin:0;">@emergencyContactRelationship</dd>
+
+        <dt style="font-weight:700;">Emergency Contact Phone Number</dt>
+        <dd style="margin:0;">@emergencyContactPhoneNumber</dd>
+
+        <dt style="font-weight:700;">Diagnosed Health Conditions</dt>
+        <dd style="margin:0;">@Model.DiagnosedHealthConditions</dd>
+
+        <dt style="font-weight:700;">Allergies</dt>
+        <dd style="margin:0;">@Model.Allergies</dd>
+
+        <dt style="font-weight:700;">Approved Emergency Steps and Medicines</dt>
+        <dd style="margin:0;">@Model.ApprovedEmergencyStepsAndMedicines</dd>
+
+        <dt style="font-weight:700;">Prior Training and Qualifications</dt>
+        <dd style="margin:0;">@Model.PriorTrainingAndQualifications</dd>
+
+        <dt style="font-weight:700;">First Aid Certification</dt>
+        <dd style="margin:0;">@Model.FirstAidCertification</dd>
+    </dl>
+</div>

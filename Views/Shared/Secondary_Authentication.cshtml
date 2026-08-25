@@ -1,0 +1,34 @@
+@{
+    Layout = null;
+    var purpose = (string?)ViewData["SecondaryAuthPurpose"] ?? "sensitive changes";
+}
+
+<div style="margin-top:12px; border:1px solid #C7CED6; border-radius:8px; padding:12px; background:#FFFFFF;">
+    <h3 style="margin:0 0 10px; color:#2A5D8F; font-size:18px;">Secondary Authentication</h3>
+    <p style="margin:0 0 10px; color:#4A4A4A;">
+        Secondary authentication is required before @purpose.
+    </p>
+    <div style="display:flex; flex-direction:column; gap:10px; max-width:460px;">
+        <label style="font-weight:700; color:#4A4A4A;">
+            Verification Method
+            <select style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;">
+                <option value="">Select a verification method...</option>
+                <option>Email Code</option>
+                <option>SMS Code</option>
+                <option>Authenticator App Code</option>
+            </select>
+        </label>
+        <label style="font-weight:700; color:#4A4A4A;">
+            Verification Code
+            <input type="text" placeholder="Enter verification code" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+        </label>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" disabled style="background:#C7CED6; color:#4A4A4A; border:none; border-radius:4px; padding:10px 14px; font-weight:700;">
+                Send Code (Next Integration)
+            </button>
+            <button type="button" disabled style="background:#C7CED6; color:#4A4A4A; border:none; border-radius:4px; padding:10px 14px; font-weight:700;">
+                Verify (Next Integration)
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,229 @@
+@model NZFTC_EMS.Models.SelectedEmployeeRecordDetailsViewModel
+@{
+    Layout = null;
+    var emergencyContactRaw = (Model.Details?.EmergencyContact ?? string.Empty).Trim();
+    var emergencyContactParts = emergencyContactRaw.Split('|', System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries);
+    if (emergencyContactParts.Length < 3)
+    {
+        emergencyContactParts = emergencyContactRaw.Split(',', System.StringSplitOptions.TrimEntries | System.StringSplitOptions.RemoveEmptyEntries);
+    }
+    var emergencyContactName = emergencyContactParts.Length > 0 ? emergencyContactParts[0] : "Not set";
+    var emergencyContactRelationship = emergencyContactParts.Length > 1 ? emergencyContactParts[1] : "Not set";
+    var emergencyContactPhoneNumber = emergencyContactParts.Length > 2 ? emergencyContactParts[2] : "Not set";
+}
+
+<style>
+    .selected-employee-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: end;
+        margin-bottom: 12px;
+    }
+
+    .selected-employee-controls label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-weight: 700;
+        color: #4A4A4A;
+    }
+
+    .selected-employee-controls select {
+        min-width: 220px;
+        padding: 8px;
+        border: 1px solid #C7CED6;
+        border-radius: 4px;
+        background: #FFFFFF;
+        color: #4A4A4A;
+    }
+
+    .selected-employee-load-button {
+        background: #5BA6A6;
+        color: #4A4A4A;
+        border: 1px solid rgba(42, 93, 143, 0.2);
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .selected-employee-load-button:hover {
+        background: #C7CED6;
+    }
+</style>
+
+<div data-selected-employee-root data-endpoint="@Model.ContentEndpoint" data-action-key="view-selected-employee-employee-details">
+    <h2 style="color:#2A5D8F; font-size:22px; margin:0 0 12px;">View an Employee's Details</h2>
+
+    <div class="selected-employee-controls">
+        <label>
+            Business Department
+            <select data-selected-group>
+                <option value="">Select a department...</option>
+                @if (Model.SelectedGroup == "admin")
+                {
+                    <option value="admin" selected>Admin</option>
+                }
+                else
+                {
+                    <option value="admin">Admin</option>
+                }
+                @if (Model.SelectedGroup == "finance")
+                {
+                    <option value="finance" selected>Finance</option>
+                }
+                else
+                {
+                    <option value="finance">Finance</option>
+                }
+                @if (Model.SelectedGroup == "trade")
+                {
+                    <option value="trade" selected>Trade</option>
+                }
+                else
+                {
+                    <option value="trade">Trade</option>
+                }
+            </select>
+        </label>
+
+        <label>
+            Employee
+            <select data-selected-username>
+                <option value="">Select an employee...</option>
+                @foreach (var username in Model.Usernames)
+                {
+                    var displayName = Model.UsernameDisplayNames.TryGetValue(username, out var resolvedDisplayName) ? resolvedDisplayName : username;
+                    if (Model.SelectedUsername == username)
+                    {
+                        <option value="@username" selected>@displayName</option>
+                    }
+                    else
+                    {
+                        <option value="@username">@displayName</option>
+                    }
+                }
+            </select>
+        </label>
+
+        <button type="button" class="selected-employee-load-button" data-load-selected-employee>Load</button>
+    </div>
+
+    @if (Model.Details != null)
+    {
+        <dl style="margin:0; color:#4A4A4A; display:grid; grid-template-columns:220px 1fr; row-gap:8px;">
+            <dt style="font-weight:700;">Username</dt>
+            <dd style="margin:0;">@Model.Details.Username</dd>
+
+            <dt style="font-weight:700;">Emergency Contact Name</dt>
+            <dd style="margin:0;">@emergencyContactName</dd>
+
+            <dt style="font-weight:700;">Emergency Contact Relationship</dt>
+            <dd style="margin:0;">@emergencyContactRelationship</dd>
+
+            <dt style="font-weight:700;">Emergency Contact Phone Number</dt>
+            <dd style="margin:0;">@emergencyContactPhoneNumber</dd>
+
+            <dt style="font-weight:700;">Diagnosed Health Conditions</dt>
+            <dd style="margin:0;">@Model.Details.DiagnosedHealthConditions</dd>
+
+            <dt style="font-weight:700;">Allergies</dt>
+            <dd style="margin:0;">@Model.Details.Allergies</dd>
+
+            <dt style="font-weight:700;">Approved Emergency Steps and Medicines</dt>
+            <dd style="margin:0;">@Model.Details.ApprovedEmergencyStepsAndMedicines</dd>
+
+            <dt style="font-weight:700;">Prior Training and Qualifications</dt>
+            <dd style="margin:0;">@Model.Details.PriorTrainingAndQualifications</dd>
+
+            <dt style="font-weight:700;">First Aid Certification</dt>
+            <dd style="margin:0;">@Model.Details.FirstAidCertification</dd>
+        </dl>
+    }
+    else
+    {
+        <p style="margin:0; color:#4A4A4A;">Select a group and employee, then click Load. If no employee details exist yet, ask the employee's manager or HR to complete the record first.</p>
+    }
+</div>
+
+<script>
+    (function () {
+        const root = document.querySelector("[data-selected-employee-root]");
+        if (!root || root.dataset.bound === "true") {
+            return;
+        }
+
+        root.dataset.bound = "true";
+        const endpoint = root.dataset.endpoint || "";
+        const groupSelect = root.querySelector("[data-selected-group]");
+        const usernameSelect = root.querySelector("[data-selected-username]");
+        const loadButton = root.querySelector("[data-load-selected-employee]");
+        const host = root.closest("[data-account-content-host]");
+
+        if (!endpoint || !groupSelect || !usernameSelect || !loadButton || !host) {
+            return;
+        }
+
+        async function loadSelected(group, username) {
+            loadButton.disabled = true;
+            try {
+                if (!username) {
+                    host.querySelector("p")?.remove();
+                    const message = document.createElement("p");
+                    message.style.margin = "0";
+                    message.style.color = "#4A4A4A";
+                    message.textContent = "Please select an employee first.";
+                    host.appendChild(message);
+                    return;
+                }
+
+                const actionKey = root.dataset.actionKey || "view-selected-employee-employee-details";
+                const response = await fetch(`${endpoint}?actionKey=${encodeURIComponent(actionKey)}&group=${encodeURIComponent(group)}&username=${encodeURIComponent(username)}`, { credentials: "same-origin" });
+                if (!response.ok) {
+                    return;
+                }
+
+                const html = await response.text();
+                if (typeof window.nzftcSetAccountContentHostHtml === "function") {
+                    window.nzftcSetAccountContentHostHtml(host, html);
+                } else {
+                    host.innerHTML = html;
+                }
+            } catch (error) {
+                console.error(error);
+            } finally {
+                loadButton.disabled = false;
+            }
+        }
+
+        groupSelect.addEventListener("change", () => {
+            const actionKey = root.dataset.actionKey || "view-selected-employee-employee-details";
+            loadButton.disabled = true;
+            fetch(`${endpoint}?actionKey=${encodeURIComponent(actionKey)}&group=${encodeURIComponent(groupSelect.value)}&username=`, { credentials: "same-origin" })
+                .then((response) => response.ok ? response.text() : null)
+                .then((html) => {
+                    if (!html) {
+                        return;
+                    }
+
+                    if (typeof window.nzftcSetAccountContentHostHtml === "function") {
+                        window.nzftcSetAccountContentHostHtml(host, html);
+                    } else {
+                        host.innerHTML = html;
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                })
+                .finally(() => {
+                    loadButton.disabled = false;
+                });
+        });
+
+        loadButton.addEventListener("click", () => {
+            loadSelected(groupSelect.value, usernameSelect.value);
+        });
+    })();
+</script>

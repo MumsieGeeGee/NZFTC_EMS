@@ -1,0 +1,72 @@
+@model NZFTC_EMS.Models.PayslipRecord
+@{
+    var payslip = Model;
+    var employeeName = string.IsNullOrWhiteSpace(Model?.EmployeeName) ? "Employee" : Model.EmployeeName;
+    var packageName = string.IsNullOrWhiteSpace(Model?.SalaryPackageDisplayName) ? Model?.SalaryPackageName : Model?.SalaryPackageDisplayName;
+}
+
+<h3>Create Payslip for Employee</h3>
+@if (string.IsNullOrWhiteSpace(Model?.Username))
+{
+    <p>Select another employee before creating a payslip.</p>
+}
+else
+{
+    <form method="post" action="@Url.Action("CreatePayslipForEmployee", "Admin")">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="submittedForUsername" value="@Model?.Username" />
+        <div class="mb-3">
+            <label class="form-label">Employee</label>
+            <input class="form-control" value="@employeeName" readonly />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="basePay">Base Pay</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="basePay" name="basePay" value="@Model?.BasePay" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="overtimePay">Overtime Pay</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="overtimePay" name="overtimePay" value="@Model?.OvertimePay" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="bonusPay">Bonus Pay</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="bonusPay" name="bonusPay" value="@Model?.BonusPay" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="allowancePay">Allowances</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="allowancePay" name="allowancePay" value="@Model?.AllowancePay" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="preTaxDeductions">Pre-tax Deductions</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="preTaxDeductions" name="preTaxDeductions" value="@Model?.PreTaxDeductions" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="postTaxDeductions">Post-tax Deductions</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="postTaxDeductions" name="postTaxDeductions" value="@Model?.PostTaxDeductions" />
+        </div>
+        <p class="text-muted">Gross pay is calculated from base pay, overtime, bonus, and allowances. Pre-tax deductions reduce the taxable amount; post-tax deductions reduce the final take-home pay.</p>
+        <div class="mb-3">
+            <label class="form-label" for="payPeriod">Pay Period</label>
+            <input type="text" class="form-control" id="payPeriod" name="payPeriod" value="@Model?.PayPeriod" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="payFrequency">Pay Frequency</label>
+            <input type="text" class="form-control" id="payFrequency" name="payFrequency" value="@Model?.PayFrequency" />
+        </div>
+        <button type="submit" class="btn btn-primary">Create Payslip</button>
+    </form>
+}
+
+@if (!string.IsNullOrWhiteSpace(packageName))
+{
+    <hr />
+    <div class="card mt-3">
+        <div class="card-body">
+            <h4 class="card-title">Leave Snapshot</h4>
+            <p><strong>Package:</strong> @packageName</p>
+            <p><strong>Annual Leave:</strong> @payslip.AnnualLeaveLawfulDays lawful + @payslip.AnnualLeavePackageExtraDays extra = @payslip.AnnualLeaveRemainingDays remaining</p>
+            <p><strong>Sick Leave:</strong> @payslip.SickLeaveLawfulDays lawful + @payslip.SickLeavePackageExtraDays extra = @payslip.SickLeaveRemainingDays remaining</p>
+            <p><strong>Special Leave:</strong> @payslip.SpecialLeaveLawfulDays lawful + @payslip.SpecialLeavePackageExtraDays extra = @payslip.SpecialLeaveRemainingDays remaining</p>
+            <p><strong>Parental Leave:</strong> @payslip.ParentalLeaveLawfulWeeks lawful + @payslip.ParentalLeavePackageExtraWeeks extra = @payslip.ParentalLeaveRemainingWeeks remaining</p>
+        </div>
+    </div>
+}

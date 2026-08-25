@@ -6,11 +6,55 @@ Last Name: Carter
 Date of Birth: 10-01-1998
 Business Role: Finance
 Job Role: Junior General Finance Staff
+Employment Type: Full-time
+Pay Type: Salary
+Pay Frequency: Fortnightly
+Contracted Weekly Hours: 40
+Contracted Hourly Rate: 26.44
+Approximate Annual Salary: 55000
+Annual Salary: 55000
+Monthly Salary: 4583.33
+Fortnightly Salary: 2115.38
+Weekly Salary: 1057.69
+Annual Leave Entitlement: 20
+Annual Leave Lawful Entitlement: 20
+Annual Leave Salary Package Extra: 0
+Annual Leave Total Entitlement: 20
+Sick Leave Entitlement: 10
+Sick Leave Lawful Entitlement: 10
+Sick Leave Salary Package Extra: 0
+Sick Leave Total Entitlement: 10
+Public Holidays Entitlement: 10
+Parental Leave Entitlement: 0
+Maternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Paternity Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Adoption Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Shared Parental Leave Entitlement: 26 weeks lawful + 0 weeks extra = 26 weeks total
+Special Leave Entitlement: 3
+Special Leave Package Extra: 3
+KiwiSaver Employer Contribution: 3%
+Superannuation Contribution: 0%
+Health Insurance Contribution: $0 per year
+Professional Development Contribution: $500 per year
+Employee Assistance Program Contribution: $500 per year
 Address: 16 Test Street, Central, Wellington, 6011, PO Box: 116
 Email Address: alex.carter@example.test
 Phone Number: 021-000-1016
 Username: finance_jg_alex_rose_carter
 Password: a9c8e188c59bf64d
+Password Reset Required: No
+Failed Login Attempts: 0
+Account Status: Active
+Last Login Event: Session ended normally.
+Last Session Event: Session ended normally.
+IRD Number: 000000016
+
+Emergency Contact: Harper Quinn Scott | Parent | 021-555-2004
+Diagnosed Health Conditions: None known
+Allergies: None known
+Approved Emergency Steps and Medicines: Standard first aid response; escalate if required.
+Prior Training and Qualifications: Finance compliance induction complete.
+First Aid Certification: Uncertified 
 
 Current Open Leave Requests:
 Current Temp Denied Leave Requests:

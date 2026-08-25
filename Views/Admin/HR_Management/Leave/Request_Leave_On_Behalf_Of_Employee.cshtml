@@ -1,0 +1,224 @@
+@using System.Text.Json
+@model NZFTC_EMS.Models.SelectedEmployeeActionTargetViewModel
+
+@{
+    Layout = null;
+    var submitAction = Url.Action("SubmitLeaveRequestOnBehalfOfUser", "Admin");
+    var hasTargetEmployee = !string.IsNullOrWhiteSpace(Model.SelectedUsername);
+    var employeeName = string.IsNullOrWhiteSpace(Model.SelectedEmployeeName) ? Model.SelectedUsername : Model.SelectedEmployeeName;
+}
+
+<style>
+    .selected-target-controls {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 10px;
+        align-items: flex-end;
+        margin-bottom: 16px;
+        overflow-x: auto;
+    }
+
+    .selected-target-controls label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-weight: 700;
+        color: #4A4A4A;
+    }
+
+    .selected-target-controls select {
+        width: 240px;
+        min-width: 240px;
+        max-width: 240px;
+        padding: 8px;
+        border: 1px solid #C7CED6;
+        border-radius: 4px;
+        background: #FFFFFF;
+        color: #4A4A4A;
+    }
+
+    .selected-target-load-button,
+    .primary-button {
+        background: #2A5D8F;
+        color: #FFFFFF;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 16px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .selected-target-load-button:hover,
+    .primary-button:hover {
+        background: #5BA6A6;
+    }
+
+    .leave-panel { color: #2A5D8F; }
+    .leave-panel h2 { margin-bottom: 10px; }
+    .leave-intro { color: #4A4A4A; margin-bottom: 16px; }
+    .leave-request-form { max-width: 620px; display: flex; flex-direction: column; gap: 16px; }
+    .form-row { display: flex; flex-direction: column; gap: 8px; }
+    .two-column { display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 16px; }
+    .form-row label, .employee-readonly-label { font-weight: 700; color: #2A5D8F; }
+    input, select, textarea { width: 100%; border: 1px solid #C7CED6; border-radius: 6px; padding: 10px 12px; font-size: 14px; }
+    .employee-readonly-value { color: #4A4A4A; }
+</style>
+
+<div class="leave-panel"
+     data-selected-target-root
+     data-endpoint="@Model.ContentEndpoint"
+     data-action-key="request-leave-on-behalf-of-user"
+     data-usernames-by-group="@JsonSerializer.Serialize(Model.UsernamesByGroup)"
+     data-display-names="@JsonSerializer.Serialize(Model.UsernameDisplayNames)">
+    <h2>Request Leave on behalf of an Employee</h2>
+    <p class="leave-intro">
+        @(hasTargetEmployee
+            ? $"Submit a leave request for {employeeName}."
+            : "Select a department and employee, then click Load.")
+    </p>
+
+    <div class="selected-target-controls">
+        <label>
+            Business Department
+            <select data-selected-group>
+                <option value="">Select a department...</option>
+                <option value="admin" selected="@(Model.SelectedGroup == "admin" ? "selected" : null)">Admin</option>
+                <option value="finance" selected="@(Model.SelectedGroup == "finance" ? "selected" : null)">Finance</option>
+                <option value="trade" selected="@(Model.SelectedGroup == "trade" ? "selected" : null)">Trade</option>
+            </select>
+        </label>
+
+        <label>
+            Employee
+            <select data-selected-username>
+                <option value="">Select an employee...</option>
+                @foreach (var username in Model.Usernames)
+                {
+                    var displayName = Model.UsernameDisplayNames.TryGetValue(username, out var resolvedDisplayName) ? resolvedDisplayName : username;
+                    <option value="@username" selected="@(Model.SelectedUsername == username ? "selected" : null)">@displayName</option>
+                }
+            </select>
+        </label>
+
+        <button type="button" class="selected-target-load-button" data-load-selected-target>Load</button>
+    </div>
+
+    @if (hasTargetEmployee)
+    {
+        <form method="post" action="@submitAction" class="leave-request-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="submittedForUsername" value="@Model.SelectedUsername" />
+
+            <div class="form-row">
+                <span class="employee-readonly-label">Employee</span>
+                <input value="@employeeName" readonly />
+            </div>
+
+            <div class="form-row">
+                <label for="leaveType">Leave Type</label>
+                <select id="leaveType" name="leaveType" required>
+                    <option value="Annual Leave">Annual Leave</option>
+                    <option value="Sick Leave">Sick Leave</option>
+                    <option value="Parental Leave">Parental Leave</option>
+                    <option value="Special Leave">Special Leave</option>
+                </select>
+            </div>
+
+            <div class="form-row two-column">
+                <div>
+                    <label for="startDate">Start Date</label>
+                    <input id="startDate" name="startDate" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                </div>
+                <div>
+                    <label for="endDate">End Date</label>
+                    <input id="endDate" name="endDate" type="date" value="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" required />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label for="reason">Reason</label>
+                <textarea id="reason" name="reason" rows="4" placeholder="Provide the reason for the leave request."></textarea>
+            </div>
+
+            <button type="submit" class="primary-button">Submit Leave Request</button>
+        </form>
+    }
+</div>
+
+<script>
+    (function () {
+        const root = document.querySelector("[data-selected-target-root]");
+        if (!root || root.dataset.bound === "true") {
+            return;
+        }
+
+        root.dataset.bound = "true";
+        const endpoint = root.dataset.endpoint || "";
+        const actionKey = root.dataset.actionKey || "";
+        const usernamesByGroup = JSON.parse(root.dataset.usernamesByGroup || "{}");
+        const displayNames = JSON.parse(root.dataset.displayNames || "{}");
+        const groupSelect = root.querySelector("[data-selected-group]");
+        const usernameSelect = root.querySelector("[data-selected-username]");
+        const loadButton = root.querySelector("[data-load-selected-target]");
+        const host = root.closest("[data-account-content-host]");
+
+        if (!endpoint || !actionKey || !groupSelect || !usernameSelect || !loadButton || !host) {
+            return;
+        }
+
+        function normalizeGroup(group) {
+            return (group || "").trim().toLowerCase();
+        }
+
+        function setUsernameOptions(group, selectedUsername) {
+            const usernames = Array.isArray(usernamesByGroup[normalizeGroup(group)]) ? usernamesByGroup[normalizeGroup(group)] : [];
+            const safeSelectedUsername = (selectedUsername || "").trim();
+            usernameSelect.innerHTML = '<option value="">Select an employee...</option>' + usernames.map((username) => {
+                const selected = username === safeSelectedUsername ? " selected" : "";
+                const displayName = displayNames[username] || username;
+                return `<option value="${username.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}"${selected}>${displayName.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</option>`;
+            }).join("");
+
+            if (safeSelectedUsername && usernames.includes(safeSelectedUsername)) {
+                usernameSelect.value = safeSelectedUsername;
+            } else {
+                usernameSelect.value = "";
+            }
+        }
+
+        async function loadSelected(group, username) {
+            if (!username) {
+                return;
+            }
+
+            loadButton.disabled = true;
+            try {
+                const response = await fetch(`${endpoint}?actionKey=${encodeURIComponent(actionKey)}&group=${encodeURIComponent(group)}&username=${encodeURIComponent(username)}`, { credentials: "same-origin" });
+                if (!response.ok) {
+                    return;
+                }
+
+                const html = await response.text();
+                if (typeof window.nzftcSetLeaveContentHostHtml === "function") {
+                    window.nzftcSetLeaveContentHostHtml(host, html);
+                } else if (typeof window.nzftcSetAccountContentHostHtml === "function") {
+                    window.nzftcSetAccountContentHostHtml(host, html);
+                } else {
+                    host.innerHTML = html;
+                }
+            } catch (error) {
+                console.error(error);
+            } finally {
+                loadButton.disabled = false;
+            }
+        }
+
+        setUsernameOptions(groupSelect.value, usernameSelect.value);
+        groupSelect.addEventListener("change", () => {
+            setUsernameOptions(groupSelect.value, "");
+        });
+        loadButton.addEventListener("click", () => {
+            loadSelected(groupSelect.value, usernameSelect.value);
+        });
+    })();
+</script>
