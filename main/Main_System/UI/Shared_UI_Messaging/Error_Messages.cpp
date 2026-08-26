@@ -26,7 +26,7 @@ const std::string Password_Too_Short = Password_Label + " too short, must be at 
 const std::string Password_Too_Long = Password_Label + " too long, must remain under 30 characters.";
 const std::string Password_Cannot_Contain_Space = Password_Label + " cannot contain spaces.";
 const std::string Password_Cannot_Contain_Username = Password_Label + " cannot contain Username Details.";
-const std::string Password_Cannot_Contain_Account_User_Name = Password_Label + " cannot contain First, Middle or Surname.";
+const std::string Password_Cannot_Contain_Account_User_Name = Password_Label + " cannot contain First, Middle or Last Name.";
 const std::string Password_Cannot_Contain_Account_User_DOB = Password_Label + " cannot contain Date of Birth.";
 const std::string Password_Cannot_Contain_Account_User_Email = Password_Label + " cannot contain Email Address.";
 const std::string Password_Cannot_Contain_Account_User_Phone = Password_Label + " cannot contain Phone Number.";
@@ -48,9 +48,9 @@ const std::string Middle_Name_Empty = "Middle Name cannot be empty.";
 const std::string Middle_Name_Too_Long = "Middle Name too long, must remain under 50 characters long.";
 const std::string Middle_Name_Invalid_Characters = "Middle Name can only contain letters,spaces, '-' & apostrophes (Example: Mc'Donald).";
 
-const std::string Surname_Empty = "Surname cannot be empty.";
-const std::string Surname_Too_Long = "Surname too long, must remain under 50 characters long.";
-const std::string Surname_Invalid_Characters = "Surname can only contain letters,spaces, '-' & apostrophes (Example: Mc'Donald).";
+const std::string Surname_Empty = "Last Name cannot be empty.";
+const std::string Surname_Too_Long = "Last Name too long, must remain under 50 characters long.";
+const std::string Surname_Invalid_Characters = "Last Name can only contain letters,spaces, '-' & apostrophes (Example: Mc'Donald).";
 
 const std::string DOB_Empty = "Date of Birth cannot be empty.";
 const std::string DOB_Invalid_Format = "Date of Birth must be in the format DD/MM/YYYY.";

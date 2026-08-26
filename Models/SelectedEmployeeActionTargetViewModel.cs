@@ -12,4 +12,6 @@ public class SelectedEmployeeActionTargetViewModel
     public IReadOnlyList<string> Usernames { get; set; } = Array.Empty<string>();
     public IReadOnlyDictionary<string, IReadOnlyList<string>> UsernamesByGroup { get; set; } = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
     public IReadOnlyDictionary<string, string> UsernameDisplayNames { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    public LeaveEntitlement? LeaveEntitlement { get; set; }
+    public PayslipRecord? PayslipDraft { get; set; }
 }

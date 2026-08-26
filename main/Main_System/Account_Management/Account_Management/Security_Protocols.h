@@ -35,6 +35,10 @@ void Password_Making_Rules(std::string& password,
 bool Password_Rules(std::string& password);
 std::string Password_Save(const std::string& password);
 std::string Password_Hashing(const std::string& password);
+bool Verify_Password_Against_Stored_Hash(
+	const std::string& password,
+	const std::string& stored_password_hash,
+	bool* needs_rehash = nullptr);
 std::string Mask_Password_Index_Entry(const std::string& password_hash);
 bool Is_Account_Locked(const std::string& username);
 int Get_Failed_Login_Attempts(const std::string& username);

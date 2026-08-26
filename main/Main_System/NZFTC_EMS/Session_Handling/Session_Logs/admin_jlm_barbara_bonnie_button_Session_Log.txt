@@ -1,5 +1,0 @@
-2026-08-24 14:48:12 - Incorrect password login attempt.
-2026-08-25 10:48:38 - Incorrect password login attempt.
-2026-08-25 11:16:50 - Incorrect password login attempt.
-2026-08-25 11:20:12 - Successful logout.
-2026-08-25 11:20:12 - Session ended normally.

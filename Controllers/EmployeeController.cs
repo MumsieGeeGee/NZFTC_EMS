@@ -8,7 +8,7 @@ using System.Text;
 
 namespace NZFTC_EMS.Controllers
 {
-    public class EmployeeController : Controller
+    public class EmployeeController : PortalControllerBase
     {
         private const string ViewOwnAccountActionKey = "view-own-account-details";
         private const string EditOwnAccountActionKey = "edit-own-account-details";
@@ -20,11 +20,11 @@ namespace NZFTC_EMS.Controllers
         private const string ViewMyLeaveEntitlementActionKey = "view-my-leave-and-holiday-entitlements";
         private const string RequestLeaveActionKey = "request-leave";
         private const string ViewMyOpenLeaveRequestsActionKey = "view-my-open-leave-requests";
+        private const string EditOwnLeaveRequestActionKey = "edit-own-leave-request";
         private const string ViewMyTemporarilyDeniedLeaveRequestsActionKey = "view-my-temporarily-denied-leave-requests";
         private const string ViewMyResolvedLeaveRequestsActionKey = "view-my-resolved-leave-requests";
         private const string ViewMyPayslipsActionKey = "view-my-payslips";
         private const string ViewMyTaxInformationActionKey = "view-my-tax-information";
-        private const string EditMyTaxInformationActionKey = "edit-my-tax-information";
         private const string ViewOwnAccountPartialPath = "~/Views/Employee/Account_Management/View_Own_Account_Details.cshtml";
         private const string EditOwnAccountPartialPath = "~/Views/Employee/Account_Management/Edit_Own_Account_Details.cshtml";
         private const string ViewOwnEmployeePartialPath = "~/Views/Employee/Employee_Management/View_Own_Employee_Details.cshtml";
@@ -35,11 +35,11 @@ namespace NZFTC_EMS.Controllers
         private const string ViewMyLeaveEntitlementPartialPath = "~/Views/Employee/HR_Management/Leave/View_Own_Leave_And_Holiday_Entitlements.cshtml";
         private const string RequestLeavePartialPath = "~/Views/Employee/HR_Management/Leave/Request_Leave.cshtml";
         private const string ViewMyOpenLeaveRequestsPartialPath = "~/Views/Employee/HR_Management/Leave/View_Own_Open_Leave_Requests.cshtml";
+        private const string EditOwnLeaveRequestPartialPath = "~/Views/Employee/HR_Management/Leave/Edit_Own_Leave_Request.cshtml";
         private const string ViewMyTemporarilyDeniedLeaveRequestsPartialPath = "~/Views/Employee/HR_Management/Leave/View_Own_Temporarily_Denied_Leave_Requests.cshtml";
         private const string ViewMyResolvedLeaveRequestsPartialPath = "~/Views/Employee/HR_Management/Leave/View_Own_Resolved_Leave_Requests.cshtml";
         private const string ViewMyPayslipsPartialPath = "~/Views/Employee/HR_Management/PAYE/View_Own_Payslips.cshtml";
         private const string ViewMyTaxInformationPartialPath = "~/Views/Employee/HR_Management/PAYE/View_Own_Tax_Information.cshtml";
-        private const string EditMyTaxInformationPartialPath = "~/Views/Employee/HR_Management/PAYE/Edit_Own_Tax_Information.cshtml";
 
         private readonly EmployeeAccountRecordService _employeeAccountRecordService;
         private readonly GrievanceRequestService _grievanceRequestService;
@@ -60,7 +60,7 @@ namespace NZFTC_EMS.Controllers
 
         public IActionResult Dashboard()
         {
-            var authResult = PrepareAccessContext();
+            var authResult = PrepareAccessContext(AccessProfileSessionHelper.IsEmployeePortalProfile);
             if (!authResult.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Login");
@@ -98,7 +98,7 @@ namespace NZFTC_EMS.Controllers
 
         public IActionResult AccountManagement()
         {
-            var authResult = PrepareAccessContext();
+            var authResult = PrepareAccessContext(AccessProfileSessionHelper.IsEmployeePortalProfile);
             if (!authResult.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Login");
@@ -119,7 +119,7 @@ namespace NZFTC_EMS.Controllers
 
         public IActionResult EmployeeManagement()
         {
-            var authResult = PrepareAccessContext();
+            var authResult = PrepareAccessContext(AccessProfileSessionHelper.IsEmployeePortalProfile);
             if (!authResult.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Login");
@@ -140,7 +140,7 @@ namespace NZFTC_EMS.Controllers
 
         public IActionResult HRManagement()
         {
-            var authResult = PrepareAccessContext();
+            var authResult = PrepareAccessContext(AccessProfileSessionHelper.IsEmployeePortalProfile);
             if (!authResult.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Login");
@@ -160,7 +160,7 @@ namespace NZFTC_EMS.Controllers
         }
 
         [HttpGet]
-        public IActionResult HRManagementContent(string actionKey)
+        public IActionResult HRManagementContent(string actionKey, int? leaveRequestId = null)
         {
             var username = HttpContext.Session.GetString("Username");
             if (string.IsNullOrWhiteSpace(username) ||
@@ -183,13 +183,13 @@ namespace NZFTC_EMS.Controllers
                 ViewMyLeaveEntitlementActionKey => PartialView(
                     ViewMyLeaveEntitlementPartialPath,
                     _leaveRequestService.GetEntitlementForRole(username, accessProfile.BusinessRole, accessProfile.JobRole)),
-                RequestLeaveActionKey => PartialView(RequestLeavePartialPath, new LeaveRequest { SubmittedByUsername = username, SubmittedForUsername = username }),
-                ViewMyOpenLeaveRequestsActionKey => PartialView(ViewMyOpenLeaveRequestsPartialPath, _leaveRequestService.GetOpenRequestsForUser(username)),
+                RequestLeaveActionKey => BuildOwnLeaveRequestPartial(username, accessProfile),
+                ViewMyOpenLeaveRequestsActionKey => BuildOwnOpenLeaveRequestsPartial(username),
+                EditOwnLeaveRequestActionKey => BuildOwnLeaveEditPartial(username, leaveRequestId),
                 ViewMyTemporarilyDeniedLeaveRequestsActionKey => PartialView(ViewMyTemporarilyDeniedLeaveRequestsPartialPath, _leaveRequestService.GetTemporarilyDeniedRequestsForUser(username)),
                 ViewMyResolvedLeaveRequestsActionKey => PartialView(ViewMyResolvedLeaveRequestsPartialPath, _leaveRequestService.GetResolvedRequestsForUser(username)),
                 ViewMyPayslipsActionKey => PartialView(ViewMyPayslipsPartialPath, _payrollService.GetPayslipsForUser(username)),
                 ViewMyTaxInformationActionKey => PartialView(ViewMyTaxInformationPartialPath, _payrollService.GetTaxInformationForUser(username)),
-                EditMyTaxInformationActionKey => PartialView(EditMyTaxInformationPartialPath, _payrollService.GetEditableTaxInformationForUser(username)),
                 _ => NotFound()
             };
         }
@@ -197,7 +197,7 @@ namespace NZFTC_EMS.Controllers
         [HttpGet]
         public IActionResult ViewPayslip(int payslipId)
         {
-            var authResult = PrepareAccessContext();
+            var authResult = PrepareAccessContext(AccessProfileSessionHelper.IsEmployeePortalProfile);
             if (!authResult.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Login");
@@ -221,7 +221,7 @@ namespace NZFTC_EMS.Controllers
         [HttpGet]
         public IActionResult DownloadPayslip(int payslipId)
         {
-            var authResult = PrepareAccessContext();
+            var authResult = PrepareAccessContext(AccessProfileSessionHelper.IsEmployeePortalProfile);
             if (!authResult.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Login");
@@ -250,7 +250,7 @@ namespace NZFTC_EMS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditMyTaxInformation(PayrollTaxInformation updatedTaxInfo)
+        public IActionResult UpdateOwnAccountDetails(string address, string emailAddress, string phoneNumber)
         {
             var username = HttpContext.Session.GetString("Username");
             if (string.IsNullOrWhiteSpace(username) ||
@@ -259,20 +259,82 @@ namespace NZFTC_EMS.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
-            if (!AccessProfileSessionHelper.GetModuleAccess(accessProfile).CanAccessHr)
+            if (!AccessProfileSessionHelper.GetModuleAccess(accessProfile).CanAccessAccount)
             {
                 return Forbid();
             }
 
-            updatedTaxInfo.Username = username;
-            if (!_payrollService.UpdateTaxInformation(username, updatedTaxInfo))
+            if (string.IsNullOrWhiteSpace(address) ||
+                string.IsNullOrWhiteSpace(emailAddress) ||
+                string.IsNullOrWhiteSpace(phoneNumber))
             {
-                TempData["PayrollError"] = "The tax information could not be updated.";
-                return RedirectToAction(nameof(HRManagement));
+                TempData["AccountError"] = "Address, email address, and phone number must all be completed before saving.";
+                return RedirectToAction(nameof(AccountManagement));
             }
 
-            TempData["PayrollSuccess"] = "Your tax information has been updated successfully.";
-            return RedirectToAction(nameof(HRManagement));
+            if (!_employeeAccountRecordService.UpdatePersonalAccountDetails(username, address, emailAddress, phoneNumber))
+            {
+                TempData["AccountError"] = "Your account details could not be updated.";
+                return RedirectToAction(nameof(AccountManagement));
+            }
+
+            TempData["AccountSuccess"] = "Your account details have been updated successfully.";
+            return RedirectToAction(nameof(AccountManagement));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateOwnEmployeeDetails(
+            string emergencyContactName,
+            string emergencyContactRelationship,
+            string emergencyContactPhoneNumber,
+            string diagnosedHealthConditions,
+            string allergies,
+            string approvedEmergencyStepsAndMedicines,
+            string priorTrainingAndQualifications,
+            string firstAidCertification)
+        {
+            var username = HttpContext.Session.GetString("Username");
+            if (string.IsNullOrWhiteSpace(username) ||
+                !AccessProfileSessionHelper.TryGetAccessProfile(HttpContext.Session, out var accessProfile))
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            if (!AccessProfileSessionHelper.GetModuleAccess(accessProfile).CanAccessEmployee)
+            {
+                return Forbid();
+            }
+
+            if (string.IsNullOrWhiteSpace(emergencyContactName) ||
+                string.IsNullOrWhiteSpace(emergencyContactRelationship) ||
+                string.IsNullOrWhiteSpace(emergencyContactPhoneNumber) ||
+                string.IsNullOrWhiteSpace(diagnosedHealthConditions) ||
+                string.IsNullOrWhiteSpace(allergies) ||
+                string.IsNullOrWhiteSpace(approvedEmergencyStepsAndMedicines) ||
+                string.IsNullOrWhiteSpace(priorTrainingAndQualifications) ||
+                string.IsNullOrWhiteSpace(firstAidCertification))
+            {
+                TempData["EmployeeError"] = "All employee information fields must be completed before saving.";
+                return RedirectToAction(nameof(EmployeeManagement));
+            }
+
+            var emergencyContact = $"{emergencyContactName.Trim()} | {emergencyContactRelationship.Trim()} | {emergencyContactPhoneNumber.Trim()}";
+            if (!_employeeAccountRecordService.UpdateEmployeeDetails(
+                    username,
+                    emergencyContact,
+                    diagnosedHealthConditions,
+                    allergies,
+                    approvedEmergencyStepsAndMedicines,
+                    priorTrainingAndQualifications,
+                    firstAidCertification))
+            {
+                TempData["EmployeeError"] = "Your employee information could not be updated.";
+                return RedirectToAction(nameof(EmployeeManagement));
+            }
+
+            TempData["EmployeeSuccess"] = "Your employee information has been updated successfully.";
+            return RedirectToAction(nameof(EmployeeManagement));
         }
 
         [HttpPost]
@@ -375,6 +437,144 @@ namespace NZFTC_EMS.Controllers
             }
 
             return RedirectToAction(nameof(HRManagement));
+        }
+
+        [HttpGet]
+        public IActionResult EditOwnLeaveRequest(int leaveRequestId)
+        {
+            var username = HttpContext.Session.GetString("Username");
+            if (string.IsNullOrWhiteSpace(username) ||
+                !AccessProfileSessionHelper.TryGetAccessProfile(HttpContext.Session, out var accessProfile))
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            if (!AccessProfileSessionHelper.GetModuleAccess(accessProfile).CanAccessHr)
+            {
+                return Forbid();
+            }
+
+            var leaveRequest = _leaveRequestService.GetById(leaveRequestId);
+            if (!CanEditOwnLeaveRequest(username, leaveRequest))
+            {
+                TempData["LeaveError"] = "Only your own open leave requests can be edited here.";
+                return RedirectToAction(nameof(HRManagement));
+            }
+
+            return RedirectToAction(nameof(HRManagement), new
+            {
+                actionKey = EditOwnLeaveRequestActionKey,
+                leaveRequestId
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateOwnLeaveRequest(int leaveRequestId, string leaveType, DateTime? startDate, DateTime? endDate, string reason)
+        {
+            var username = HttpContext.Session.GetString("Username");
+            if (string.IsNullOrWhiteSpace(username) ||
+                !AccessProfileSessionHelper.TryGetAccessProfile(HttpContext.Session, out var accessProfile))
+            {
+                return RedirectToAction("Login", "Login");
+            }
+
+            if (!AccessProfileSessionHelper.GetModuleAccess(accessProfile).CanAccessHr)
+            {
+                return Forbid();
+            }
+
+            var currentLeaveRequest = _leaveRequestService.GetById(leaveRequestId);
+            if (!CanEditOwnLeaveRequest(username, currentLeaveRequest))
+            {
+                TempData["LeaveError"] = "Only your own open leave requests can be edited here.";
+                return RedirectToAction(nameof(HRManagement));
+            }
+
+            var editableLeaveRequest = currentLeaveRequest!;
+            var requestedStart = startDate ?? editableLeaveRequest.StartDate;
+            var requestedEnd = endDate ?? editableLeaveRequest.EndDate;
+            if (requestedEnd.Date < requestedStart.Date)
+            {
+                TempData["LeaveError"] = "The leave end date must be on or after the start date.";
+                return RedirectToAction(nameof(HRManagement), new
+                {
+                    actionKey = EditOwnLeaveRequestActionKey,
+                    leaveRequestId
+                });
+            }
+
+            if (!LeaveRequestService.CanRequestLeaveType(leaveType))
+            {
+                TempData["LeaveError"] = "Public holidays are statutory entitlements and are not submitted as leave requests.";
+                return RedirectToAction(nameof(HRManagement), new
+                {
+                    actionKey = EditOwnLeaveRequestActionKey,
+                    leaveRequestId
+                });
+            }
+
+            var updatedLeaveRequest = _leaveRequestService.UpdateRequest(leaveRequestId, leaveType, requestedStart, requestedEnd, reason);
+            if (updatedLeaveRequest == null)
+            {
+                TempData["LeaveError"] = "The leave request could not be updated.";
+                return RedirectToAction(nameof(HRManagement), new
+                {
+                    actionKey = EditOwnLeaveRequestActionKey,
+                    leaveRequestId
+                });
+            }
+
+            TempData["LeaveSuccess"] = "Your leave request has been updated.";
+            return RedirectToAction(nameof(HRManagement), new
+            {
+                actionKey = ViewMyOpenLeaveRequestsActionKey
+            });
+        }
+
+        private IActionResult BuildOwnLeaveEditPartial(string username, int? leaveRequestId)
+        {
+            if (!leaveRequestId.HasValue)
+            {
+                return BadRequest();
+            }
+
+            var leaveRequest = _leaveRequestService.GetById(leaveRequestId.Value);
+            if (!CanEditOwnLeaveRequest(username, leaveRequest))
+            {
+                return Forbid();
+            }
+
+            ViewData["LeaveEntitlement"] = _leaveRequestService.GetEntitlementForUser(username);
+            return PartialView(EditOwnLeaveRequestPartialPath, leaveRequest);
+        }
+
+        private IActionResult BuildOwnOpenLeaveRequestsPartial(string username)
+        {
+            var requests = _leaveRequestService.GetOpenRequestsForUser(username);
+            return PartialView(ViewMyOpenLeaveRequestsPartialPath, new OwnOpenLeaveRequestsViewModel
+            {
+                Requests = requests,
+                ImpactByRequestId = requests.ToDictionary(request => request.Id, _leaveRequestService.GetBalanceImpactForRequest)
+            });
+        }
+
+        private IActionResult BuildOwnLeaveRequestPartial(string username, AccessProfile accessProfile)
+        {
+            ViewData["LeaveEntitlement"] = _leaveRequestService.GetEntitlementForRole(username, accessProfile.BusinessRole, accessProfile.JobRole);
+            return PartialView(RequestLeavePartialPath, new LeaveRequest
+            {
+                SubmittedByUsername = username,
+                SubmittedForUsername = username
+            });
+        }
+
+        private static bool CanEditOwnLeaveRequest(string username, LeaveRequest? leaveRequest)
+        {
+            return leaveRequest != null
+                && string.Equals(leaveRequest.SubmittedForUsername, username, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(leaveRequest.SubmittedByUsername, username, StringComparison.OrdinalIgnoreCase)
+                && LeaveRequestService.MatchesStatus(leaveRequest.Status, "Open", "Received");
         }
 
         [HttpGet]
@@ -520,74 +720,5 @@ namespace NZFTC_EMS.Controllers
                 : fallback;
         }
 
-        private static string BuildComplaintDescription(
-            string attendingSupervisor,
-            string personsInvolved,
-            string eventDate,
-            string eventDetails,
-            string affectDetails,
-            string? suggestions,
-            string? additionalComments,
-            string declarationAgreement,
-            string signedDate)
-        {
-            return string.Join(Environment.NewLine, new[]
-            {
-                $"Attending Supervisor: {attendingSupervisor.Trim()}",
-                $"Persons Involved: {personsInvolved.Trim()}",
-                $"Event Date: {eventDate.Trim()}",
-                $"Event Details: {eventDetails.Trim()}",
-                $"Affect on Job/State of Mind Details: {affectDetails.Trim()}",
-                $"Suggestions: {suggestions?.Trim() ?? string.Empty}",
-                $"Additional Comments/Questions: {additionalComments?.Trim() ?? string.Empty}",
-                $"Declaration Agreement: {declarationAgreement.Trim()}",
-                $"Signed Date: {signedDate.Trim()}"
-            });
-        }
-
-        private (bool IsAuthenticated, bool IsPortalAllowed, bool CanAccessAccount, bool CanAccessEmployee, bool CanAccessHr, string AccountType) PrepareAccessContext()
-        {
-            var username = HttpContext.Session.GetString("Username");
-            var accountType = HttpContext.Session.GetString("AccountType");
-            var loginTime = HttpContext.Session.GetString("LoginTime");
-
-            if (string.IsNullOrWhiteSpace(username) ||
-                !AccessProfileSessionHelper.TryGetAccessProfile(HttpContext.Session, out var accessProfile))
-            {
-                return (false, false, false, false, false, string.Empty);
-            }
-
-            var moduleAccess = AccessProfileSessionHelper.GetModuleAccess(accessProfile);
-            ViewBag.Username = username;
-            ViewBag.AccountType = accountType;
-            ViewBag.LoginTime = loginTime;
-            ViewBag.AccessProfile = accessProfile;
-            ViewBag.CanAccessAccountModule = moduleAccess.CanAccessAccount;
-            ViewBag.CanAccessEmployeeModule = moduleAccess.CanAccessEmployee;
-            ViewBag.CanAccessHrModule = moduleAccess.CanAccessHr;
-
-            var isPortalAllowed = AccessProfileSessionHelper.IsEmployeePortalProfile(accessProfile);
-            return (true, isPortalAllowed, moduleAccess.CanAccessAccount, moduleAccess.CanAccessEmployee, moduleAccess.CanAccessHr, accountType ?? string.Empty);
-        }
-
-        private void SetSectionMenuOptions(string section)
-        {
-            ViewBag.ActiveSection = section;
-            if (ViewBag.AccessProfile is AccessProfile accessProfile)
-            {
-                ViewBag.MainContentMenuOptions =
-                    AccessProfileSessionHelper.GetMainContentMenuOptions(accessProfile, section);
-            }
-        }
-
-        private IActionResult RedirectToPermittedDashboard(string accountType)
-        {
-            if (string.Equals(accountType, "Admin", StringComparison.OrdinalIgnoreCase))
-            {
-                return RedirectToAction("Dashboard", "Admin");
-            }
-
-            return RedirectToAction("Login", "Login");
-        }
     }
 }

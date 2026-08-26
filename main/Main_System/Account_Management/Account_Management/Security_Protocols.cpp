@@ -17,14 +17,22 @@
 #include "../../UI/Account_UI/Employee_Dashboard_UI.h"
 #include "Input_Validation_Helpers.h"
 
+#include <Windows.h>
 #include <algorithm>
+#include <bcrypt.h>
 #include <cctype>
 #include <cstdint>
 #include <conio.h>
 #include <cstdlib>
+#include <cstring>
+#include <iomanip>
 #include <io.h>
 #include <iostream>
 #include <map>
+#include <sstream>
+#include <vector>
+
+#pragma comment(lib, "bcrypt.lib")
 
 const std::string allowed_symbols = "!@#$%^&*()_+-=`~{}[]:\";'<>,.?/|\\";
 
@@ -37,6 +45,185 @@ constexpr const char AccountStatusActive[] = "Active";
 constexpr const char AccountStatusLocked[] = "Locked";
 constexpr const char PasswordResetRequiredYes[] = "Yes";
 constexpr const char PasswordResetRequiredNo[] = "No";
+constexpr const char ModernPasswordHashPrefix[] = "pbkdf2_sha256";
+constexpr unsigned long ModernPasswordHashIterations = 210000UL;
+constexpr std::size_t ModernPasswordSaltBytes = 16;
+constexpr std::size_t ModernPasswordHashBytes = 32;
+
+std::string Hex_Encode(const std::vector<unsigned char>& bytes) {
+    std::ostringstream stream;
+    stream << std::hex << std::setfill('0');
+    for (const unsigned char value : bytes) {
+        stream << std::setw(2) << static_cast<int>(value);
+    }
+    return stream.str();
+}
+
+bool Hex_Decode(
+        const std::string& value,
+        std::vector<unsigned char>* bytes_out) {
+    if (bytes_out == nullptr || value.size() % 2 != 0) {
+        return false;
+    }
+
+    bytes_out->clear();
+    bytes_out->reserve(value.size() / 2);
+    for (std::size_t index = 0; index < value.size(); index += 2) {
+        const std::string byte_text = value.substr(index, 2);
+        char* parse_end = nullptr;
+        const unsigned long parsed = std::strtoul(byte_text.c_str(), &parse_end, 16);
+        if (parse_end == byte_text.c_str() || *parse_end != '\0' || parsed > 0xFFUL) {
+            return false;
+        }
+        bytes_out->push_back(static_cast<unsigned char>(parsed));
+    }
+
+    return true;
+}
+
+bool Constant_Time_Equals(
+        const std::vector<unsigned char>& left,
+        const std::vector<unsigned char>& right) {
+    if (left.size() != right.size()) {
+        return false;
+    }
+
+    unsigned char difference = 0;
+    for (std::size_t index = 0; index < left.size(); ++index) {
+        difference |= static_cast<unsigned char>(left[index] ^ right[index]);
+    }
+    return difference == 0;
+}
+
+bool Generate_Random_Bytes(
+        const std::size_t byte_count,
+        std::vector<unsigned char>* bytes_out) {
+    if (bytes_out == nullptr || byte_count == 0) {
+        return false;
+    }
+
+    bytes_out->assign(byte_count, 0);
+    return BCRYPT_SUCCESS(BCryptGenRandom(
+        nullptr,
+        bytes_out->data(),
+        static_cast<ULONG>(bytes_out->size()),
+        BCRYPT_USE_SYSTEM_PREFERRED_RNG));
+}
+
+bool Derive_Pbkdf2_Sha256(
+        const std::string& password,
+        const std::vector<unsigned char>& salt,
+        const unsigned long iterations,
+        const std::size_t output_bytes,
+        std::vector<unsigned char>* derived_key_out) {
+    if (derived_key_out == nullptr || salt.empty() || output_bytes == 0) {
+        return false;
+    }
+
+    BCRYPT_ALG_HANDLE algorithm_handle = nullptr;
+    const NTSTATUS open_status = BCryptOpenAlgorithmProvider(
+        &algorithm_handle,
+        BCRYPT_SHA256_ALGORITHM,
+        nullptr,
+        BCRYPT_ALG_HANDLE_HMAC_FLAG);
+    if (!BCRYPT_SUCCESS(open_status)) {
+        return false;
+    }
+
+    derived_key_out->assign(output_bytes, 0);
+    const NTSTATUS derive_status = BCryptDeriveKeyPBKDF2(
+        algorithm_handle,
+        reinterpret_cast<PUCHAR>(const_cast<char*>(password.data())),
+        static_cast<ULONG>(password.size()),
+        const_cast<PUCHAR>(salt.data()),
+        static_cast<ULONG>(salt.size()),
+        static_cast<ULONGLONG>(iterations),
+        derived_key_out->data(),
+        static_cast<ULONG>(derived_key_out->size()),
+        0);
+    BCryptCloseAlgorithmProvider(algorithm_handle, 0);
+    return BCRYPT_SUCCESS(derive_status);
+}
+
+bool Is_Modern_Password_Hash(const std::string& stored_password_hash) {
+    return Trim_Copy(stored_password_hash).rfind(ModernPasswordHashPrefix, 0) == 0;
+}
+
+std::string Build_Modern_Password_Hash(const std::string& password) {
+    std::vector<unsigned char> salt;
+    if (!Generate_Random_Bytes(ModernPasswordSaltBytes, &salt)) {
+        return "";
+    }
+
+    std::vector<unsigned char> derived_key;
+    if (!Derive_Pbkdf2_Sha256(
+            password,
+            salt,
+            ModernPasswordHashIterations,
+            ModernPasswordHashBytes,
+            &derived_key)) {
+        return "";
+    }
+
+    return std::string(ModernPasswordHashPrefix) + "$" +
+        std::to_string(ModernPasswordHashIterations) + "$" +
+        Hex_Encode(salt) + "$" +
+        Hex_Encode(derived_key);
+}
+
+bool Verify_Modern_Password(
+        const std::string& password,
+        const std::string& stored_password_hash) {
+    const std::string normalized_hash = Trim_Copy(stored_password_hash);
+    if (!Is_Modern_Password_Hash(normalized_hash)) {
+        return false;
+    }
+
+    const std::size_t first_delimiter = normalized_hash.find('$');
+    const std::size_t second_delimiter =
+        normalized_hash.find('$', first_delimiter == std::string::npos ? first_delimiter : first_delimiter + 1);
+    const std::size_t third_delimiter =
+        normalized_hash.find('$', second_delimiter == std::string::npos ? second_delimiter : second_delimiter + 1);
+    if (first_delimiter == std::string::npos ||
+        second_delimiter == std::string::npos ||
+        third_delimiter == std::string::npos) {
+        return false;
+    }
+
+    const std::string algorithm_name = normalized_hash.substr(0, first_delimiter);
+    if (algorithm_name != ModernPasswordHashPrefix) {
+        return false;
+    }
+
+    const std::string iteration_text =
+        normalized_hash.substr(first_delimiter + 1, second_delimiter - first_delimiter - 1);
+    char* iteration_parse_end = nullptr;
+    const unsigned long iterations = std::strtoul(
+        iteration_text.c_str(),
+        &iteration_parse_end,
+        10);
+    if (iteration_parse_end == iteration_text.c_str() ||
+        *iteration_parse_end != '\0' ||
+        iterations == 0) {
+        return false;
+    }
+
+    const std::string salt_hex =
+        normalized_hash.substr(second_delimiter + 1, third_delimiter - second_delimiter - 1);
+    const std::string hash_hex = normalized_hash.substr(third_delimiter + 1);
+    std::vector<unsigned char> salt;
+    std::vector<unsigned char> expected_hash;
+    if (!Hex_Decode(salt_hex, &salt) || !Hex_Decode(hash_hex, &expected_hash) || expected_hash.empty()) {
+        return false;
+    }
+
+    std::vector<unsigned char> actual_hash;
+    if (!Derive_Pbkdf2_Sha256(password, salt, iterations, expected_hash.size(), &actual_hash)) {
+        return false;
+    }
+
+    return Constant_Time_Equals(actual_hash, expected_hash);
+}
 
 int Parse_Attempt_Count(const std::string& attempt_value) {
     const std::string trimmed_attempt_value = Trim_Copy(attempt_value);
@@ -700,7 +887,32 @@ std::string Password_Hashing(const std::string& password) {
 }
 
 std::string Password_Save(const std::string& password) {
-	return Password_Hashing(password);
+	const std::string modern_hash = Build_Modern_Password_Hash(password);
+	return modern_hash.empty() ? Password_Hashing(password) : modern_hash;
+}
+
+bool Verify_Password_Against_Stored_Hash(
+		const std::string& password,
+		const std::string& stored_password_hash,
+		bool* needs_rehash) {
+    if (needs_rehash != nullptr) {
+        *needs_rehash = false;
+    }
+
+    const std::string normalized_hash = Trim_Copy(stored_password_hash);
+    if (normalized_hash.empty()) {
+        return false;
+    }
+
+    if (Is_Modern_Password_Hash(normalized_hash)) {
+        return Verify_Modern_Password(password, normalized_hash);
+    }
+
+    const bool matched_legacy_hash = Password_Hashing(password) == normalized_hash;
+    if (matched_legacy_hash && needs_rehash != nullptr) {
+        *needs_rehash = true;
+    }
+    return matched_legacy_hash;
 }
 
 std::string Mask_Password_Index_Entry(const std::string& password_hash) {
@@ -798,11 +1010,18 @@ bool Secondary_Authentication(const std::string& reason, std::string* secondaryU
 		return false;
 	}
 
-	const std::string providedPasswordHash = Password_Save(providedPassword);
-	if (providedPasswordHash != expectedPasswordHash) {
+	bool passwordNeedsRehash = false;
+	if (!Verify_Password_Against_Stored_Hash(
+            providedPassword,
+            expectedPasswordHash,
+            &passwordNeedsRehash)) {
 		std::cout << Display_Error << Password_Incorrect << std::endl;
 		return false;
 	}
+
+    if (passwordNeedsRehash) {
+        Update_Account_Password_For_Username(secondaryUsername, providedPassword, nullptr);
+    }
 
 	if (secondaryUsernameOut != nullptr) {
 		*secondaryUsernameOut = secondaryUsername;

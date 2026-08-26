@@ -4,6 +4,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using NZFTC_EMS.Data;
+using NZFTC_EMS.Data.Entities;
 using NZFTC_EMS.Models;
 
 namespace NZFTC_EMS.Services
@@ -70,15 +72,21 @@ namespace NZFTC_EMS.Services
             @"void\s+(?<name>[A-Za-z0-9_]+_Package)\s*\(\)\s*\{(?<body>.*?)\n\}",
             RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.Multiline);
 
+        private readonly MySqlRepository _mySqlRepository;
         private readonly EmployeeAccountRecordService _employeeAccountRecordService;
+        private readonly EmployeeRecordStore _employeeRecordStore;
         private readonly IPublicHolidayCalendarService _publicHolidayCalendarService;
 
         public LeaveRequestService(
+            MySqlRepository mySqlRepository,
             EmployeeAccountRecordService employeeAccountRecordService,
-            IPublicHolidayCalendarService publicHolidayCalendarService)
+            IPublicHolidayCalendarService publicHolidayCalendarService,
+            EmployeeRecordStore employeeRecordStore)
         {
+            _mySqlRepository = mySqlRepository;
             _employeeAccountRecordService = employeeAccountRecordService;
             _publicHolidayCalendarService = publicHolidayCalendarService;
+            _employeeRecordStore = employeeRecordStore;
             EnsureStorageLoaded();
         }
 
@@ -283,6 +291,13 @@ namespace NZFTC_EMS.Services
                 .ToList();
         }
 
+        public IReadOnlyList<LeaveRequest> GetAllRequests()
+        {
+            return Requests
+                .OrderByDescending(r => r.RequestedOn)
+                .ToList();
+        }
+
         public static bool CanRequestLeaveType(string? leaveType)
         {
             return LeaveTypeMatches(leaveType, "Annual Leave", "Sick Leave", "Parental Leave", "Special Leave");
@@ -349,6 +364,7 @@ namespace NZFTC_EMS.Services
 
             Requests.Add(request);
             PersistRequestsToStorage();
+            PersistRequestToDatabase(request);
             return request;
         }
 
@@ -402,7 +418,57 @@ namespace NZFTC_EMS.Services
             request.Reason = string.IsNullOrWhiteSpace(reason) ? string.Empty : reason.Trim();
             request.UpdatedOn = DateTime.UtcNow;
             PersistRequestsToStorage();
+            PersistRequestToDatabase(request);
             return request;
+        }
+
+        public LeaveRequestBalanceImpact GetBalanceImpactForRequest(LeaveRequest request)
+        {
+            var entitlement = GetEntitlementForUser(request.SubmittedForUsername);
+            var requestedDays = Math.Max(1, request.TotalDays);
+
+            if (IsParentalLeaveType(request.LeaveType))
+            {
+                var availableBeforeRequest = Math.Max(0, entitlement.RemainingParentalLeaveWeeks - entitlement.ParentalLeaveScheduledWeeks);
+                var requestedWeeks = (int)Math.Ceiling(requestedDays / 7m);
+                return new LeaveRequestBalanceImpact
+                {
+                    UnitLabel = "weeks",
+                    RequestedAmount = requestedWeeks,
+                    AvailableBeforeRequest = availableBeforeRequest,
+                    RemainingAfterRequest = Math.Max(0, availableBeforeRequest - requestedWeeks),
+                    ScheduledApprovedAmount = entitlement.ParentalLeaveScheduledWeeks,
+                    TakenAmount = entitlement.ParentalLeaveTakenWeeks,
+                    TotalEntitlementAmount = entitlement.ParentalLeaveWeeks
+                };
+            }
+
+            if (IsSickLeaveType(request.LeaveType))
+            {
+                return BuildDayBasedBalanceImpact(
+                    entitlement.SickLeaveDays,
+                    entitlement.SickLeaveTakenDays,
+                    entitlement.SickLeaveScheduledDays,
+                    entitlement.RemainingSickLeaveDays,
+                    requestedDays);
+            }
+
+            if (IsSpecialLeaveType(request.LeaveType))
+            {
+                return BuildDayBasedBalanceImpact(
+                    entitlement.SpecialLeaveDays,
+                    entitlement.SpecialLeaveTakenDays,
+                    entitlement.SpecialLeaveScheduledDays,
+                    entitlement.RemainingSpecialLeaveDays,
+                    requestedDays);
+            }
+
+            return BuildDayBasedBalanceImpact(
+                entitlement.AnnualLeaveDays,
+                entitlement.AnnualLeaveTakenDays,
+                entitlement.AnnualLeaveScheduledDays,
+                entitlement.RemainingAnnualLeaveDays,
+                requestedDays);
         }
 
         public bool DeleteRequest(int leaveRequestId)
@@ -417,6 +483,7 @@ namespace NZFTC_EMS.Services
             if (removed)
             {
                 PersistRequestsToStorage();
+                _mySqlRepository.DeleteLeaveRequestAsync(leaveRequestId).GetAwaiter().GetResult();
             }
 
             return removed;
@@ -451,7 +518,28 @@ namespace NZFTC_EMS.Services
 
             request.UpdatedOn = DateTime.UtcNow;
             PersistRequestsToStorage();
+            PersistRequestToDatabase(request);
             return request;
+        }
+
+        private void PersistRequestToDatabase(LeaveRequest request)
+        {
+            _mySqlRepository.UpsertLeaveRequestAsync(new LeaveRequestEntity
+            {
+                Id = request.Id,
+                SubmittedByUsername = request.SubmittedByUsername,
+                SubmittedForUsername = request.SubmittedForUsername,
+                EmployeeName = request.EmployeeName,
+                LeaveType = request.LeaveType,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                ReasonEncrypted = request.Reason,
+                Status = request.Status,
+                DecisionReasonEncrypted = request.DecisionReason,
+                RequestedOnUtc = request.RequestedOn == default ? DateTime.UtcNow : request.RequestedOn,
+                UpdatedOnUtc = request.UpdatedOn,
+                HandledByUsername = request.HandledByUsername
+            }).GetAwaiter().GetResult();
         }
 
         private void EnsureStorageLoaded()
@@ -507,14 +595,14 @@ namespace NZFTC_EMS.Services
 
         private IEnumerable<LeaveRequest> LoadResolvedRequestsFromEmployeeRecords()
         {
-            var recordRoot = ResolveEmployeeRecordRoot();
+            var recordRoot = _employeeRecordStore.ResolveEmployeeRecordRoot();
             if (string.IsNullOrWhiteSpace(recordRoot) || !Directory.Exists(recordRoot))
             {
                 return Array.Empty<LeaveRequest>();
             }
 
             var requests = new List<LeaveRequest>();
-            foreach (var filePath in EnumerateAccountRecordFiles(recordRoot))
+            foreach (var filePath in _employeeRecordStore.EnumerateEmployeeRecordFiles())
             {
                 requests.AddRange(
                     ParseSectionedRequestBlocks(File.ReadAllLines(filePath), ResolvedRequestsSectionHeader)
@@ -709,13 +797,13 @@ namespace NZFTC_EMS.Services
                     TempDeniedRequestsSectionHeader,
                     Requests.Where(r => MatchesStatus(r.Status, "Temporarily Denied", "Temp Denied")).OrderByDescending(r => r.RequestedOn).ToList());
 
-                var recordRoot = ResolveEmployeeRecordRoot();
+                var recordRoot = _employeeRecordStore.ResolveEmployeeRecordRoot();
                 if (string.IsNullOrWhiteSpace(recordRoot) || !Directory.Exists(recordRoot))
                 {
                     return;
                 }
 
-                foreach (var filePath in EnumerateAccountRecordFiles(recordRoot))
+                foreach (var filePath in _employeeRecordStore.EnumerateEmployeeRecordFiles())
                 {
                     if (!TryGetUsernameFromRecordFile(filePath, out var username))
                     {
@@ -854,68 +942,27 @@ namespace NZFTC_EMS.Services
             return string.IsNullOrWhiteSpace(normalized) ? null : ParseStoredDateTime(normalized);
         }
 
-        private static string GetLeaveStorageRoot()
+        private string GetLeaveStorageRoot()
         {
-            var recordRoot = ResolveEmployeeRecordRoot();
+            var recordRoot = _employeeRecordStore.ResolveEmployeeRecordRoot();
             return string.IsNullOrWhiteSpace(recordRoot) ? string.Empty : Path.Combine(recordRoot, LeaveStorageFolderName);
         }
 
-        private static string GetOpenRequestsFilePath()
+        private string GetOpenRequestsFilePath()
         {
             return Path.Combine(GetLeaveStorageRoot(), OpenRequestsFileName);
         }
 
-        private static string GetTempDeniedRequestsFilePath()
+        private string GetTempDeniedRequestsFilePath()
         {
             return Path.Combine(GetLeaveStorageRoot(), TempDeniedRequestsFileName);
         }
 
-        private static string ResolveEmployeeRecordRoot()
+        private bool TryGetUsernameFromRecordFile(string filePath, out string username)
         {
-            var candidates = new[]
-            {
-                Path.Combine(Directory.GetCurrentDirectory(), "main", "Main_System", "Employee Management", "Employee_Records"),
-                Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "main", "Main_System", "Employee Management", "Employee_Records")),
-                Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "main", "Main_System", "Employee Management", "Employee_Records"))
-            };
-
-            return candidates.FirstOrDefault(Directory.Exists) ?? string.Empty;
-        }
-
-        private static IEnumerable<string> EnumerateAccountRecordFiles(string recordRoot)
-        {
-            foreach (var filePath in Directory.EnumerateFiles(recordRoot, "*_Employee_Record.txt", SearchOption.AllDirectories))
-            {
-                if (filePath.IndexOf($"{Path.DirectorySeparatorChar}IRD{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    continue;
-                }
-
-                yield return filePath;
-            }
-        }
-
-        private static bool TryGetUsernameFromRecordFile(string filePath, out string username)
-        {
-            username = string.Empty;
-            if (!File.Exists(filePath))
-            {
-                return false;
-            }
-
-            foreach (var rawLine in File.ReadLines(filePath))
-            {
-                var trimmed = rawLine.Trim();
-                if (!trimmed.StartsWith("Username:", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                username = trimmed.Substring("Username:".Length).Trim();
-                return !string.IsNullOrWhiteSpace(username);
-            }
-
-            return false;
+            var parsed = _employeeRecordStore.ParseKeyValueFile(filePath);
+            username = parsed.TryGetValue("Username", out var resolvedUsername) ? resolvedUsername.Trim() : string.Empty;
+            return !string.IsNullOrWhiteSpace(username);
         }
 
         public IReadOnlyList<DashboardNotification> GetDashboardNotificationsForUser(string username)
@@ -1053,6 +1100,26 @@ namespace NZFTC_EMS.Services
         private static bool IsSickLeaveType(string? leaveType)
         {
             return LeaveTypeMatches(leaveType, "Sick Leave");
+        }
+
+        private static LeaveRequestBalanceImpact BuildDayBasedBalanceImpact(
+            int totalEntitlement,
+            int takenAmount,
+            int scheduledApprovedAmount,
+            int remainingAmount,
+            int requestedAmount)
+        {
+            var availableBeforeRequest = Math.Max(0, remainingAmount - scheduledApprovedAmount);
+            return new LeaveRequestBalanceImpact
+            {
+                UnitLabel = "days",
+                RequestedAmount = requestedAmount,
+                AvailableBeforeRequest = availableBeforeRequest,
+                RemainingAfterRequest = Math.Max(0, availableBeforeRequest - requestedAmount),
+                ScheduledApprovedAmount = scheduledApprovedAmount,
+                TakenAmount = takenAmount,
+                TotalEntitlementAmount = totalEntitlement
+            };
         }
 
         private static bool IsSpecialLeaveType(string? leaveType)

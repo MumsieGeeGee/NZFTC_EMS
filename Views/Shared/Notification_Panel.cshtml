@@ -9,41 +9,43 @@
         .ToList();
 }
 
-<div class="notification-panel">
-    <h3>Notifications</h3>
+<section class="notification-panel" aria-labelledby="notification-panel-heading">
+    <h3 id="notification-panel-heading">Notifications</h3>
 
     @if (!notifications.Any())
     {
-        <div class="empty-state">No notifications right now.</div>
+        <div class="empty-state" role="status">No notifications right now.</div>
     }
     else
     {
-        foreach (var notification in notifications)
-        {
-            var icon = notification.Tone switch
+        <div class="notification-list" role="list">
+            @foreach (var notification in notifications)
             {
-                "critical" => "!",
-                "approved" => "+",
-                "rejected" => "x",
-                "pending" => "~",
-                "warning" => "!",
-                _ => "i"
-            };
-            <div class="notification-card" data-tone="@notification.Tone">
-                <div class="notification-meta">
-                    <strong><span class="notification-icon" aria-hidden="true">@icon</span> @notification.Category</strong>
-                    <span>@notification.CreatedOn.ToString("dd MMM yyyy HH:mm")</span>
-                </div>
-                <div class="notification-title">@notification.Title</div>
-                <div class="notification-message">@notification.Message</div>
-                @if (!string.IsNullOrWhiteSpace(notification.LinkUrl) && !string.IsNullOrWhiteSpace(notification.LinkText))
+                var icon = notification.Tone switch
                 {
-                    <a class="notification-link" href="@notification.LinkUrl">@notification.LinkText</a>
-                }
-            </div>
-        }
+                    "critical" => "!",
+                    "approved" => "+",
+                    "rejected" => "x",
+                    "pending" => "~",
+                    "warning" => "!",
+                    _ => "i"
+                };
+                <article class="notification-card" data-tone="@notification.Tone" role="listitem">
+                    <div class="notification-meta">
+                        <strong><span class="notification-icon" aria-hidden="true">@icon</span> @notification.Category</strong>
+                        <time datetime="@notification.CreatedOn.ToString("O")">@notification.CreatedOn.ToString("dd MMM yyyy HH:mm")</time>
+                    </div>
+                    <div class="notification-title">@notification.Title</div>
+                    <div class="notification-message">@notification.Message</div>
+                    @if (!string.IsNullOrWhiteSpace(notification.LinkUrl) && !string.IsNullOrWhiteSpace(notification.LinkText))
+                    {
+                        <a class="notification-link" href="@notification.LinkUrl">@notification.LinkText</a>
+                    }
+                </article>
+            }
+        </div>
     }
-</div>
+</section>
 
 <style>
 .notification-panel {
@@ -128,6 +130,12 @@
 
 .notification-link:hover {
     color: #5BA6A6;
+}
+
+.notification-link:focus-visible {
+    outline: 3px solid #1A73E8;
+    outline-offset: 2px;
+    border-radius: 4px;
 }
 
 .empty-state {

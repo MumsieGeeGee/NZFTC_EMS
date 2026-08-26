@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace NZFTC_EMS.Models
 {
@@ -64,5 +65,22 @@ namespace NZFTC_EMS.Models
         public int RemainingSickLeaveDays { get; set; }
         public int RemainingSpecialLeaveDays { get; set; }
         public int RemainingParentalLeaveWeeks { get; set; }
+    }
+
+    public class LeaveRequestBalanceImpact
+    {
+        public string UnitLabel { get; set; } = "days";
+        public int RequestedAmount { get; set; }
+        public int AvailableBeforeRequest { get; set; }
+        public int RemainingAfterRequest { get; set; }
+        public int ScheduledApprovedAmount { get; set; }
+        public int TakenAmount { get; set; }
+        public int TotalEntitlementAmount { get; set; }
+    }
+
+    public class OwnOpenLeaveRequestsViewModel
+    {
+        public IReadOnlyList<LeaveRequest> Requests { get; set; } = Array.Empty<LeaveRequest>();
+        public IReadOnlyDictionary<int, LeaveRequestBalanceImpact> ImpactByRequestId { get; set; } = new Dictionary<int, LeaveRequestBalanceImpact>();
     }
 }

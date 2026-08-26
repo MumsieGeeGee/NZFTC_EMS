@@ -7,8 +7,8 @@
 }
 
 <div class="grievance-panel">
-    <h2>Users' Open Grievance Reports</h2>
-    <p class="grievance-intro">Current grievances requiring manager or HR attention.</p>
+    <h2>View Employee Open Grievance Reports</h2>
+    <p class="grievance-intro">Current open grievance reports requiring manager or HR attention.</p>
 
     @if (!reports.Any())
     {
@@ -21,7 +21,6 @@
             <div class="grievance-card">
                 <div class="grievance-card-header">
                     <span class="grievance-badge">@item.Status</span>
-                    <strong>#@item.Id</strong>
                 </div>
                 <h3>@item.Subject</h3>
                 <p><strong>Employee:</strong> @item.EmployeeName</p>
@@ -30,7 +29,7 @@
                 <p><strong>Severity:</strong> @item.Severity</p>
                 <p>@item.Description</p>
                 <div class="grievance-actions">
-                    <a class="grievance-action-button" href="@Url.Action("HRManagement", "Admin", new { actionKey = "review-grievance-report", grievanceId = item.Id })">Review grievance</a>
+                    <a class="grievance-action-button" href="@Url.Action("HRManagement", "Admin", new { actionKey = "review-grievance-report", grievanceId = item.Id })">Review an Employee's Grievance Report</a>
                 </div>
             </div>
         }

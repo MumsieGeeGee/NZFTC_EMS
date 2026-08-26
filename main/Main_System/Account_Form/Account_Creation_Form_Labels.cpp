@@ -54,8 +54,8 @@ const std::string First_Name = "First Name";
 const std::string Enter_First_Name = "Please enter the employee's FIRST name";
 const std::string Middle_Name = "Middle Name";
 const std::string Enter_Middle_Name = "Please enter the employee's MIDDLE name.";
-const std::string Last_Name = "Surname";
-const std::string Enter_Surname = "Please enter the employee's Surname.";
+const std::string Last_Name = "Last Name";
+const std::string Enter_Surname = "Please enter the employee's Last Name.";
 const std::string Date_of_Birth = "Date of Birth";
 const std::string Enter_DOB = "Please enter the employee's Date of Birth.";
 const std::string Date_Format = "(DD-MM-YYYY)";
@@ -67,7 +67,6 @@ const std::string IRD_Number = "IRD Number";
 const std::string Enter_IRD_Number = "Please enter the IRD number.";
 const std::string Password = "Password";
 const std::string Password_Requirements = "Password Requirements...";
-
 
 
 

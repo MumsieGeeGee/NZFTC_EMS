@@ -1,22 +1,61 @@
+@using System.Collections.Generic
+@using System.Text.Json
 @model NZFTC_EMS.Models.LeaveRequest
 
 @{
     var submitAction = Url.Action("SubmitLeaveRequest", "Employee");
     var targetUsername = Model?.SubmittedForUsername ?? string.Empty;
     var employeeName = targetUsername;
+    var entitlement = ViewData["LeaveEntitlement"] as NZFTC_EMS.Models.LeaveEntitlement ?? new NZFTC_EMS.Models.LeaveEntitlement();
+    var leaveImpactData = new Dictionary<string, object>
+    {
+        ["Annual Leave"] = new
+        {
+            unit = "days",
+            total = entitlement.AnnualLeaveDays,
+            taken = entitlement.AnnualLeaveTakenDays,
+            scheduled = entitlement.AnnualLeaveScheduledDays,
+            available = Math.Max(0, entitlement.RemainingAnnualLeaveDays - entitlement.AnnualLeaveScheduledDays)
+        },
+        ["Sick Leave"] = new
+        {
+            unit = "days",
+            total = entitlement.SickLeaveDays,
+            taken = entitlement.SickLeaveTakenDays,
+            scheduled = entitlement.SickLeaveScheduledDays,
+            available = Math.Max(0, entitlement.RemainingSickLeaveDays - entitlement.SickLeaveScheduledDays)
+        },
+        ["Special Leave"] = new
+        {
+            unit = "days",
+            total = entitlement.SpecialLeaveDays,
+            taken = entitlement.SpecialLeaveTakenDays,
+            scheduled = entitlement.SpecialLeaveScheduledDays,
+            available = Math.Max(0, entitlement.RemainingSpecialLeaveDays - entitlement.SpecialLeaveScheduledDays)
+        },
+        ["Parental Leave"] = new
+        {
+            unit = "weeks",
+            total = entitlement.ParentalLeaveWeeks,
+            taken = entitlement.ParentalLeaveTakenWeeks,
+            scheduled = entitlement.ParentalLeaveScheduledWeeks,
+            available = Math.Max(0, entitlement.RemainingParentalLeaveWeeks - entitlement.ParentalLeaveScheduledWeeks)
+        }
+    };
 }
 
-<div class="leave-panel">
-    <h2>Request Leave</h2>
-    <p class="leave-intro">Submit a leave request for @employeeName.</p>
+<div class="leave-panel" data-leave-impact-root data-leave-impact='@JsonSerializer.Serialize(leaveImpactData)'>
+    <h2>Apply for Leave</h2>
+    <p class="leave-intro">Create a leave request for @employeeName.</p>
+    <p id="leave-form-help" class="leave-form-help">Choose the leave type, enter the requested dates, and add a short reason if extra context is helpful for review.</p>
 
-    <form method="post" action="@submitAction" class="leave-request-form">
+    <form method="post" action="@submitAction" class="leave-request-form" aria-describedby="leave-form-help">
         @Html.AntiForgeryToken()
         <input type="hidden" name="submittedForUsername" value="@targetUsername" />
 
         <div class="form-row">
             <label for="leaveType">Leave Type</label>
-            <select id="leaveType" name="leaveType" required>
+            <select id="leaveType" name="leaveType" data-leave-type aria-describedby="leave-impact-note" required>
                 <option value="Annual Leave">Annual Leave</option>
                 <option value="Sick Leave">Sick Leave</option>
                 <option value="Parental Leave">Parental Leave</option>
@@ -27,17 +66,50 @@
         <div class="form-row two-column">
             <div>
                 <label for="startDate">Start Date</label>
-                <input id="startDate" name="startDate" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                <input id="startDate" name="startDate" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" data-start-date aria-describedby="leave-date-help leave-impact-note" required />
             </div>
             <div>
                 <label for="endDate">End Date</label>
-                <input id="endDate" name="endDate" type="date" value="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" required />
+                <input id="endDate" name="endDate" type="date" value="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" data-end-date aria-describedby="leave-date-help leave-impact-note" required />
+            </div>
+        </div>
+        <p id="leave-date-help" class="leave-form-help" style="margin-top:-8px;">Start and end dates are required. Public holidays are handled separately and do not need a leave request.</p>
+
+        <div class="leave-impact-card" role="status" aria-live="polite" aria-atomic="true">
+            <h3>Leave impact preview</h3>
+            <p class="leave-impact-note" id="leave-impact-note">This preview shows how the request would affect the selected leave balance based on your current entitlements and already approved upcoming leave.</p>
+            <div class="leave-impact-grid">
+                <div class="leave-impact-item">
+                    <span class="leave-impact-label">Requested now</span>
+                    <strong data-impact-requested>0 days</strong>
+                </div>
+                <div class="leave-impact-item">
+                    <span class="leave-impact-label">Available before this request</span>
+                    <strong data-impact-available>0 days</strong>
+                </div>
+                <div class="leave-impact-item">
+                    <span class="leave-impact-label">Estimated balance after this request</span>
+                    <strong data-impact-after>0 days</strong>
+                </div>
+                <div class="leave-impact-item">
+                    <span class="leave-impact-label">Already approved upcoming</span>
+                    <strong data-impact-scheduled>0 days</strong>
+                </div>
+                <div class="leave-impact-item">
+                    <span class="leave-impact-label">Already used</span>
+                    <strong data-impact-taken>0 days</strong>
+                </div>
+                <div class="leave-impact-item">
+                    <span class="leave-impact-label">Total entitlement</span>
+                    <strong data-impact-total>0 days</strong>
+                </div>
             </div>
         </div>
 
         <div class="form-row">
             <label for="reason">Reason</label>
-            <textarea id="reason" name="reason" rows="4" placeholder="Provide a brief reason for the leave request."></textarea>
+            <textarea id="reason" name="reason" rows="4" aria-describedby="leave-reason-help" placeholder="Provide a brief reason for the leave request."></textarea>
+            <p id="leave-reason-help" class="leave-form-help">This field is optional, but it can help the reviewer understand the context for the request.</p>
         </div>
 
         <button type="submit" class="primary-button">Submit Leave Request</button>
@@ -48,6 +120,7 @@
     .leave-panel { color: #2A5D8F; }
     .leave-panel h2 { margin-bottom: 10px; }
     .leave-intro { color: #4A4A4A; margin-bottom: 16px; }
+    .leave-form-help { color: #4A4A4A; margin: 0; font-size: 13px; line-height: 1.5; }
     .leave-request-form { max-width: 620px; display: flex; flex-direction: column; gap: 16px; }
     .form-row { display: flex; flex-direction: column; gap: 8px; }
     .two-column { display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 16px; }
@@ -55,4 +128,96 @@
     input, select, textarea { width: 100%; border: 1px solid #C7CED6; border-radius: 6px; padding: 10px 12px; font-size: 14px; }
     .primary-button { background: #2A5D8F; color: #FFFFFF; border: none; border-radius: 6px; padding: 10px 16px; font-weight: 700; cursor: pointer; }
     .primary-button:hover { background: #5BA6A6; }
+    .leave-impact-card { background: #F5F7FA; border: 1px solid #C7CED6; border-radius: 8px; padding: 16px; }
+    .leave-impact-card h3 { margin: 0 0 8px; }
+    .leave-impact-note { color: #4A4A4A; margin: 0 0 14px; }
+    .leave-impact-grid { display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 12px; }
+    .leave-impact-item { background: #FFFFFF; border: 1px solid #D8DEE6; border-radius: 6px; padding: 12px; }
+    .leave-impact-label { display: block; color: #4A4A4A; margin-bottom: 6px; font-size: 13px; }
 </style>
+
+<script>
+    (function () {
+        const root = document.querySelector("[data-leave-impact-root]");
+        if (!root || root.dataset.bound === "true") {
+            return;
+        }
+
+        root.dataset.bound = "true";
+        const impactData = JSON.parse(root.dataset.leaveImpact || "{}");
+        const leaveTypeInput = root.querySelector("[data-leave-type]");
+        const startDateInput = root.querySelector("[data-start-date]");
+        const endDateInput = root.querySelector("[data-end-date]");
+        const requestedOutput = root.querySelector("[data-impact-requested]");
+        const availableOutput = root.querySelector("[data-impact-available]");
+        const afterOutput = root.querySelector("[data-impact-after]");
+        const scheduledOutput = root.querySelector("[data-impact-scheduled]");
+        const takenOutput = root.querySelector("[data-impact-taken]");
+        const totalOutput = root.querySelector("[data-impact-total]");
+
+        if (!leaveTypeInput || !startDateInput || !endDateInput) {
+            return;
+        }
+
+        function parseLocalDate(value) {
+            if (!value) {
+                return null;
+            }
+
+            const parts = value.split("-").map(Number);
+            if (parts.length !== 3 || parts.some(Number.isNaN)) {
+                return null;
+            }
+
+            return new Date(parts[0], parts[1] - 1, parts[2]);
+        }
+
+        function getRequestedDays() {
+            const start = parseLocalDate(startDateInput.value);
+            const end = parseLocalDate(endDateInput.value);
+            if (!start || !end || end < start) {
+                return 0;
+            }
+
+            return Math.floor((end - start) / 86400000) + 1;
+        }
+
+        function formatAmount(value, unit) {
+            return `${value} ${unit}`;
+        }
+
+        function updateImpact() {
+            const leaveType = leaveTypeInput.value || "Annual Leave";
+            const metrics = impactData[leaveType] || impactData["Annual Leave"] || { unit: "days", total: 0, taken: 0, scheduled: 0, available: 0 };
+            const requestedDays = getRequestedDays();
+            const requestedAmount = metrics.unit === "weeks"
+                ? Math.ceil(requestedDays / 7)
+                : requestedDays;
+            const remainingAfter = Math.max(0, (metrics.available || 0) - requestedAmount);
+
+            if (requestedOutput) {
+                requestedOutput.textContent = formatAmount(requestedAmount, metrics.unit || "days");
+            }
+            if (availableOutput) {
+                availableOutput.textContent = formatAmount(metrics.available || 0, metrics.unit || "days");
+            }
+            if (afterOutput) {
+                afterOutput.textContent = formatAmount(remainingAfter, metrics.unit || "days");
+            }
+            if (scheduledOutput) {
+                scheduledOutput.textContent = formatAmount(metrics.scheduled || 0, metrics.unit || "days");
+            }
+            if (takenOutput) {
+                takenOutput.textContent = formatAmount(metrics.taken || 0, metrics.unit || "days");
+            }
+            if (totalOutput) {
+                totalOutput.textContent = formatAmount(metrics.total || 0, metrics.unit || "days");
+            }
+        }
+
+        leaveTypeInput.addEventListener("change", updateImpact);
+        startDateInput.addEventListener("input", updateImpact);
+        endDateInput.addEventListener("input", updateImpact);
+        updateImpact();
+    })();
+</script>

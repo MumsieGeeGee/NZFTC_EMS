@@ -7,8 +7,8 @@
 }
 
 <div class="grievance-panel">
-    <h2>Users' Resolved Grievance Reports</h2>
-    <p class="grievance-intro">Closed reports and outcomes recorded for the team.</p>
+    <h2>View Employee Resolved Grievance Reports</h2>
+    <p class="grievance-intro">Resolved grievance reports and outcomes recorded for the team.</p>
 
     @if (!reports.Any())
     {
@@ -21,7 +21,6 @@
             <div class="grievance-card">
                 <div class="grievance-card-header">
                     <span class="grievance-badge">Resolved</span>
-                    <strong>#@item.Id</strong>
                 </div>
                 <h3>@item.Subject</h3>
                 <p><strong>Employee:</strong> @item.EmployeeName</p>

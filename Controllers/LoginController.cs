@@ -9,11 +9,19 @@ namespace NZFTC_EMS.Controllers
     public class LoginController : Controller
     {
         private readonly IAuthenticationService _authService;
+        private readonly PasswordResetRequestService _passwordResetRequestService;
+        private readonly SessionAuditService _sessionAuditService;
         private readonly ILogger<LoginController> _logger;
 
-        public LoginController(IAuthenticationService authService, ILogger<LoginController> logger)
+        public LoginController(
+            IAuthenticationService authService,
+            PasswordResetRequestService passwordResetRequestService,
+            SessionAuditService sessionAuditService,
+            ILogger<LoginController> logger)
         {
             _authService = authService;
+            _passwordResetRequestService = passwordResetRequestService;
+            _sessionAuditService = sessionAuditService;
             _logger = logger;
         }
 
@@ -77,6 +85,10 @@ namespace NZFTC_EMS.Controllers
                 HttpContext.Session.SetString("JobRole", userSession.AccessProfile.JobRole);
                 HttpContext.Session.SetString("DashboardMode", userSession.AccessProfile.DashboardMode);
                 HttpContext.Session.SetString("RequiresSecondaryAuth", userSession.AccessProfile.RequiresSecondaryAuth.ToString());
+                await _sessionAuditService.RecordLoginAsync(
+                    HttpContext.Session.Id,
+                    userSession,
+                    HttpContext.Connection.RemoteIpAddress?.ToString());
 
                 _logger.LogInformation($"User '{model.Username}' logged in successfully from IP: {HttpContext.Connection.RemoteIpAddress}");
 
@@ -89,6 +101,21 @@ namespace NZFTC_EMS.Controllers
                 SetPageMessage(MainSystemAuthMessages.AsError(MainSystemAuthMessages.LoginFailed));
                 return RenderLoginView(model);
             }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ForgotPassword(LoginRequest model)
+        {
+            var username = model.Username?.Trim() ?? string.Empty;
+            if (!_passwordResetRequestService.TryCreateRequest(username, out var message))
+            {
+                SetPageMessage(FormatAuthMessage(message));
+                return RenderLoginView(new LoginRequest { Username = username });
+            }
+
+            SetPageMessage(FormatInfoMessage(message), "info");
+            return RenderLoginView(new LoginRequest { Username = username });
         }
 
         [HttpGet]
@@ -114,6 +141,11 @@ namespace NZFTC_EMS.Controllers
             }
 
             await _authService.LogoutUserAsync(username);
+            await _sessionAuditService.RecordLogoutAsync(
+                HttpContext.Session.Id,
+                username,
+                "logout",
+                HttpContext.Connection.RemoteIpAddress?.ToString());
             HttpContext.Session.Clear();
 
             _logger.LogInformation($"User '{username}' logged out");
@@ -220,6 +252,18 @@ namespace NZFTC_EMS.Controllers
             }
 
             return MainSystemAuthMessages.AsError(message);
+        }
+
+        private static string FormatInfoMessage(string message)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return MainSystemAuthMessages.AsInfo("Request sent.");
+            }
+
+            return message.StartsWith(MainSystemAuthMessages.DisplayInfo, StringComparison.OrdinalIgnoreCase)
+                ? message
+                : MainSystemAuthMessages.AsInfo(message);
         }
     }
 }

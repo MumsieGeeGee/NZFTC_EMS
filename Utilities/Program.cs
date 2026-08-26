@@ -8,8 +8,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var mysqlPassword = builder.Configuration["MYSQL_PASSWORD"] ?? Environment.GetEnvironmentVariable("MYSQL_PASSWORD");
-if (!string.IsNullOrWhiteSpace(connectionString) && !string.IsNullOrWhiteSpace(mysqlPassword))
+if (string.IsNullOrWhiteSpace(connectionString))
 {
+    throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
+}
+
+if (!ConnectionStringHasPassword(connectionString))
+{
+    if (string.IsNullOrWhiteSpace(mysqlPassword))
+    {
+        throw new InvalidOperationException(
+            "MySQL startup requires the MYSQL_PASSWORD environment variable because the configured DefaultConnection does not include a password. " +
+            "Set MYSQL_PASSWORD before running the web app, or add the password through local development configuration.");
+    }
+
     connectionString = AppendMySqlPassword(connectionString, mysqlPassword);
 }
 
@@ -32,15 +44,20 @@ builder.Services.AddSession(options =>
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IPublicHolidayCalendarService, PublicHolidayCalendarService>();
 builder.Services.AddScoped<MySqlRepository>();
+builder.Services.AddScoped<EmployeeRecordStore>();
 builder.Services.AddScoped<EmployeeAccountRecordService>();
+builder.Services.AddScoped<PasswordResetRequestService>();
 builder.Services.AddScoped<GrievanceRequestService>();
 builder.Services.AddScoped<LeaveRequestService>();
 builder.Services.AddScoped<PayrollService>();
+builder.Services.AddScoped<SessionAuditService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+await MySqlDatabaseInitializer.InitializeAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -55,6 +72,17 @@ app.UseRouting();
 
 // Add session middleware BEFORE authorization
 app.UseSession();
+
+app.Use(async (context, next) =>
+{
+    if (!string.IsNullOrWhiteSpace(context.Session.GetString("Username")))
+    {
+        var sessionAuditService = context.RequestServices.GetRequiredService<SessionAuditService>();
+        await sessionAuditService.TouchSessionAsync(context.Session.Id);
+    }
+
+    await next();
+});
 
 app.UseAuthorization();
 
@@ -100,6 +128,26 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+
+static bool ConnectionStringHasPassword(string connectionString)
+{
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        return false;
+    }
+
+    var segments = connectionString.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    foreach (var segment in segments)
+    {
+        if (segment.StartsWith("password=", StringComparison.OrdinalIgnoreCase) ||
+            segment.StartsWith("pwd=", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 static string AppendMySqlPassword(string connectionString, string password)
 {

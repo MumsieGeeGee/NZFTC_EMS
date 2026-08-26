@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using NZFTC_EMS.Data.Entities;
+using System.Text;
 
 namespace NZFTC_EMS.Data
 {
@@ -43,6 +45,8 @@ namespace NZFTC_EMS.Data
                 entity.ToTable("employee_tax_information");
                 entity.HasKey(x => x.Username);
                 entity.HasIndex(x => x.IrdNumber).IsUnique();
+                entity.Property(x => x.StudentLoanSDRIRDLetterExistence)
+                    .HasColumnName("student_loan_sdr_ird_letter_existence");
                 entity.HasOne<EmployeeEntity>()
                     .WithOne()
                     .HasForeignKey<EmployeeTaxInformationEntity>(x => x.Username)
@@ -125,6 +129,60 @@ namespace NZFTC_EMS.Data
                 entity.HasIndex(x => new { x.EntityType, x.EntityKey });
                 entity.HasIndex(x => new { x.ActorUsername, x.OccurredOnUtc });
             });
+
+            ApplySnakeCaseColumnNames(modelBuilder);
+
+            modelBuilder.Entity<EmployeeTaxInformationEntity>()
+                .Property(x => x.StudentLoanSDRIRDLetterExistence)
+                .HasColumnName("student_loan_sdr_ird_letter_existence");
+        }
+
+        private static void ApplySnakeCaseColumnNames(ModelBuilder modelBuilder)
+        {
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    property.SetColumnName(ToSnakeCase(property.Name));
+                }
+            }
+        }
+
+        private static string ToSnakeCase(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+
+            var builder = new StringBuilder(value.Length + 8);
+            for (var index = 0; index < value.Length; index++)
+            {
+                var character = value[index];
+                if (char.IsUpper(character))
+                {
+                    var hasPrevious = index > 0;
+                    var hasNext = index + 1 < value.Length;
+                    var previous = hasPrevious ? value[index - 1] : '\0';
+                    var next = hasNext ? value[index + 1] : '\0';
+
+                    if (hasPrevious &&
+                        (char.IsLower(previous) ||
+                         char.IsDigit(previous) ||
+                         (char.IsUpper(previous) && hasNext && char.IsLower(next))))
+                    {
+                        builder.Append('_');
+                    }
+
+                    builder.Append(char.ToLowerInvariant(character));
+                }
+                else
+                {
+                    builder.Append(character);
+                }
+            }
+
+            return builder.ToString();
         }
     }
 }

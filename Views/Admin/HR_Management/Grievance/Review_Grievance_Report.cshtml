@@ -112,15 +112,21 @@
         color: #4A4A4A;
         line-height: 1.6;
     }
+    .review-help-text {
+        color: #4A4A4A;
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.5;
+    }
 </style>
 
 <div class="review-panel">
     <div class="review-header">
         <div>
-            <h2>Review Grievance Report</h2>
-            <p>Manage the report outcome and notify the employee of the final decision.</p>
+            <h2>Review an Employee's Grievance Report</h2>
+            <p>Manage the grievance outcome and notify the employee of the final decision.</p>
         </div>
-        <span class="status-badge">@Model.Status</span>
+        <span class="status-badge" role="status" aria-label="Current grievance status">@Model.Status</span>
     </div>
 
     <div class="review-grid">
@@ -147,17 +153,18 @@
         <div>@Model.Subject</div>
     </div>
 
-    <div class="description-box" style="margin-top: 16px;">
+    <div class="description-box" style="margin-top: 16px;" role="region" aria-label="Grievance description">
         @Model.Description
     </div>
 
-    <form method="post" action="@Url.Action("UpdateGrievanceStatus", "Admin")" class="form-section">
+    <form method="post" action="@Url.Action("UpdateGrievanceStatus", "Admin")" class="form-section" aria-describedby="grievance-review-help">
         @Html.AntiForgeryToken()
         <input type="hidden" name="grievanceId" value="@Model.Id" />
+        <p id="grievance-review-help" class="review-help-text">Set the current grievance outcome and provide enough detail for the employee to understand the decision.</p>
 
         <div class="form-row">
             <label for="status">Decision status</label>
-            <select id="status" name="status">
+            <select id="status" name="status" aria-describedby="grievance-review-help">
                 <option value="Open" selected="@(Model.Status == "Open" ? "selected" : null)">Open</option>
                 <option value="Resolved" selected="@(Model.Status == "Resolved" ? "selected" : null)">Resolved</option>
                 <option value="Temporarily Denied" selected="@(Model.Status == "Temporarily Denied" ? "selected" : null)">Temporarily Denied</option>
@@ -167,12 +174,14 @@
 
         <div class="form-row">
             <label for="outcome">Outcome summary</label>
-            <textarea id="outcome" name="outcome">@Model.Outcome</textarea>
+            <textarea id="outcome" name="outcome" aria-describedby="grievance-outcome-help">@Model.Outcome</textarea>
+            <p id="grievance-outcome-help" class="review-help-text">Summarise the practical outcome, for example what was resolved or what next step will happen.</p>
         </div>
 
         <div class="form-row">
             <label for="decisionReason">Decision reason</label>
-            <textarea id="decisionReason" name="decisionReason">@Model.DecisionReason</textarea>
+            <textarea id="decisionReason" name="decisionReason" aria-describedby="grievance-reason-help">@Model.DecisionReason</textarea>
+            <p id="grievance-reason-help" class="review-help-text">Explain why the selected decision status was chosen.</p>
         </div>
 
         <div class="form-actions">

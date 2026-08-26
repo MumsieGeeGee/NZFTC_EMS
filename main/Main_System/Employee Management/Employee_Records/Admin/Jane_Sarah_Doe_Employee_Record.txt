@@ -41,7 +41,7 @@ Address: 1 High Street, Rangiora, Christchurch, 0000, PO Box: 0
 Email Address: JaneDoe@gmail.com
 Phone Number: 02112345678
 Username: admin_slm_jane_sarah_doe
-Password: a0a4fedda77922ec
+Password: pbkdf2_sha256$210000$f5bd444835c239bd9eac3f4e30735ed6$b019c6dc5edf80548c826d5deb932033ccc961051e48544f4e4bb1337cdf3dff
 Password Reset Required: No
 Failed Login Attempts: 0
 Account Status: Active

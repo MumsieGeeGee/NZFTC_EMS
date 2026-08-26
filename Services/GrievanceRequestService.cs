@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using NZFTC_EMS.Data;
+using NZFTC_EMS.Data.Entities;
 using NZFTC_EMS.Models;
 
 namespace NZFTC_EMS.Services
@@ -9,8 +11,18 @@ namespace NZFTC_EMS.Services
     public class GrievanceRequestService
     {
         private static readonly List<GrievanceRequest> Requests = new();
-
         private static readonly List<GrievanceNotification> Notifications = new();
+        private static readonly object RequestsLock = new();
+        private static bool RequestsLoaded;
+        private readonly MySqlRepository _mySqlRepository;
+        private readonly EmployeeRecordStore _employeeRecordStore;
+
+        public GrievanceRequestService(MySqlRepository mySqlRepository, EmployeeRecordStore employeeRecordStore)
+        {
+            _mySqlRepository = mySqlRepository;
+            _employeeRecordStore = employeeRecordStore;
+            EnsureRequestsLoaded();
+        }
 
         public IReadOnlyList<GrievanceRequest> GetOpenReportsForUser(string username)
         {
@@ -80,8 +92,17 @@ namespace NZFTC_EMS.Services
                 .ToList();
         }
 
+        public IReadOnlyList<GrievanceRequest> GetAllReports()
+        {
+            EnsureRequestsLoaded();
+            return Requests
+                .OrderByDescending(r => r.SubmittedOn)
+                .ToList();
+        }
+
         public GrievanceRequest CreateReport(string submittedByUsername, string submittedForUsername, string subject, string description)
         {
+            EnsureRequestsLoaded();
             var targetUsername = string.IsNullOrWhiteSpace(submittedForUsername) ? submittedByUsername : submittedForUsername;
             var targetName = ResolveEmployeeDisplayName(targetUsername, submittedByUsername);
 
@@ -101,6 +122,7 @@ namespace NZFTC_EMS.Services
             };
 
             Requests.Add(request);
+            PersistRequestToDatabase(request);
 
             foreach (var recipient in GetNotificationRecipients(targetUsername, submittedByUsername).Distinct(StringComparer.OrdinalIgnoreCase))
             {
@@ -128,7 +150,7 @@ namespace NZFTC_EMS.Services
             return request;
         }
 
-        private static string ResolveEmployeeDisplayName(string? targetUsername, string? fallbackUsername)
+        private string ResolveEmployeeDisplayName(string? targetUsername, string? fallbackUsername)
         {
             var candidateUsernames = new[]
             {
@@ -153,18 +175,18 @@ namespace NZFTC_EMS.Services
             return string.Empty;
         }
 
-        private static IReadOnlyList<string> GetNotificationRecipients(string targetUsername, string submittedByUsername)
+        private IReadOnlyList<string> GetNotificationRecipients(string targetUsername, string submittedByUsername)
         {
             var recipients = new List<string>();
-            var root = ResolveEmployeeRecordRoot();
+            var root = _employeeRecordStore.ResolveEmployeeRecordRoot();
             if (string.IsNullOrWhiteSpace(root) || !Directory.Exists(root))
             {
                 return recipients;
             }
 
-            foreach (var filePath in Directory.EnumerateFiles(root, "*_Employee_Record.txt", SearchOption.AllDirectories))
+            foreach (var filePath in _employeeRecordStore.EnumerateEmployeeRecordFiles())
             {
-                var parsed = ParseKeyValueFile(filePath);
+                var parsed = _employeeRecordStore.ParseKeyValueFile(filePath);
                 if (!parsed.TryGetValue("Username", out var username) ||
                     string.IsNullOrWhiteSpace(username) ||
                     string.Equals(username.Trim(), targetUsername, StringComparison.OrdinalIgnoreCase) ||
@@ -192,74 +214,21 @@ namespace NZFTC_EMS.Services
             return string.Empty;
         }
 
-        private static string? TryResolveEmployeeNameFromRecord(string username)
+        private string? TryResolveEmployeeNameFromRecord(string username)
         {
-            var root = ResolveEmployeeRecordRoot();
-            if (string.IsNullOrWhiteSpace(root) || !Directory.Exists(root))
+            if (!_employeeRecordStore.TryGetEmployeeRecord(username, out var parsed))
             {
                 return null;
             }
 
-            foreach (var filePath in Directory.EnumerateFiles(root, "*_Employee_Record.txt", SearchOption.AllDirectories))
+            var firstName = EmployeeRecordStore.TryGetValue(parsed, "First Name");
+            var lastName = EmployeeRecordStore.TryGetValue(parsed, "Last Name");
+            if (string.IsNullOrWhiteSpace(firstName) && string.IsNullOrWhiteSpace(lastName))
             {
-                var parsed = ParseKeyValueFile(filePath);
-                if (!parsed.TryGetValue("Username", out var recordUsername) ||
-                    !string.Equals(recordUsername.Trim(), username.Trim(), StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                var firstName = parsed.TryGetValue("First Name", out var first) ? first.Trim() : string.Empty;
-                var lastName = parsed.TryGetValue("Last Name", out var last) ? last.Trim() : string.Empty;
-                if (string.IsNullOrWhiteSpace(firstName) && string.IsNullOrWhiteSpace(lastName))
-                {
-                    return null;
-                }
-
-                return string.Join(" ", new[] { firstName, lastName }.Where(value => !string.IsNullOrWhiteSpace(value))).Trim();
+                return null;
             }
 
-            return null;
-        }
-
-        private static string ResolveEmployeeRecordRoot()
-        {
-            var candidates = new[]
-            {
-                Path.Combine(Directory.GetCurrentDirectory(), "main", "Main_System", "Employee Management", "Employee_Records"),
-                Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "main", "Main_System", "Employee Management", "Employee_Records")),
-                Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "main", "Main_System", "Employee Management", "Employee_Records"))
-            };
-
-            return candidates.FirstOrDefault(Directory.Exists) ?? string.Empty;
-        }
-
-        private static IReadOnlyDictionary<string, string> ParseKeyValueFile(string filePath)
-        {
-            var parsed = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var rawLine in File.ReadLines(filePath))
-            {
-                var line = rawLine.Trim();
-                if (string.IsNullOrWhiteSpace(line))
-                {
-                    continue;
-                }
-
-                var separatorIndex = line.IndexOf(':');
-                if (separatorIndex <= 0 || separatorIndex == line.Length - 1)
-                {
-                    continue;
-                }
-
-                var key = line.Substring(0, separatorIndex).Trim();
-                var value = line.Substring(separatorIndex + 1).Trim();
-                if (!string.IsNullOrWhiteSpace(key))
-                {
-                    parsed[key] = value;
-                }
-            }
-
-            return parsed;
+            return string.Join(" ", new[] { firstName, lastName }.Where(value => !string.IsNullOrWhiteSpace(value))).Trim();
         }
 
         public GrievanceRequest? GetById(int grievanceId)
@@ -269,6 +238,7 @@ namespace NZFTC_EMS.Services
 
         public GrievanceRequest? UpdateStatus(int grievanceId, string status, string? outcome = null, string? decisionReason = null, string? handledByUsername = null)
         {
+            EnsureRequestsLoaded();
             var request = Requests.FirstOrDefault(r => r.Id == grievanceId);
             if (request == null)
             {
@@ -295,8 +265,75 @@ namespace NZFTC_EMS.Services
                 IsCaseUpdate = true,
                 CreatedOn = DateTime.UtcNow
             });
+            PersistRequestToDatabase(request);
 
             return request;
+        }
+
+        private void EnsureRequestsLoaded()
+        {
+            lock (RequestsLock)
+            {
+                if (RequestsLoaded)
+                {
+                    return;
+                }
+
+                Requests.Clear();
+                Requests.AddRange(
+                    _mySqlRepository.ListGrievanceRequestsAsync()
+                        .GetAwaiter()
+                        .GetResult()
+                        .Select(MapToModel)
+                        .OrderBy(r => r.Id));
+                RequestsLoaded = true;
+            }
+        }
+
+        private void PersistRequestToDatabase(GrievanceRequest request)
+        {
+            _mySqlRepository.UpsertGrievanceRequestAsync(new GrievanceRequestEntity
+            {
+                Id = request.Id,
+                SubmittedByUsername = request.SubmittedByUsername,
+                SubmittedForUsername = request.SubmittedForUsername,
+                EmployeeName = request.EmployeeName,
+                Subject = request.Subject,
+                DescriptionEncrypted = request.Description,
+                Category = request.Category,
+                Severity = request.Severity,
+                Status = request.Status,
+                OutcomeEncrypted = request.Outcome,
+                DecisionReasonEncrypted = request.DecisionReason,
+                SubmittedOnUtc = request.SubmittedOn == default ? DateTime.UtcNow : request.SubmittedOn,
+                UpdatedOnUtc = request.UpdatedOn,
+                CreatedByRole = request.CreatedByRole,
+                NotificationGroup = request.NotificationGroup,
+                HandledByUsername = request.HandledByUsername
+            }).GetAwaiter().GetResult();
+        }
+
+        private static GrievanceRequest MapToModel(GrievanceRequestEntity entity)
+        {
+            return new GrievanceRequest
+            {
+                Id = checked((int)entity.Id),
+                SubmittedByUsername = entity.SubmittedByUsername,
+                SubmittedForUsername = entity.SubmittedForUsername,
+                EmployeeName = entity.EmployeeName,
+                Subject = entity.Subject,
+                Description = entity.DescriptionEncrypted,
+                Category = entity.Category,
+                Severity = entity.Severity,
+                Status = entity.Status,
+                Outcome = entity.OutcomeEncrypted,
+                DecisionReason = entity.DecisionReasonEncrypted,
+                SubmittedOn = entity.SubmittedOnUtc,
+                UpdatedOn = entity.UpdatedOnUtc,
+                CreatedByRole = entity.CreatedByRole,
+                NotificationGroup = entity.NotificationGroup,
+                HandledByUsername = entity.HandledByUsername
+            };
         }
     }
 }

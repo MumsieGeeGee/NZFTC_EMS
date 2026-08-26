@@ -25,6 +25,8 @@ namespace NZFTC_EMS.Data.Entities
         public string ApprovedEmergencyStepsEncrypted { get; set; } = string.Empty;
         public string PriorTrainingEncrypted { get; set; } = string.Empty;
         public string FirstAidCertificationEncrypted { get; set; } = string.Empty;
+        public string GroupName { get; set; } = string.Empty;
+        public string RecordSnapshotJson { get; set; } = string.Empty;
         public DateTime CreatedOnUtc { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedOnUtc { get; set; } = DateTime.UtcNow;
     }
@@ -44,6 +46,8 @@ namespace NZFTC_EMS.Data.Entities
         public string SecondaryTaxCode { get; set; } = string.Empty;
         public string SpecialTaxCode { get; set; } = string.Empty;
         public string SpecialTaxCodeRate { get; set; } = string.Empty;
+        public string STCLetterReceived { get; set; } = string.Empty;
+        public string STCExpiryDate { get; set; } = string.Empty;
         public string KiwiSaverOptInOutStatus { get; set; } = "opt-in";
         public string KiwiSaverEmployeeContributionRate { get; set; } = "3%";
         public string KiwiSaverOptOutDate { get; set; } = string.Empty;
@@ -55,6 +59,15 @@ namespace NZFTC_EMS.Data.Entities
         public string StudentLoanRepaymentExemptionReason { get; set; } = string.Empty;
         public string StudentLoanRepaymentExemptionExpiryDate { get; set; } = string.Empty;
         public string StudentLoanRepaymentThreshold { get; set; } = string.Empty;
+        public string ChildSupportStatus { get; set; } = string.Empty;
+        public string ChildSupportStandardDeduction { get; set; } = string.Empty;
+        public string ChildSupportVoluntaryDeduction { get; set; } = string.Empty;
+        public string ChildSupportProtectedNetEarnings { get; set; } = string.Empty;
+        public string ChildSupportIRDNoticeOfDeductionExistence { get; set; } = string.Empty;
+        public string ChildSupportIRDNoticeOfDeductionAmount { get; set; } = string.Empty;
+        public string ChildSupportIRDNoticeOfDeductionEffectiveDate { get; set; } = string.Empty;
+        public string ChildSupportIRDNoticeOfDeductionExpiryDate { get; set; } = string.Empty;
+        public string ChildSupportIRDNoticeOfDeductionReferenceNumber { get; set; } = string.Empty;
         public string EmployeeExtras { get; set; } = string.Empty;
         public string ESCTTaxRate { get; set; } = string.Empty;
         public string ESCTIncomeBand { get; set; } = string.Empty;

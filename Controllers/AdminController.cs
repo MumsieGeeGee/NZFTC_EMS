@@ -1,14 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
+using NZFTC_EMS.Data;
+using NZFTC_EMS.Data.Entities;
 using NZFTC_EMS.Models;
 using NZFTC_EMS.Services;
 using NZFTC_EMS.Utilities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 
 namespace NZFTC_EMS.Controllers
 {
-    public class AdminController : Controller
+    public class AdminController : PortalControllerBase
     {
         private const string ViewOwnAccountActionKey = "view-own-account-details";
         private const string EditOwnAccountActionKey = "edit-own-account-details";
@@ -30,7 +33,6 @@ namespace NZFTC_EMS.Controllers
         private const string ViewMyResolvedLeaveRequestsActionKey = "view-my-resolved-leave-requests";
         private const string ViewMyPayslipsActionKey = "view-my-payslips";
         private const string ViewMyTaxInformationActionKey = "view-my-tax-information";
-        private const string EditMyTaxInformationActionKey = "edit-my-tax-information";
         private const string ViewUsersOpenGrievanceActionKey = "view-users-open-grievance-reports";
         private const string ViewUsersResolvedGrievanceActionKey = "view-users-resolved-grievance-reports";
         private const string ReviewGrievanceActionKey = "review-grievance-report";
@@ -82,28 +84,33 @@ namespace NZFTC_EMS.Controllers
         private const string ViewMyResolvedLeaveRequestsPartialPath = "~/Views/Employee/HR_Management/Leave/View_Own_Resolved_Leave_Requests.cshtml";
         private const string ViewMyPayslipsPartialPath = "~/Views/Employee/HR_Management/PAYE/View_Own_Payslips.cshtml";
         private const string ViewMyTaxInformationPartialPath = "~/Views/Employee/HR_Management/PAYE/View_Own_Tax_Information.cshtml";
-        private const string EditMyTaxInformationPartialPath = "~/Views/Employee/HR_Management/PAYE/Edit_Own_Tax_Information.cshtml";
 
         private readonly EmployeeAccountRecordService _employeeAccountRecordService;
         private readonly GrievanceRequestService _grievanceRequestService;
         private readonly LeaveRequestService _leaveRequestService;
+        private readonly PasswordResetRequestService _passwordResetRequestService;
+        private readonly MySqlRepository _mySqlRepository;
         private readonly PayrollService _payrollService;
 
         public AdminController(
             EmployeeAccountRecordService employeeAccountRecordService,
             GrievanceRequestService grievanceRequestService,
             LeaveRequestService leaveRequestService,
+            PasswordResetRequestService passwordResetRequestService,
+            MySqlRepository mySqlRepository,
             PayrollService payrollService)
         {
             _employeeAccountRecordService = employeeAccountRecordService;
             _grievanceRequestService = grievanceRequestService;
             _leaveRequestService = leaveRequestService;
+            _passwordResetRequestService = passwordResetRequestService;
+            _mySqlRepository = mySqlRepository;
             _payrollService = payrollService;
         }
 
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
-            var authResult = PrepareAccessContext();
+            var authResult = PrepareAccessContext(AccessProfileSessionHelper.IsAdminPortalProfile);
             if (!authResult.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Login");
@@ -114,6 +121,7 @@ namespace NZFTC_EMS.Controllers
             }
             SetSectionMenuOptions("dashboard");
             var username = HttpContext.Session.GetString("Username") ?? string.Empty;
+            var dashboardAccessProfile = ViewBag.AccessProfile as AccessProfile;
             var notifications = _grievanceRequestService.GetNotificationsForUser(username)
                 .Where(notification =>
                 {
@@ -123,7 +131,9 @@ namespace NZFTC_EMS.Controllers
                     }
 
                     var grievance = _grievanceRequestService.GetById(notification.GrievanceId);
-                    return grievance != null && CanReviewGrievance(username, grievance);
+                    return grievance != null &&
+                           dashboardAccessProfile != null &&
+                           CanReviewGrievance(dashboardAccessProfile, username, grievance);
                 })
                 .Select(notification => new DashboardNotification
                 {
@@ -141,11 +151,12 @@ namespace NZFTC_EMS.Controllers
                 })
                 .ToList();
             notifications.AddRange(_leaveRequestService.GetDashboardNotificationsForUser(username));
-            if (ViewBag.AccessProfile is AccessProfile dashboardAccessProfile && CanManageHrOnBehalf(dashboardAccessProfile))
+            notifications.AddRange(_passwordResetRequestService.GetDashboardNotificationsForUser(username));
+            if (dashboardAccessProfile != null && CanManageHrOnBehalf(dashboardAccessProfile))
             {
                 notifications.AddRange(
                     _leaveRequestService.GetOpenRequestsForTeam()
-                        .Where(request => CanReviewLeaveRequest(username, request))
+                        .Where(request => CanReviewLeaveRequest(dashboardAccessProfile, username, request))
                         .Take(6)
                         .Select(request => new DashboardNotification
                         {
@@ -156,6 +167,31 @@ namespace NZFTC_EMS.Controllers
                             LinkText = "Review leave request",
                             LinkUrl = Url.Action(nameof(HRManagement), "Admin", new { actionKey = ReviewLeaveRequestActionKey, leaveRequestId = request.Id }),
                             CreatedOn = request.UpdatedOn ?? request.RequestedOn
+                        }));
+            }
+            if (dashboardAccessProfile != null && dashboardAccessProfile.CanManageAllAccounts)
+            {
+                notifications.AddRange(
+                    _employeeAccountRecordService.GetLockedAccounts()
+                        .Where(account => CanManageAnotherEmployee(dashboardAccessProfile, username, account.Username))
+                        .Take(4)
+                        .Select(account => new DashboardNotification
+                        {
+                            Category = "Account",
+                            Title = "Locked account needs review",
+                            Message = $"{account.DisplayName} is currently locked and can be unlocked from account management.",
+                            Tone = "warning",
+                            LinkText = "Open account details",
+                            LinkUrl = Url.Action(
+                                nameof(AccountManagement),
+                                "Admin",
+                                new
+                                {
+                                    actionKey = EditSelectedEmployeeAccountActionKey,
+                                    group = account.GroupName,
+                                    username = account.Username
+                                }),
+                            CreatedOn = DateTime.UtcNow
                         }));
             }
             if (_employeeAccountRecordService.TryGetAccountDetails(username, out var accountDetails)
@@ -178,12 +214,21 @@ namespace NZFTC_EMS.Controllers
                 .Take(6)
                 .ToList();
 
+            try
+            {
+                ViewBag.MySqlStatus = await _mySqlRepository.GetStatusSnapshotAsync();
+            }
+            catch (Exception ex)
+            {
+                ViewBag.MySqlStatusError = ex.Message;
+            }
+
             return View();
         }
 
         public IActionResult AccountManagement()
         {
-            var authResult = PrepareAccessContext();
+            var authResult = PrepareAccessContext(AccessProfileSessionHelper.IsAdminPortalProfile);
             if (!authResult.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Login");
@@ -331,7 +376,7 @@ namespace NZFTC_EMS.Controllers
 
         public IActionResult EmployeeManagement()
         {
-            var authResult = PrepareAccessContext();
+            var authResult = PrepareAccessContext(AccessProfileSessionHelper.IsAdminPortalProfile);
             if (!authResult.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Login");
@@ -352,7 +397,7 @@ namespace NZFTC_EMS.Controllers
 
         public IActionResult HRManagement()
         {
-            var authResult = PrepareAccessContext();
+            var authResult = PrepareAccessContext(AccessProfileSessionHelper.IsAdminPortalProfile);
             if (!authResult.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Login");
@@ -411,8 +456,6 @@ namespace NZFTC_EMS.Controllers
                     return PartialView(ViewMyPayslipsPartialPath, _payrollService.GetPayslipsForUser(sessionUsername));
                 case ViewMyTaxInformationActionKey:
                     return PartialView(ViewMyTaxInformationPartialPath, _payrollService.GetTaxInformationForUser(sessionUsername));
-                case EditMyTaxInformationActionKey:
-                    return PartialView(EditMyTaxInformationPartialPath, _payrollService.GetEditableTaxInformationForUser(sessionUsername));
                 case ViewUsersOpenGrievanceActionKey:
                     if (!accessProfile.CanManageAllHr && !accessProfile.CanManageAllEmployees)
                     {
@@ -421,14 +464,18 @@ namespace NZFTC_EMS.Controllers
                     return PartialView(
                         ViewUsersOpenGrievancePartialPath,
                         _grievanceRequestService.GetOpenReportsForTeam()
-                            .Where(report => CanReviewGrievance(sessionUsername, report))
+                            .Where(report => CanReviewGrievance(accessProfile, sessionUsername, report))
                             .ToList());
                 case ViewUsersResolvedGrievanceActionKey:
                     if (!accessProfile.CanManageAllHr && !accessProfile.CanManageAllEmployees)
                     {
                         return Forbid();
                     }
-                    return PartialView(ViewUsersResolvedGrievancePartialPath, _grievanceRequestService.GetResolvedReportsForTeam());
+                    return PartialView(
+                        ViewUsersResolvedGrievancePartialPath,
+                        _grievanceRequestService.GetResolvedReportsForTeam()
+                            .Where(report => CanReviewGrievance(accessProfile, sessionUsername, report))
+                            .ToList());
                 case SubmitGrievanceOnBehalfOfUserActionKey:
                     if (!accessProfile.CanManageAllHr && !accessProfile.CanManageAllEmployees)
                     {
@@ -487,7 +534,7 @@ namespace NZFTC_EMS.Controllers
                     {
                         return NotFound();
                     }
-                    if (!CanReviewLeaveRequest(sessionUsername, leaveRequest))
+                    if (!CanReviewLeaveRequest(accessProfile, sessionUsername, leaveRequest))
                     {
                         return Forbid();
                     }
@@ -506,7 +553,7 @@ namespace NZFTC_EMS.Controllers
                     {
                         return NotFound();
                     }
-                    if (!CanManageAnotherEmployee(sessionUsername, leaveRequestToEdit.SubmittedForUsername))
+                    if (!CanManageAnotherEmployee(accessProfile, sessionUsername, leaveRequestToEdit.SubmittedForUsername))
                     {
                         return Forbid();
                     }
@@ -525,7 +572,7 @@ namespace NZFTC_EMS.Controllers
                     {
                         return NotFound();
                     }
-                    if (!CanManageAnotherEmployee(sessionUsername, leaveRequestToDelete.SubmittedForUsername))
+                    if (!CanManageAnotherEmployee(accessProfile, sessionUsername, leaveRequestToDelete.SubmittedForUsername))
                     {
                         return Forbid();
                     }
@@ -535,7 +582,7 @@ namespace NZFTC_EMS.Controllers
                     {
                         return Forbid();
                     }
-                    var targetUserForPayslips = NormalizeManagedTargetUsername(sessionUsername, username);
+                    var targetUserForPayslips = NormalizeManagedTargetUsername(accessProfile, sessionUsername, username);
                     return PartialView(
                         ViewSelectedEmployeePayslipsPartialPath,
                         string.IsNullOrWhiteSpace(targetUserForPayslips)
@@ -546,7 +593,7 @@ namespace NZFTC_EMS.Controllers
                     {
                         return Forbid();
                     }
-                    var targetUserForTax = NormalizeManagedTargetUsername(sessionUsername, username);
+                    var targetUserForTax = NormalizeManagedTargetUsername(accessProfile, sessionUsername, username);
                     return PartialView(
                         ViewSelectedEmployeeTaxInformationPartialPath,
                         string.IsNullOrWhiteSpace(targetUserForTax)
@@ -557,63 +604,18 @@ namespace NZFTC_EMS.Controllers
                     {
                         return Forbid();
                     }
-                    var targetUserForEditTax = NormalizeManagedTargetUsername(sessionUsername, username);
+                    var targetUserForEditTax = NormalizeManagedTargetUsername(accessProfile, sessionUsername, username);
                     return PartialView(
                         EditSelectedEmployeeTaxInformationPartialPath,
                         string.IsNullOrWhiteSpace(targetUserForEditTax)
                             ? new PayrollTaxInformation()
-                            : _payrollService.GetEditableTaxInformationForUser(targetUserForEditTax));
+                            : _payrollService.GetTaxInformationForUser(targetUserForEditTax));
                 case CreatePayslipForEmployeeActionKey:
                     if (!accessProfile.CanManageAllHr && !accessProfile.CanManageAllEmployees)
                     {
                         return Forbid();
                     }
-                    var targetUserForPayslipCreation = NormalizeManagedTargetUsername(sessionUsername, username);
-                    if (string.IsNullOrWhiteSpace(targetUserForPayslipCreation))
-                    {
-                        return PartialView(CreatePayslipPartialPath, new PayslipRecord());
-                    }
-
-                    var targetPayslipTaxInfo = _payrollService.GetTaxInformationForUser(targetUserForPayslipCreation);
-                    var targetPayslipLeaveInfo = _leaveRequestService.GetEntitlementForUser(targetUserForPayslipCreation);
-                    return PartialView(CreatePayslipPartialPath, new PayslipRecord
-                    {
-                        Username = targetUserForPayslipCreation,
-                        EmployeeName = string.IsNullOrWhiteSpace(targetPayslipTaxInfo.EmployeeName)
-                            ? targetUserForPayslipCreation
-                            : targetPayslipTaxInfo.EmployeeName,
-                        SalaryPackageName = targetPayslipLeaveInfo.SalaryPackageName,
-                        SalaryPackageDisplayName = targetPayslipLeaveInfo.SalaryPackageDisplayName,
-                        PayFrequency = targetPayslipTaxInfo.PayFrequency,
-                        IRDNumber = targetPayslipTaxInfo.IRDNumber,
-                        PayPeriod = "Current pay period",
-                        BasePay = 0m,
-                        OvertimePay = 0m,
-                        BonusPay = 0m,
-                        AllowancePay = 0m,
-                        PreTaxDeductions = 0m,
-                        PostTaxDeductions = 0m,
-                        AnnualLeaveLawfulDays = targetPayslipLeaveInfo.AnnualLeaveLawfulDays,
-                        AnnualLeavePackageExtraDays = targetPayslipLeaveInfo.AnnualLeavePackageExtraDays,
-                        AnnualLeaveTakenDays = targetPayslipLeaveInfo.AnnualLeaveTakenDays,
-                        AnnualLeaveScheduledDays = targetPayslipLeaveInfo.AnnualLeaveScheduledDays,
-                        AnnualLeaveRemainingDays = targetPayslipLeaveInfo.RemainingAnnualLeaveDays,
-                        SickLeaveLawfulDays = targetPayslipLeaveInfo.SickLeaveLawfulDays,
-                        SickLeavePackageExtraDays = targetPayslipLeaveInfo.SickLeavePackageExtraDays,
-                        SickLeaveTakenDays = targetPayslipLeaveInfo.SickLeaveTakenDays,
-                        SickLeaveScheduledDays = targetPayslipLeaveInfo.SickLeaveScheduledDays,
-                        SickLeaveRemainingDays = targetPayslipLeaveInfo.RemainingSickLeaveDays,
-                        SpecialLeaveLawfulDays = targetPayslipLeaveInfo.SpecialLeaveLawfulDays,
-                        SpecialLeavePackageExtraDays = targetPayslipLeaveInfo.SpecialLeavePackageExtraDays,
-                        SpecialLeaveTakenDays = targetPayslipLeaveInfo.SpecialLeaveTakenDays,
-                        SpecialLeaveScheduledDays = targetPayslipLeaveInfo.SpecialLeaveScheduledDays,
-                        SpecialLeaveRemainingDays = targetPayslipLeaveInfo.RemainingSpecialLeaveDays,
-                        ParentalLeaveLawfulWeeks = targetPayslipLeaveInfo.ParentalLeaveLawfulWeeks,
-                        ParentalLeavePackageExtraWeeks = targetPayslipLeaveInfo.ParentalLeavePackageExtraWeeks,
-                        ParentalLeaveRemainingWeeks = targetPayslipLeaveInfo.RemainingParentalLeaveWeeks,
-                        PublicHolidayDays = targetPayslipLeaveInfo.PublicHolidayDays,
-                        PublicHolidayPackageExtraDays = targetPayslipLeaveInfo.PublicHolidayPackageExtraDays
-                    });
+                    return PartialView(CreatePayslipPartialPath, BuildSelectedEmployeePayslipModel(group, username));
                 case ReviewGrievanceActionKey:
                     if (!accessProfile.CanManageAllHr && !accessProfile.CanManageAllEmployees)
                     {
@@ -629,7 +631,7 @@ namespace NZFTC_EMS.Controllers
                         return NotFound();
                     }
 
-                    if (!CanReviewGrievance(sessionUsername, grievanceRecord))
+                    if (!CanReviewGrievance(accessProfile, sessionUsername, grievanceRecord))
                     {
                         return Forbid();
                     }
@@ -650,8 +652,8 @@ namespace NZFTC_EMS.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
-            var moduleAccess = AccessProfileSessionHelper.GetModuleAccess(accessProfile);
-            if (!moduleAccess.CanAccessHr)
+            if (!AccessProfileSessionHelper.IsAdminPortalProfile(accessProfile) ||
+                !CanManageHrOnBehalf(accessProfile))
             {
                 return Forbid();
             }
@@ -660,6 +662,11 @@ namespace NZFTC_EMS.Controllers
             if (payslip == null)
             {
                 return NotFound();
+            }
+
+            if (!CanAccessManagedPayslip(accessProfile, sessionUsername, payslip))
+            {
+                return Forbid();
             }
 
             return View("~/Views/Shared/PAYE/View_Payslip_Details.cshtml", payslip);
@@ -675,8 +682,8 @@ namespace NZFTC_EMS.Controllers
                 return RedirectToAction("Login", "Login");
             }
 
-            var moduleAccess = AccessProfileSessionHelper.GetModuleAccess(accessProfile);
-            if (!moduleAccess.CanAccessHr)
+            if (!AccessProfileSessionHelper.IsAdminPortalProfile(accessProfile) ||
+                !CanManageHrOnBehalf(accessProfile))
             {
                 return Forbid();
             }
@@ -685,6 +692,11 @@ namespace NZFTC_EMS.Controllers
             if (payslip == null)
             {
                 return NotFound();
+            }
+
+            if (!CanAccessManagedPayslip(accessProfile, sessionUsername, payslip))
+            {
+                return Forbid();
             }
 
             var exportText = _payrollService.GetPayslipExportText(payslipId);
@@ -722,7 +734,7 @@ namespace NZFTC_EMS.Controllers
                 return Forbid();
             }
 
-            var targetUsername = NormalizeManagedTargetUsername(sessionUsername, submittedForUsername);
+            var targetUsername = NormalizeManagedTargetUsername(accessProfile, sessionUsername, submittedForUsername);
             if (string.IsNullOrWhiteSpace(targetUsername))
             {
                 TempData["GrievanceError"] = "Please select another employee before submitting a grievance report on behalf of an employee.";
@@ -780,7 +792,7 @@ namespace NZFTC_EMS.Controllers
                 return Forbid();
             }
 
-            var targetUsername = NormalizeManagedTargetUsername(sessionUsername, submittedForUsername);
+            var targetUsername = NormalizeManagedTargetUsername(accessProfile, sessionUsername, submittedForUsername);
             if (string.IsNullOrWhiteSpace(targetUsername))
             {
                 TempData["LeaveError"] = "Please select another employee before submitting a leave request on behalf of an employee.";
@@ -833,7 +845,7 @@ namespace NZFTC_EMS.Controllers
                 return Forbid();
             }
 
-            var targetUsername = NormalizeManagedTargetUsername(sessionUsername, submittedForUsername);
+            var targetUsername = NormalizeManagedTargetUsername(accessProfile, sessionUsername, submittedForUsername);
             if (string.IsNullOrWhiteSpace(targetUsername))
             {
                 TempData["PayrollError"] = "Please select another employee before creating a payslip.";
@@ -877,7 +889,7 @@ namespace NZFTC_EMS.Controllers
                 return RedirectToAction(nameof(HRManagement));
             }
 
-            if (!CanManageAnotherEmployee(sessionUsername, updatedTaxInfo.Username))
+            if (!CanManageAnotherEmployee(accessProfile, sessionUsername, updatedTaxInfo.Username))
             {
                 TempData["PayrollError"] = "You cannot use the employee tax management flow for your own record.";
                 return RedirectToAction(nameof(HRManagement));
@@ -915,7 +927,7 @@ namespace NZFTC_EMS.Controllers
                     return RedirectToAction(nameof(HRManagement));
                 }
 
-                if (!CanReviewGrievance(sessionUsername, grievance))
+                if (!CanReviewGrievance(accessProfile, sessionUsername, grievance))
                 {
                     TempData["GrievanceError"] = "You cannot review your own grievance report.";
                     return RedirectToAction(nameof(HRManagement));
@@ -951,7 +963,7 @@ namespace NZFTC_EMS.Controllers
                     return RedirectToAction(nameof(HRManagement));
                 }
 
-                if (!CanReviewGrievance(sessionUsername, currentGrievance))
+                if (!CanReviewGrievance(accessProfile, sessionUsername, currentGrievance))
                 {
                     TempData["GrievanceError"] = "You cannot review your own grievance report.";
                     return RedirectToAction(nameof(HRManagement));
@@ -989,7 +1001,7 @@ namespace NZFTC_EMS.Controllers
                     TempData["LeaveError"] = "The selected leave request could not be found.";
                     return RedirectToAction(nameof(HRManagement));
                 }
-                if (!CanReviewLeaveRequest(sessionUsername, leaveRequest))
+                if (!CanReviewLeaveRequest(accessProfile, sessionUsername, leaveRequest))
                 {
                     TempData["LeaveError"] = "You cannot review your own leave request.";
                     return RedirectToAction(nameof(HRManagement));
@@ -1023,7 +1035,7 @@ namespace NZFTC_EMS.Controllers
                     TempData["LeaveError"] = "The selected leave request could not be found.";
                     return RedirectToAction(nameof(HRManagement));
                 }
-                if (!CanManageAnotherEmployee(sessionUsername, leaveRequest.SubmittedForUsername))
+                if (!CanManageAnotherEmployee(accessProfile, sessionUsername, leaveRequest.SubmittedForUsername))
                 {
                     TempData["LeaveError"] = "You cannot use the employee leave management edit flow for your own request.";
                     return RedirectToAction(nameof(HRManagement));
@@ -1058,7 +1070,7 @@ namespace NZFTC_EMS.Controllers
                     TempData["LeaveError"] = "The leave request could not be updated.";
                     return RedirectToAction(nameof(HRManagement));
                 }
-                if (!CanManageAnotherEmployee(sessionUsername, currentLeaveRequest.SubmittedForUsername))
+                if (!CanManageAnotherEmployee(accessProfile, sessionUsername, currentLeaveRequest.SubmittedForUsername))
                 {
                     TempData["LeaveError"] = "You cannot use the employee leave management edit flow for your own request.";
                     return RedirectToAction(nameof(HRManagement));
@@ -1123,6 +1135,12 @@ namespace NZFTC_EMS.Controllers
                 }
 
                 var emergencyContact = $"{emergencyContactName.Trim()} | {emergencyContactRelationship.Trim()} | {emergencyContactPhoneNumber.Trim()}";
+                if (!CanManageAnotherEmployee(accessProfile, sessionUsername, normalizedUsername))
+                {
+                    TempData["EmployeeError"] = "Please select a permitted employee before saving the employee details.";
+                    return RedirectToAction(nameof(HRManagement));
+                }
+
                 if (!_employeeAccountRecordService.UpdateEmployeeDetails(
                         normalizedUsername,
                         emergencyContact,
@@ -1138,6 +1156,79 @@ namespace NZFTC_EMS.Controllers
 
                 TempData["EmployeeSuccess"] = $"Employee details for {normalizedUsername} have been saved successfully.";
                 return RedirectToAction(nameof(HRManagement));
+            }
+
+            [HttpPost]
+            [ValidateAntiForgeryToken]
+            public async Task<IActionResult> UnlockSelectedEmployeeAccount(string group, string username, bool unlockLockedAccount)
+            {
+                var sessionUsername = HttpContext.Session.GetString("Username");
+                if (string.IsNullOrWhiteSpace(sessionUsername) ||
+                    !AccessProfileSessionHelper.TryGetAccessProfile(HttpContext.Session, out var accessProfile))
+                {
+                    return RedirectToAction("Login", "Login");
+                }
+
+                if (!accessProfile.CanManageAllAccounts)
+                {
+                    return Forbid();
+                }
+
+                var normalizedGroup = NormalizeGroup(group);
+                var normalizedUsername = (username ?? string.Empty).Trim();
+                if (string.IsNullOrWhiteSpace(normalizedGroup) || string.IsNullOrWhiteSpace(normalizedUsername))
+                {
+                    TempData["AccountError"] = "Please select a department and employee before updating the account.";
+                    return RedirectToAction(nameof(AccountManagement));
+                }
+
+                if (!CanManageAnotherEmployee(accessProfile, sessionUsername, normalizedUsername))
+                {
+                    TempData["AccountError"] = "Please select a permitted employee before updating the account.";
+                    return RedirectToAction(nameof(AccountManagement));
+                }
+
+                if (!_employeeAccountRecordService.TryGetAccountDetails(normalizedUsername, out var details))
+                {
+                    TempData["AccountError"] = "The selected employee account could not be found.";
+                    return RedirectToAction(nameof(AccountManagement), new { actionKey = EditSelectedEmployeeAccountActionKey, group = normalizedGroup, username = normalizedUsername });
+                }
+
+                var currentStatus = GetDetail(details, "Account Status");
+                if (!string.Equals(currentStatus, "Locked", StringComparison.OrdinalIgnoreCase))
+                {
+                    TempData["AccountSuccess"] = $"The account for {normalizedUsername} is already active.";
+                    return RedirectToAction(nameof(AccountManagement), new { actionKey = EditSelectedEmployeeAccountActionKey, group = normalizedGroup, username = normalizedUsername });
+                }
+
+                if (!unlockLockedAccount)
+                {
+                    TempData["AccountError"] = "Select 'Unlock Locked Account' before applying the account security update.";
+                    return RedirectToAction(nameof(AccountManagement), new { actionKey = EditSelectedEmployeeAccountActionKey, group = normalizedGroup, username = normalizedUsername });
+                }
+
+                if (!_employeeAccountRecordService.UnlockAccount(normalizedUsername, sessionUsername))
+                {
+                    TempData["AccountError"] = $"The account for {normalizedUsername} could not be unlocked.";
+                    return RedirectToAction(nameof(AccountManagement), new { actionKey = EditSelectedEmployeeAccountActionKey, group = normalizedGroup, username = normalizedUsername });
+                }
+
+                await _mySqlRepository.AddAuditEventAsync(new AuditEventEntity
+                {
+                    EntityType = "account",
+                    EntityKey = normalizedUsername,
+                    ActionType = "unlock",
+                    ActorUsername = sessionUsername,
+                    DetailsJson = JsonSerializer.Serialize(new
+                    {
+                        group = normalizedGroup,
+                        status = "Active"
+                    }),
+                    OccurredOnUtc = DateTime.UtcNow
+                });
+
+                TempData["AccountSuccess"] = $"The account for {normalizedUsername} has been unlocked.";
+                return RedirectToAction(nameof(AccountManagement), new { actionKey = EditSelectedEmployeeAccountActionKey, group = normalizedGroup, username = normalizedUsername });
             }
 
             [HttpGet]
@@ -1161,7 +1252,7 @@ namespace NZFTC_EMS.Controllers
                     TempData["LeaveError"] = "The selected leave request could not be found.";
                     return RedirectToAction(nameof(HRManagement));
                 }
-                if (!CanManageAnotherEmployee(sessionUsername, leaveRequest.SubmittedForUsername))
+                if (!CanManageAnotherEmployee(accessProfile, sessionUsername, leaveRequest.SubmittedForUsername))
                 {
                     TempData["LeaveError"] = "You cannot use the employee leave management delete flow for your own request.";
                     return RedirectToAction(nameof(HRManagement));
@@ -1196,7 +1287,7 @@ namespace NZFTC_EMS.Controllers
                     TempData["LeaveError"] = "The leave request could not be found.";
                     return RedirectToAction(nameof(HRManagement));
                 }
-                if (!CanManageAnotherEmployee(sessionUsername, leaveRequest.SubmittedForUsername))
+                if (!CanManageAnotherEmployee(accessProfile, sessionUsername, leaveRequest.SubmittedForUsername))
                 {
                     TempData["LeaveError"] = "You cannot use the employee leave management delete flow for your own request.";
                     return RedirectToAction(nameof(HRManagement));
@@ -1235,7 +1326,7 @@ namespace NZFTC_EMS.Controllers
                     TempData["LeaveError"] = "The leave request could not be updated.";
                     return RedirectToAction(nameof(HRManagement));
                 }
-                if (!CanReviewLeaveRequest(sessionUsername, currentLeaveRequest))
+                if (!CanReviewLeaveRequest(accessProfile, sessionUsername, currentLeaveRequest))
                 {
                     TempData["LeaveError"] = "You cannot review your own leave request.";
                     return RedirectToAction(nameof(HRManagement));
@@ -1256,37 +1347,12 @@ namespace NZFTC_EMS.Controllers
                 return RedirectToAction(nameof(HRManagement));
             }
 
-            private (bool IsAuthenticated, bool IsPortalAllowed, bool CanAccessAccount, bool CanAccessEmployee, bool CanAccessHr, string AccountType) PrepareAccessContext()
-        {
-            var username = HttpContext.Session.GetString("Username");
-            var accountType = HttpContext.Session.GetString("AccountType");
-            var loginTime = HttpContext.Session.GetString("LoginTime");
-
-            if (string.IsNullOrWhiteSpace(username) ||
-                !AccessProfileSessionHelper.TryGetAccessProfile(HttpContext.Session, out var accessProfile))
-            {
-                return (false, false, false, false, false, string.Empty);
-            }
-
-            var moduleAccess = AccessProfileSessionHelper.GetModuleAccess(accessProfile);
-            ViewBag.Username = username;
-            ViewBag.AccountType = accountType;
-            ViewBag.LoginTime = loginTime;
-            ViewBag.AccessProfile = accessProfile;
-            ViewBag.CanAccessAccountModule = moduleAccess.CanAccessAccount;
-            ViewBag.CanAccessEmployeeModule = moduleAccess.CanAccessEmployee;
-            ViewBag.CanAccessHrModule = moduleAccess.CanAccessHr;
-
-            var isPortalAllowed = AccessProfileSessionHelper.IsAdminPortalProfile(accessProfile);
-            return (true, isPortalAllowed, moduleAccess.CanAccessAccount, moduleAccess.CanAccessEmployee, moduleAccess.CanAccessHr, accountType ?? string.Empty);
-        }
-
         private static bool CanManageHrOnBehalf(AccessProfile accessProfile)
         {
             return accessProfile.CanManageAllHr || accessProfile.CanManageAllEmployees;
         }
 
-        private static bool CanManageAnotherEmployee(string actorUsername, string? targetUsername)
+        private static bool IsDifferentUser(string actorUsername, string? targetUsername)
         {
             if (string.IsNullOrWhiteSpace(actorUsername) || string.IsNullOrWhiteSpace(targetUsername))
             {
@@ -1296,13 +1362,37 @@ namespace NZFTC_EMS.Controllers
             return !string.Equals(actorUsername.Trim(), targetUsername.Trim(), System.StringComparison.OrdinalIgnoreCase);
         }
 
-        private static string NormalizeManagedTargetUsername(string actorUsername, string? targetUsername)
+        private IReadOnlySet<string> GetManagedTargetUsernames(AccessProfile accessProfile, string actorUsername)
         {
-            var normalizedTarget = (targetUsername ?? string.Empty).Trim();
-            return CanManageAnotherEmployee(actorUsername, normalizedTarget) ? normalizedTarget : string.Empty;
+            var allowedUsernames = accessProfile.AssistantDelegatedScopeOnly
+                ? _employeeAccountRecordService.GetAssistantDelegatedUsernames(actorUsername)
+                : accessProfile.CanViewAssignedTeam && string.Equals(accessProfile.DashboardMode, "employee-management-only", StringComparison.OrdinalIgnoreCase)
+                    ? _employeeAccountRecordService.GetAssignedTeamUsernames(actorUsername)
+                    : accessProfile.CanManageAllAccounts || accessProfile.CanManageAllEmployees || accessProfile.CanManageAllHr || accessProfile.CanUsePayrollFeatures
+                        ? _employeeAccountRecordService.GetAllUsernames()
+                        : new List<string>();
+
+            return new HashSet<string>(
+                allowedUsernames
+                    .Where(username => IsDifferentUser(actorUsername, username))
+                    .Select(username => username.Trim()),
+                StringComparer.OrdinalIgnoreCase);
         }
 
-        private static bool CanReviewGrievance(string reviewerUsername, GrievanceRequest grievance)
+        private bool CanManageAnotherEmployee(AccessProfile accessProfile, string actorUsername, string? targetUsername)
+        {
+            var normalizedTarget = (targetUsername ?? string.Empty).Trim();
+            return IsDifferentUser(actorUsername, normalizedTarget) &&
+                   GetManagedTargetUsernames(accessProfile, actorUsername).Contains(normalizedTarget);
+        }
+
+        private string NormalizeManagedTargetUsername(AccessProfile accessProfile, string actorUsername, string? targetUsername)
+        {
+            var normalizedTarget = (targetUsername ?? string.Empty).Trim();
+            return CanManageAnotherEmployee(accessProfile, actorUsername, normalizedTarget) ? normalizedTarget : string.Empty;
+        }
+
+        private bool CanReviewGrievance(AccessProfile accessProfile, string reviewerUsername, GrievanceRequest grievance)
         {
             if (string.IsNullOrWhiteSpace(reviewerUsername))
             {
@@ -1311,37 +1401,28 @@ namespace NZFTC_EMS.Controllers
 
             var normalizedReviewer = reviewerUsername.Trim();
             return !string.Equals(normalizedReviewer, grievance.SubmittedForUsername?.Trim(), System.StringComparison.OrdinalIgnoreCase)
-                && !string.Equals(normalizedReviewer, grievance.SubmittedByUsername?.Trim(), System.StringComparison.OrdinalIgnoreCase);
+                && !string.Equals(normalizedReviewer, grievance.SubmittedByUsername?.Trim(), System.StringComparison.OrdinalIgnoreCase)
+                && CanManageAnotherEmployee(accessProfile, normalizedReviewer, grievance.SubmittedForUsername);
         }
 
-        private static bool CanReviewLeaveRequest(string reviewerUsername, LeaveRequest leaveRequest)
+        private bool CanReviewLeaveRequest(AccessProfile accessProfile, string reviewerUsername, LeaveRequest leaveRequest)
         {
             if (string.IsNullOrWhiteSpace(reviewerUsername))
             {
                 return false;
             }
 
-            return !string.Equals(reviewerUsername.Trim(), leaveRequest.SubmittedForUsername?.Trim(), System.StringComparison.OrdinalIgnoreCase);
+            var normalizedReviewer = reviewerUsername.Trim();
+            return !string.Equals(normalizedReviewer, leaveRequest.SubmittedForUsername?.Trim(), System.StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(normalizedReviewer, leaveRequest.SubmittedByUsername?.Trim(), System.StringComparison.OrdinalIgnoreCase)
+                && CanManageAnotherEmployee(accessProfile, normalizedReviewer, leaveRequest.SubmittedForUsername);
         }
 
-        private void SetSectionMenuOptions(string section)
+        private bool CanAccessManagedPayslip(AccessProfile accessProfile, string sessionUsername, PayslipRecord payslip)
         {
-            ViewBag.ActiveSection = section;
-            if (ViewBag.AccessProfile is AccessProfile accessProfile)
-            {
-                ViewBag.MainContentMenuOptions =
-                    AccessProfileSessionHelper.GetMainContentMenuOptions(accessProfile, section);
-            }
-        }
-
-        private IActionResult RedirectToPermittedDashboard(string accountType)
-        {
-            if (string.Equals(accountType, "Employee", StringComparison.OrdinalIgnoreCase))
-            {
-                return RedirectToAction("Dashboard", "Employee");
-            }
-
-            return RedirectToAction("Login", "Login");
+            return CanManageHrOnBehalf(accessProfile) &&
+                   !string.IsNullOrWhiteSpace(payslip.Username) &&
+                   CanManageAnotherEmployee(accessProfile, sessionUsername, payslip.Username);
         }
 
         private PersonalAccountDetailsViewModel BuildPersonalAccountDetailsModel(
@@ -1404,7 +1485,9 @@ namespace NZFTC_EMS.Controllers
         {
             var normalizedGroup = NormalizeGroup(group);
             var sessionUsername = HttpContext.Session.GetString("Username") ?? string.Empty;
-            var usernamesByGroup = FilterManagedUsernamesByGroup(_employeeAccountRecordService.GetUsernamesByGroup(), sessionUsername);
+            var usernamesByGroup = AccessProfileSessionHelper.TryGetAccessProfile(HttpContext.Session, out var accessProfile)
+                ? FilterManagedUsernamesByGroup(_employeeAccountRecordService.GetUsernamesByGroup(), accessProfile, sessionUsername)
+                : new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
             var usernames = string.IsNullOrEmpty(normalizedGroup)
                 ? new List<string>()
                 : usernamesByGroup.TryGetValue(normalizedGroup, out var groupedUsernames)
@@ -1481,6 +1564,7 @@ namespace NZFTC_EMS.Controllers
         {
             var selectedEmployeeAccount = BuildSelectedEmployeeAccountModel(group, username, contentActionName);
             var sessionUsername = HttpContext.Session.GetString("Username") ?? string.Empty;
+            AccessProfileSessionHelper.TryGetAccessProfile(HttpContext.Session, out var accessProfile);
             var model = new SelectedEmployeeLeaveDetailsViewModel
             {
                 ContentEndpoint = selectedEmployeeAccount.ContentEndpoint,
@@ -1492,8 +1576,9 @@ namespace NZFTC_EMS.Controllers
             };
 
             model.Requests = requestSelector()
-                .Where(request => CanManageAnotherEmployee(sessionUsername, request.SubmittedForUsername))
+                .Where(request => CanManageAnotherEmployee(accessProfile, sessionUsername, request.SubmittedForUsername))
                 .ToList();
+            model.ImpactByRequestId = model.Requests.ToDictionary(request => request.Id, _leaveRequestService.GetBalanceImpactForRequest);
 
             return model;
         }
@@ -1520,8 +1605,70 @@ namespace NZFTC_EMS.Controllers
                 SelectedEmployeeName = selectedEmployeeName,
                 Usernames = selectedEmployeeAccount.Usernames,
                 UsernamesByGroup = selectedEmployeeAccount.UsernamesByGroup,
-                UsernameDisplayNames = selectedEmployeeAccount.UsernameDisplayNames
+                UsernameDisplayNames = selectedEmployeeAccount.UsernameDisplayNames,
+                LeaveEntitlement = selectedEmployeeAccount.Details == null
+                    ? null
+                    : _leaveRequestService.GetEntitlementForRole(
+                        selectedEmployeeAccount.SelectedUsername,
+                        selectedEmployeeAccount.Details.BusinessRole,
+                        selectedEmployeeAccount.Details.JobRole,
+                        true)
             };
+        }
+
+        private SelectedEmployeeActionTargetViewModel BuildSelectedEmployeePayslipModel(
+            string? group,
+            string? username,
+            string contentActionName = nameof(HRManagementContent))
+        {
+            var model = BuildSelectedEmployeeActionTargetModel(group, username, contentActionName);
+            if (string.IsNullOrWhiteSpace(model.SelectedUsername))
+            {
+                return model;
+            }
+
+            var targetPayslipTaxInfo = _payrollService.GetTaxInformationForUser(model.SelectedUsername);
+            var targetPayslipLeaveInfo = _leaveRequestService.GetEntitlementForUser(model.SelectedUsername);
+            model.PayslipDraft = new PayslipRecord
+            {
+                Username = model.SelectedUsername,
+                EmployeeName = string.IsNullOrWhiteSpace(targetPayslipTaxInfo.EmployeeName)
+                    ? model.SelectedUsername
+                    : targetPayslipTaxInfo.EmployeeName,
+                SalaryPackageName = targetPayslipLeaveInfo.SalaryPackageName,
+                SalaryPackageDisplayName = targetPayslipLeaveInfo.SalaryPackageDisplayName,
+                PayFrequency = targetPayslipTaxInfo.PayFrequency,
+                IRDNumber = targetPayslipTaxInfo.IRDNumber,
+                PayPeriod = "Current pay period",
+                BasePay = 0m,
+                OvertimePay = 0m,
+                BonusPay = 0m,
+                AllowancePay = 0m,
+                PreTaxDeductions = 0m,
+                PostTaxDeductions = 0m,
+                AnnualLeaveLawfulDays = targetPayslipLeaveInfo.AnnualLeaveLawfulDays,
+                AnnualLeavePackageExtraDays = targetPayslipLeaveInfo.AnnualLeavePackageExtraDays,
+                AnnualLeaveTakenDays = targetPayslipLeaveInfo.AnnualLeaveTakenDays,
+                AnnualLeaveScheduledDays = targetPayslipLeaveInfo.AnnualLeaveScheduledDays,
+                AnnualLeaveRemainingDays = targetPayslipLeaveInfo.RemainingAnnualLeaveDays,
+                SickLeaveLawfulDays = targetPayslipLeaveInfo.SickLeaveLawfulDays,
+                SickLeavePackageExtraDays = targetPayslipLeaveInfo.SickLeavePackageExtraDays,
+                SickLeaveTakenDays = targetPayslipLeaveInfo.SickLeaveTakenDays,
+                SickLeaveScheduledDays = targetPayslipLeaveInfo.SickLeaveScheduledDays,
+                SickLeaveRemainingDays = targetPayslipLeaveInfo.RemainingSickLeaveDays,
+                SpecialLeaveLawfulDays = targetPayslipLeaveInfo.SpecialLeaveLawfulDays,
+                SpecialLeavePackageExtraDays = targetPayslipLeaveInfo.SpecialLeavePackageExtraDays,
+                SpecialLeaveTakenDays = targetPayslipLeaveInfo.SpecialLeaveTakenDays,
+                SpecialLeaveScheduledDays = targetPayslipLeaveInfo.SpecialLeaveScheduledDays,
+                SpecialLeaveRemainingDays = targetPayslipLeaveInfo.RemainingSpecialLeaveDays,
+                ParentalLeaveLawfulWeeks = targetPayslipLeaveInfo.ParentalLeaveLawfulWeeks,
+                ParentalLeavePackageExtraWeeks = targetPayslipLeaveInfo.ParentalLeavePackageExtraWeeks,
+                ParentalLeaveRemainingWeeks = targetPayslipLeaveInfo.RemainingParentalLeaveWeeks,
+                PublicHolidayDays = targetPayslipLeaveInfo.PublicHolidayDays,
+                PublicHolidayPackageExtraDays = targetPayslipLeaveInfo.PublicHolidayPackageExtraDays
+            };
+
+            return model;
         }
 
         private string ResolveEmployeeDisplayName(string? username)
@@ -1536,31 +1683,6 @@ namespace NZFTC_EMS.Controllers
             return displayNames.TryGetValue(normalizedUsername, out var displayName)
                 ? displayName
                 : normalizedUsername;
-        }
-
-        private static string BuildComplaintDescription(
-            string attendingSupervisor,
-            string personsInvolved,
-            string eventDate,
-            string eventDetails,
-            string affectDetails,
-            string? suggestions,
-            string? additionalComments,
-            string declarationAgreement,
-            string signedDate)
-        {
-            return string.Join(Environment.NewLine, new[]
-            {
-                $"Attending Supervisor: {attendingSupervisor.Trim()}",
-                $"Persons Involved: {personsInvolved.Trim()}",
-                $"Event Date: {eventDate.Trim()}",
-                $"Event Details: {eventDetails.Trim()}",
-                $"Affect on Job/State of Mind Details: {affectDetails.Trim()}",
-                $"Suggestions: {suggestions?.Trim() ?? string.Empty}",
-                $"Additional Comments/Questions: {additionalComments?.Trim() ?? string.Empty}",
-                $"Declaration Agreement: {declarationAgreement.Trim()}",
-                $"Signed Date: {signedDate.Trim()}"
-            });
         }
 
         private static string NormalizeGroup(string? group)
@@ -1597,7 +1719,9 @@ namespace NZFTC_EMS.Controllers
         {
             var normalizedGroup = NormalizeGroup(group);
             var sessionUsername = HttpContext.Session.GetString("Username") ?? string.Empty;
-            var usernamesByGroup = FilterManagedUsernamesByGroup(_employeeAccountRecordService.GetUsernamesByGroup(), sessionUsername);
+            var usernamesByGroup = AccessProfileSessionHelper.TryGetAccessProfile(HttpContext.Session, out var accessProfile)
+                ? FilterManagedUsernamesByGroup(_employeeAccountRecordService.GetUsernamesByGroup(), accessProfile, sessionUsername)
+                : new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
             var usernames = string.IsNullOrEmpty(normalizedGroup)
                 ? new List<string>()
                 : usernamesByGroup.TryGetValue(normalizedGroup, out var groupedUsernames)
@@ -1624,14 +1748,16 @@ namespace NZFTC_EMS.Controllers
             return model;
         }
 
-        private static IReadOnlyDictionary<string, IReadOnlyList<string>> FilterManagedUsernamesByGroup(
+        private IReadOnlyDictionary<string, IReadOnlyList<string>> FilterManagedUsernamesByGroup(
             IReadOnlyDictionary<string, IReadOnlyList<string>> usernamesByGroup,
+            AccessProfile accessProfile,
             string sessionUsername)
         {
+            var allowedUsernames = GetManagedTargetUsernames(accessProfile, sessionUsername);
             return usernamesByGroup.ToDictionary(
                 pair => pair.Key,
                 pair => (IReadOnlyList<string>)pair.Value
-                    .Where(username => CanManageAnotherEmployee(sessionUsername, username))
+                    .Where(allowedUsernames.Contains)
                     .ToList(),
                 StringComparer.OrdinalIgnoreCase);
         }

@@ -101,8 +101,7 @@ bool Authenticate_Credentials_For_UI(
         return false;
     }
 
-    const std::string password_hash = Password_Save(normalized_password);
-    if (!Check_Account_Exists(normalized_username, password_hash, ird_number)) {
+    if (!Check_Account_Exists(normalized_username, normalized_password, ird_number)) {
         const int attempt = Register_Failed_Login_Attempt(normalized_username);
         *failure_message_out =
             Build_Failed_Attempt_Message(Incorrect_Password, attempt);
@@ -169,9 +168,7 @@ bool Get_Password(const std::string& password, const std::string& IRD_number, co
         return false;
     }
 
-    const std::string entered_password_hash = Password_Save(entered_password);
-
-    if (!Check_Account_Exists(username, entered_password_hash, IRD_number)) {
+    if (!Check_Account_Exists(username, entered_password, IRD_number)) {
         const int attempt_number = Register_Failed_Login_Attempt(username);
         std::cout << Build_Failed_Attempt_Message(
             Incorrect_Password,

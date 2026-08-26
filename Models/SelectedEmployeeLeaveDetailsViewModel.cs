@@ -13,4 +13,5 @@ public class SelectedEmployeeLeaveDetailsViewModel
     public IReadOnlyDictionary<string, string> UsernameDisplayNames { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     public LeaveEntitlement? Details { get; set; }
     public IReadOnlyList<LeaveRequest> Requests { get; set; } = Array.Empty<LeaveRequest>();
+    public IReadOnlyDictionary<int, LeaveRequestBalanceImpact> ImpactByRequestId { get; set; } = new Dictionary<int, LeaveRequestBalanceImpact>();
 }

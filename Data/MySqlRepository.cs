@@ -75,6 +75,51 @@ namespace NZFTC_EMS.Data
             await _db.SaveChangesAsync(cancellationToken);
         }
 
+        public Task<EmployeeAccountDetailsEntity?> GetEmployeeAccountDetailsAsync(string username, CancellationToken cancellationToken = default)
+        {
+            return _db.EmployeeAccountDetails.AsNoTracking().FirstOrDefaultAsync(x => x.Username == username, cancellationToken);
+        }
+
+        public Task<List<EmployeeAccountDetailsEntity>> ListEmployeeAccountDetailsAsync(CancellationToken cancellationToken = default)
+        {
+            return _db.EmployeeAccountDetails.AsNoTracking().OrderBy(x => x.Username).ToListAsync(cancellationToken);
+        }
+
+        public async Task UpsertEmployeeAccountDetailsAsync(EmployeeAccountDetailsEntity accountDetails, CancellationToken cancellationToken = default)
+        {
+            var existing = await _db.EmployeeAccountDetails.FirstOrDefaultAsync(x => x.Username == accountDetails.Username, cancellationToken);
+            if (existing == null)
+            {
+                _db.EmployeeAccountDetails.Add(accountDetails);
+            }
+            else
+            {
+                _db.Entry(existing).CurrentValues.SetValues(accountDetails);
+            }
+
+            await _db.SaveChangesAsync(cancellationToken);
+        }
+
+        public Task<LeaveEntitlementEntity?> GetLeaveEntitlementAsync(string username, CancellationToken cancellationToken = default)
+        {
+            return _db.LeaveEntitlements.AsNoTracking().FirstOrDefaultAsync(x => x.Username == username, cancellationToken);
+        }
+
+        public async Task UpsertLeaveEntitlementAsync(LeaveEntitlementEntity entitlement, CancellationToken cancellationToken = default)
+        {
+            var existing = await _db.LeaveEntitlements.FirstOrDefaultAsync(x => x.Username == entitlement.Username, cancellationToken);
+            if (existing == null)
+            {
+                _db.LeaveEntitlements.Add(entitlement);
+            }
+            else
+            {
+                _db.Entry(existing).CurrentValues.SetValues(entitlement);
+            }
+
+            await _db.SaveChangesAsync(cancellationToken);
+        }
+
         public Task<List<LeaveRequestEntity>> ListLeaveRequestsAsync(string? username = null, CancellationToken cancellationToken = default)
         {
             var query = _db.LeaveRequests.AsNoTracking().AsQueryable();
@@ -109,6 +154,21 @@ namespace NZFTC_EMS.Data
             _db.Entry(existing).CurrentValues.SetValues(leaveRequest);
             await _db.SaveChangesAsync(cancellationToken);
             return true;
+        }
+
+        public async Task UpsertLeaveRequestAsync(LeaveRequestEntity leaveRequest, CancellationToken cancellationToken = default)
+        {
+            var existing = await _db.LeaveRequests.FirstOrDefaultAsync(x => x.Id == leaveRequest.Id, cancellationToken);
+            if (existing == null)
+            {
+                _db.LeaveRequests.Add(leaveRequest);
+            }
+            else
+            {
+                _db.Entry(existing).CurrentValues.SetValues(leaveRequest);
+            }
+
+            await _db.SaveChangesAsync(cancellationToken);
         }
 
         public async Task<bool> DeleteLeaveRequestAsync(long id, CancellationToken cancellationToken = default)
@@ -147,6 +207,21 @@ namespace NZFTC_EMS.Data
             return grievanceRequest.Id;
         }
 
+        public async Task UpsertGrievanceRequestAsync(GrievanceRequestEntity grievanceRequest, CancellationToken cancellationToken = default)
+        {
+            var existing = await _db.GrievanceRequests.FirstOrDefaultAsync(x => x.Id == grievanceRequest.Id, cancellationToken);
+            if (existing == null)
+            {
+                _db.GrievanceRequests.Add(grievanceRequest);
+            }
+            else
+            {
+                _db.Entry(existing).CurrentValues.SetValues(grievanceRequest);
+            }
+
+            await _db.SaveChangesAsync(cancellationToken);
+        }
+
         public Task<List<PayslipEntity>> ListPayslipsAsync(string? username = null, CancellationToken cancellationToken = default)
         {
             var query = _db.Payslips.AsNoTracking().AsQueryable();
@@ -170,6 +245,21 @@ namespace NZFTC_EMS.Data
             return payslip.Id;
         }
 
+        public async Task UpsertPayslipAsync(PayslipEntity payslip, CancellationToken cancellationToken = default)
+        {
+            var existing = await _db.Payslips.FirstOrDefaultAsync(x => x.Id == payslip.Id, cancellationToken);
+            if (existing == null)
+            {
+                _db.Payslips.Add(payslip);
+            }
+            else
+            {
+                _db.Entry(existing).CurrentValues.SetValues(payslip);
+            }
+
+            await _db.SaveChangesAsync(cancellationToken);
+        }
+
         public Task<List<SessionRecordEntity>> ListActiveSessionsAsync(CancellationToken cancellationToken = default)
         {
             return _db.SessionRecords.AsNoTracking()
@@ -191,6 +281,57 @@ namespace NZFTC_EMS.Data
             }
 
             await _db.SaveChangesAsync(cancellationToken);
+        }
+
+        public Task<SessionRecordEntity?> GetSessionAsync(string sessionId, CancellationToken cancellationToken = default)
+        {
+            return _db.SessionRecords.AsNoTracking().FirstOrDefaultAsync(x => x.SessionId == sessionId, cancellationToken);
+        }
+
+        public async Task<bool> DeactivateSessionAsync(string sessionId, CancellationToken cancellationToken = default)
+        {
+            var existing = await _db.SessionRecords.FirstOrDefaultAsync(x => x.SessionId == sessionId, cancellationToken);
+            if (existing == null)
+            {
+                return false;
+            }
+
+            existing.IsActive = false;
+            existing.LastSeenOnUtc = DateTime.UtcNow;
+            await _db.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+
+        public async Task<long> AddAuditEventAsync(AuditEventEntity auditEvent, CancellationToken cancellationToken = default)
+        {
+            _db.AuditEvents.Add(auditEvent);
+            await _db.SaveChangesAsync(cancellationToken);
+            return auditEvent.Id;
+        }
+
+        public async Task<MySqlStatusSnapshot> GetStatusSnapshotAsync(int recentAuditEventLimit = 5, CancellationToken cancellationToken = default)
+        {
+            var recentAuditEvents = await _db.AuditEvents.AsNoTracking()
+                .OrderByDescending(x => x.OccurredOnUtc)
+                .Take(recentAuditEventLimit)
+                .ToListAsync(cancellationToken);
+
+            return new MySqlStatusSnapshot(
+                await _db.Database.CanConnectAsync(cancellationToken),
+                await _db.Employees.CountAsync(cancellationToken),
+                await _db.EmployeeAccountDetails.CountAsync(cancellationToken),
+                await _db.EmployeeTaxInformation.CountAsync(cancellationToken),
+                await _db.Employees.CountAsync(
+                    x => x.AccountStatus != null &&
+                         x.AccountStatus.Trim().ToLower() == "locked",
+                    cancellationToken),
+                await _db.LeaveEntitlements.CountAsync(cancellationToken),
+                await _db.LeaveRequests.CountAsync(cancellationToken),
+                await _db.GrievanceRequests.CountAsync(cancellationToken),
+                await _db.Payslips.CountAsync(cancellationToken),
+                await _db.SessionRecords.CountAsync(x => x.IsActive, cancellationToken),
+                await _db.AuditEvents.CountAsync(cancellationToken),
+                recentAuditEvents);
         }
 
         public Task<IReadOnlyList<IntegrityIssue>> ValidateIntegrityAsync(CancellationToken cancellationToken = default)
@@ -232,4 +373,17 @@ namespace NZFTC_EMS.Data
     }
 
     public sealed record IntegrityIssue(string TableName, string IssueCode, string Message);
+    public sealed record MySqlStatusSnapshot(
+        bool CanConnect,
+        int EmployeeCount,
+        int AccountDetailsCount,
+        int TaxInformationCount,
+        int LockedAccountCount,
+        int LeaveEntitlementCount,
+        int LeaveRequestCount,
+        int GrievanceRequestCount,
+        int PayslipCount,
+        int ActiveSessionCount,
+        int AuditEventCount,
+        IReadOnlyList<AuditEventEntity> RecentAuditEvents);
 }

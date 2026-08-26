@@ -51,15 +51,23 @@
         opacity: 0.6;
         cursor: default;
     }
+
+    .selected-account-help {
+        margin: 0;
+        color: #4A4A4A;
+        font-size: 13px;
+        line-height: 1.5;
+    }
 </style>
 
 <div data-selected-account-root data-endpoint="@Model.ContentEndpoint" data-action-key="edit-selected-employee-account-details">
     <h2 style="color:#2A5D8F; font-size:22px; margin:0 0 12px;">Edit an Employee's Account Details</h2>
+    <p id="selected-account-help" class="selected-account-help">Select a department and employee to review the stored account details. The web flow currently supports security review and account unlocking.</p>
 
-    <div class="selected-account-controls">
-        <label>
+    <div class="selected-account-controls" aria-describedby="selected-account-help">
+        <label for="selected-account-group">
             Business Department
-            <select data-selected-group>
+            <select id="selected-account-group" data-selected-group>
                 <option value="">Select a department...</option>
                 @if (Model.SelectedGroup == "admin")
                 {
@@ -88,9 +96,9 @@
             </select>
         </label>
 
-        <label>
+        <label for="selected-account-username">
             Employee
-            <select data-selected-username>
+            <select id="selected-account-username" data-selected-username>
                 <option value="">Select an employee...</option>
                 @foreach (var username in Model.Usernames)
                 {
@@ -107,78 +115,92 @@
             </select>
         </label>
 
-        <button type="button" class="selected-account-load-button" data-load-selected-account>Load</button>
+        <button type="button" class="selected-account-load-button" data-load-selected-account aria-describedby="selected-account-help">Load</button>
     </div>
 
     @if (Model.Details != null)
     {
-        <form style="margin-top:12px;">
+        var isLocked = string.Equals(Model.Details.AccountStatus, "Locked", StringComparison.OrdinalIgnoreCase);
+        <form method="post" action="@Url.Action("UnlockSelectedEmployeeAccount", "Admin")" style="margin-top:12px;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="group" value="@Model.SelectedGroup" />
+            <input type="hidden" name="username" value="@Model.SelectedUsername" />
             <div style="display:flex; flex-direction:column; gap:10px; max-width:460px;">
                 <label style="font-weight:700; color:#4A4A4A;">
                     Account Type
-                    <input type="text" value="@Model.Details.AccountType" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                    <input type="text" value="@Model.Details.AccountType" readonly style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
                 </label>
                 <label style="font-weight:700; color:#4A4A4A;">
                     First Name
-                    <input type="text" value="@Model.Details.FirstName" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                    <input type="text" value="@Model.Details.FirstName" readonly style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
                 </label>
                 <label style="font-weight:700; color:#4A4A4A;">
                     Middle Name
-                    <input type="text" value="@Model.Details.MiddleName" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                    <input type="text" value="@Model.Details.MiddleName" readonly style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
                 </label>
                 <label style="font-weight:700; color:#4A4A4A;">
                     Last Name
-                    <input type="text" value="@Model.Details.LastName" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                    <input type="text" value="@Model.Details.LastName" readonly style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
                 </label>
                 <label style="font-weight:700; color:#4A4A4A;">
                     Date of Birth
-                    <input type="text" value="@Model.Details.DateOfBirth" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                    <input type="text" value="@Model.Details.DateOfBirth" readonly style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
                 </label>
                 <label style="font-weight:700; color:#4A4A4A;">
                     Address
-                    <input type="text" value="@Model.Details.Address" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                    <input type="text" value="@Model.Details.Address" readonly style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
                 </label>
                 <label style="font-weight:700; color:#4A4A4A;">
                     Email Address
-                    <input type="email" value="@Model.Details.EmailAddress" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                    <input type="email" value="@Model.Details.EmailAddress" readonly style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
                 </label>
                 <label style="font-weight:700; color:#4A4A4A;">
                     Phone Number
-                    <input type="text" value="@Model.Details.PhoneNumber" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                    <input type="text" value="@Model.Details.PhoneNumber" readonly style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
                 </label>
                 <label style="font-weight:700; color:#4A4A4A;">
                     Business Department
-                    <input type="text" value="@Model.Details.BusinessRole" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                    <input type="text" value="@Model.Details.BusinessRole" readonly style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
                 </label>
                 <label style="font-weight:700; color:#4A4A4A;">
                     Job Role
-                    <input type="text" value="@Model.Details.JobRole" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                    <input type="text" value="@Model.Details.JobRole" readonly style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
                 </label>
                 <label style="font-weight:700; color:#4A4A4A;">
-                    New Password
-                    <input type="password" value="" autocomplete="new-password" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                    Account Status
+                    <input type="text" value="@Model.Details.AccountStatus" readonly style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
                 </label>
                 <label style="font-weight:700; color:#4A4A4A;">
-                    Confirm New Password
-                    <input type="password" value="" autocomplete="new-password" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+                    Failed Login Attempts
+                    <input type="text" value="@Model.Details.FailedLoginAttempts" readonly style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
                 </label>
-                <label style="display:flex; align-items:center; gap:8px; font-weight:700; color:#4A4A4A;">
-                    <input type="checkbox" />
+                <label style="display:flex; align-items:center; gap:8px; font-weight:700; color:#4A4A4A; @(isLocked ? string.Empty : "opacity:0.7;")">
+                    @if (isLocked)
+                    {
+                        <input type="checkbox" id="unlock-locked-account" name="unlockLockedAccount" value="true" aria-describedby="unlock-locked-account-help" />
+                    }
+                    else
+                    {
+                        <input type="checkbox" id="unlock-locked-account" name="unlockLockedAccount" value="true" aria-describedby="unlock-locked-account-help" disabled />
+                    }
                     Unlock Locked Account
                 </label>
-                <p style="margin:0; color:#4A4A4A;">
-                    Secondary authentication is required for sensitive changes (for example: account type, password, and unlock actions).
+                <p id="unlock-locked-account-help" style="margin:0; color:#4A4A4A;">
+                    This action resets the failed login count to 0 and returns the selected account to Active status.
                 </p>
-                @{
-                    var editAuthViewData = new Microsoft.AspNetCore.Mvc.ViewFeatures.ViewDataDictionary(ViewData)
-                    {
-                        ["SecondaryAuthPurpose"] = "applying sensitive account edits"
-                    };
+                <p style="margin:0; color:#4A4A4A;">
+                    This web screen currently focuses on account security review and unlock handling.
+                </p>
+                @if (isLocked)
+                {
+                    <button type="submit" class="selected-account-apply-button" style="width:max-content;">
+                        Unlock Account
+                    </button>
                 }
-                @await Html.PartialAsync("~/Views/Shared/Secondary_Authentication.cshtml", model: null, viewData: editAuthViewData)
-                <button type="button" disabled style="background:#C7CED6; color:#4A4A4A; border:none; border-radius:4px; padding:10px 14px; font-weight:700; width:max-content;">
-                    Save Changes (Next Integration)
-                </button>
+                else
+                {
+                    <p style="margin:0; color:#4A4A4A; font-weight:700;">This account is already active.</p>
+                }
             </div>
         </form>
     }
@@ -212,6 +234,7 @@
             try {
                 const response = await fetch(`${endpoint}?actionKey=${encodeURIComponent(actionKey)}&group=${encodeURIComponent(group)}&username=`, { credentials: "same-origin" });
                 if (!response.ok) {
+                    host.innerHTML = "<p style='margin:0; color:#B33A3A;' role='alert'>The employee list could not be refreshed right now.</p>";
                     return;
                 }
 
@@ -223,6 +246,7 @@
                 }
             } catch (error) {
                 console.error(error);
+                host.innerHTML = "<p style='margin:0; color:#B33A3A;' role='alert'>The employee list could not be refreshed right now.</p>";
             } finally {
                 loadButton.disabled = false;
             }
@@ -234,6 +258,7 @@
                 const message = document.createElement("p");
                 message.style.margin = "0";
                 message.style.color = "#4A4A4A";
+                message.setAttribute("role", "status");
                 message.textContent = "Please select an employee first.";
                 host.appendChild(message);
                 return;
@@ -243,6 +268,7 @@
             try {
                 const response = await fetch(`${endpoint}?actionKey=${encodeURIComponent(actionKey)}&group=${encodeURIComponent(group)}&username=${encodeURIComponent(username)}`, { credentials: "same-origin" });
                 if (!response.ok) {
+                    host.innerHTML = "<p style='margin:0; color:#B33A3A;' role='alert'>The selected account could not be loaded right now.</p>";
                     return;
                 }
 
@@ -254,6 +280,7 @@
                 }
             } catch (error) {
                 console.error(error);
+                host.innerHTML = "<p style='margin:0; color:#B33A3A;' role='alert'>The selected account could not be loaded right now.</p>";
             } finally {
                 loadButton.disabled = false;
             }

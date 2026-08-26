@@ -7,7 +7,7 @@
 
 <div class="leave-panel">
     <h2>My Resolved Leave Requests</h2>
-    <p class="leave-intro">Recent leave decisions for your records.</p>
+    <p class="leave-intro">These are your resolved leave requests and recorded outcomes.</p>
 
     @if (!requests.Any())
     {
@@ -20,7 +20,6 @@
             <div class="leave-card">
                 <div class="leave-card-header">
                     <span class="leave-badge">@request.Status</span>
-                    <strong>#@request.Id</strong>
                 </div>
                 <h3>@request.LeaveType</h3>
                 <p><strong>Dates:</strong> @request.StartDate.ToString("dd MMM yyyy") to @request.EndDate.ToString("dd MMM yyyy")</p>

@@ -831,7 +831,7 @@ std::string Get_IRD_Number_For_Username(const std::string& username) {
     return "";
 }
 
-bool Check_Account_Exists(const std::string& username, const std::string& password_hash, const std::string& IRD_number) {
+bool Check_Account_Exists(const std::string& username, const std::string& password, const std::string& IRD_number) {
     const std::string normalizedIRD = Trim_Copy(IRD_number);
     if (!normalizedIRD.empty() && !Get_IRD_Username_Match(normalizedIRD, username)) {
         return false;
@@ -842,11 +842,24 @@ bool Check_Account_Exists(const std::string& username, const std::string& passwo
         return false;
     }
 
-    return storedPasswordHash == password_hash;
+    bool needs_rehash = false;
+    const bool password_matches = Verify_Password_Against_Stored_Hash(
+        password,
+        storedPasswordHash,
+        &needs_rehash);
+    if (!password_matches) {
+        return false;
+    }
+
+    if (needs_rehash) {
+        Update_Account_Password_For_Username(username, password, nullptr);
+    }
+
+    return true;
 }
 
-bool Check_Account_Exists_In_Indexes(const std::string& username, const std::string& password_hash, const std::string& IRD_number) {
-    return Check_Account_Exists(username, password_hash, IRD_number);
+bool Check_Account_Exists_In_Indexes(const std::string& username, const std::string& password, const std::string& IRD_number) {
+    return Check_Account_Exists(username, password, IRD_number);
 }
 
 std::string Get_Account_Type_From_Employee_Records(const std::string& username) {

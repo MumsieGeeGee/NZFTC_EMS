@@ -41,7 +41,7 @@ Address: 14 Pohutukawa Drive, Papamoa, Tauranga, 3118, PO Box: 114
 Email Address: taylor.brooks@example.test
 Phone Number: 021-000-1014
 Username: admin_jg_taylor_lee_brooks
-Password: d6bb0c2a0906d8c7
+Password: pbkdf2_sha256$210000$a0b66ff7a715171416910e2b5c56d05c$e41d62e1153204c8493b035f07b201eded1a84f328ad4152e30edd75a9f4e12b
 Password Reset Required: No
 Failed Login Attempts: 0
 Account Status: Active

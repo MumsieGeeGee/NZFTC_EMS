@@ -42,8 +42,8 @@ bool Get_Username_From_Employee_Records(const std::string& username);
 bool Get_Password_From_Employee_Records(const std::string& password_hash);
 bool Get_IRD_Username_Match(const std::string& IRD_number, const std::string& username);
 std::string Get_IRD_Number_For_Username(const std::string& username);
-bool Check_Account_Exists(const std::string& username, const std::string& password_hash, const std::string& IRD_number);
-bool Check_Account_Exists_In_Indexes(const std::string& username, const std::string& password_hash, const std::string& IRD_number);
+bool Check_Account_Exists(const std::string& username, const std::string& password, const std::string& IRD_number);
+bool Check_Account_Exists_In_Indexes(const std::string& username, const std::string& password, const std::string& IRD_number);
 std::string Get_Account_Type_From_Employee_Records(const std::string& username);
 bool Get_Account_Record_Details_For_Username(const std::string& username,
 												 std::map<std::string, std::string>* detailsOut);

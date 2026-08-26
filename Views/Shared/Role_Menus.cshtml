@@ -56,21 +56,20 @@
             Header = "My Leave",
             Buttons = new[]
             {
-                new { Label = "View My Leave and Holiday entitlements", ActionKey = "view-my-leave-and-holiday-entitlements" },
+                new { Label = "My Leave and Holiday Entitlements", ActionKey = "view-my-leave-and-holiday-entitlements" },
                 new { Label = "Apply for Leave", ActionKey = "request-leave" },
-                new { Label = "View My Open Leave Requests", ActionKey = "view-my-open-leave-requests" },
-                new { Label = "View My Temporarily Denied Leave Requests", ActionKey = "view-my-temporarily-denied-leave-requests" },
-                new { Label = "View My Resolved Leave Requests", ActionKey = "view-my-resolved-leave-requests" }
+                new { Label = "My Open Leave Requests", ActionKey = "view-my-open-leave-requests" },
+                new { Label = "My Temporarily Denied Leave Requests", ActionKey = "view-my-temporarily-denied-leave-requests" },
+                new { Label = "My Resolved Leave Requests", ActionKey = "view-my-resolved-leave-requests" }
             }
         },
         new
         {
-            Header = "My PAYE/Tax",
+            Header = "My PAYE / Tax Information",
             Buttons = new[]
             {
-                new { Label = "View My Payslips", ActionKey = "view-my-payslips" },
-                new { Label = "My Tax Details", ActionKey = "view-my-tax-information" },
-                new { Label = "Edit My Tax Details", ActionKey = "edit-my-tax-information" }
+                new { Label = "My Payslips", ActionKey = "view-my-payslips" },
+                new { Label = "My Tax Information", ActionKey = "view-my-tax-information" }
             }
         },
         new
@@ -78,9 +77,9 @@
             Header = "My Grievances",
             Buttons = new[]
             {
-                new { Label = "Submit a Grievance Report", ActionKey = "submit-grievance-report" },
-                new { Label = "View My Open Grievance Reports", ActionKey = "view-my-open-grievance-reports" },
-                new { Label = "View My Resolved Grievance Reports", ActionKey = "view-my-resolved-grievance-reports" }
+                new { Label = "Submit a Grievance", ActionKey = "submit-grievance-report" },
+                new { Label = "My Open Grievance Reports", ActionKey = "view-my-open-grievance-reports" },
+                new { Label = "My Resolved Grievance Reports", ActionKey = "view-my-resolved-grievance-reports" }
             }
         },
         new
@@ -88,22 +87,22 @@
             Header = "Employee Leave",
             Buttons = new[]
             {
-                new { Label = "View Employees Leave and Holiday entitlements", ActionKey = "view-selected-employee-leave-and-holiday-entitlements" },
-                new { Label = "Request Leave on behalf of Employee", ActionKey = "request-leave-on-behalf-of-user" },
-                new { Label = "View Employees Open Leave Requests", ActionKey = "view-selected-employee-open-leave-requests" },
-                new { Label = "View Employees Temporarily Denied Leave Requests", ActionKey = "view-selected-employee-temporarily-denied-leave-requests" },
-                new { Label = "View Employees Resolved Leave Requests", ActionKey = "view-selected-employee-resolved-leave-requests" }
+                new { Label = "View an Employee's Leave and Holiday Entitlements", ActionKey = "view-selected-employee-leave-and-holiday-entitlements" },
+                new { Label = "Request Leave for an Employee", ActionKey = "request-leave-on-behalf-of-user" },
+                new { Label = "View Employee Open Leave Requests", ActionKey = "view-selected-employee-open-leave-requests" },
+                new { Label = "View Employee Temporarily Denied Leave Requests", ActionKey = "view-selected-employee-temporarily-denied-leave-requests" },
+                new { Label = "View Employee Resolved Leave Requests", ActionKey = "view-selected-employee-resolved-leave-requests" }
             }
         },
         new
         {
-            Header = "Employee PAYE/Tax",
+            Header = "Employee PAYE / Tax Information",
             Buttons = new[]
             {
-                new { Label = "View Employees Payslips", ActionKey = "view-selected-employee-payslips" },
-                new { Label = "View Employees Tax Information", ActionKey = "view-selected-employee-tax-information" },
-                new { Label = "Edit Employees Tax Information", ActionKey = "edit-selected-employee-tax-information" },
-                new { Label = "Generate Payslip for Employee", ActionKey = "create-payslip-for-employee" }
+                new { Label = "Generate an Employee's Payslip", ActionKey = "create-payslip-for-employee" },
+                new { Label = "View an Employee's Payslips", ActionKey = "view-selected-employee-payslips" },
+                new { Label = "View an Employee's Tax Information", ActionKey = "view-selected-employee-tax-information" },
+                new { Label = "Edit an Employee's Tax Information", ActionKey = "edit-selected-employee-tax-information" }
             }
         },
         new
@@ -111,10 +110,10 @@
             Header = "Employee Grievances",
             Buttons = new[]
             {
-                new { Label = "View Employees Open Grievance Reports", ActionKey = "view-users-open-grievance-reports" },
-                new { Label = "View Employees Resolved Grievance Reports", ActionKey = "view-users-resolved-grievance-reports" },
-                new { Label = "Submit a Grievance Report on behalf of Employee", ActionKey = "submit-grievance-report-on-behalf-of-user" },
-                new { Label = "Review Grievance Report", ActionKey = "review-grievance-report" }
+                new { Label = "Submit a Grievance on behalf of an Employee", ActionKey = "submit-grievance-report-on-behalf-of-user" },
+                new { Label = "Review an Employee's Grievance Report", ActionKey = "review-grievance-report" },
+                new { Label = "View Employee Open Grievance Reports", ActionKey = "view-users-open-grievance-reports" },
+                new { Label = "View Employee Resolved Grievance Reports", ActionKey = "view-users-resolved-grievance-reports" }
             }
         }
     };
@@ -289,6 +288,8 @@
 @{
     var leaveSuccess = TempData["LeaveSuccess"] as string;
     var leaveError = TempData["LeaveError"] as string;
+    var accountSuccess = TempData["AccountSuccess"] as string;
+    var accountError = TempData["AccountError"] as string;
     var employeeSuccess = TempData["EmployeeSuccess"] as string;
     var employeeError = TempData["EmployeeError"] as string;
     var grievanceSuccess = TempData["GrievanceSuccess"] as string;
@@ -297,40 +298,48 @@
     var payrollError = TempData["PayrollError"] as string;
 }
 
-@if (!string.IsNullOrWhiteSpace(leaveSuccess) || !string.IsNullOrWhiteSpace(leaveError) || !string.IsNullOrWhiteSpace(employeeSuccess) || !string.IsNullOrWhiteSpace(employeeError) || !string.IsNullOrWhiteSpace(grievanceSuccess) || !string.IsNullOrWhiteSpace(grievanceError) || !string.IsNullOrWhiteSpace(payrollSuccess) || !string.IsNullOrWhiteSpace(payrollError))
+@if (!string.IsNullOrWhiteSpace(leaveSuccess) || !string.IsNullOrWhiteSpace(leaveError) || !string.IsNullOrWhiteSpace(accountSuccess) || !string.IsNullOrWhiteSpace(accountError) || !string.IsNullOrWhiteSpace(employeeSuccess) || !string.IsNullOrWhiteSpace(employeeError) || !string.IsNullOrWhiteSpace(grievanceSuccess) || !string.IsNullOrWhiteSpace(grievanceError) || !string.IsNullOrWhiteSpace(payrollSuccess) || !string.IsNullOrWhiteSpace(payrollError))
 {
-    <div class="action-banner-stack">
+    <div class="action-banner-stack" role="region" aria-label="Action messages" aria-live="polite">
         @if (!string.IsNullOrWhiteSpace(leaveSuccess))
         {
-            <div class="action-banner success">@leaveSuccess</div>
+            <div class="action-banner success" role="status">@leaveSuccess</div>
         }
         @if (!string.IsNullOrWhiteSpace(leaveError))
         {
-            <div class="action-banner error">@leaveError</div>
+            <div class="action-banner error" role="alert">@leaveError</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(accountSuccess))
+        {
+            <div class="action-banner success" role="status">@accountSuccess</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(accountError))
+        {
+            <div class="action-banner error" role="alert">@accountError</div>
         }
         @if (!string.IsNullOrWhiteSpace(employeeSuccess))
         {
-            <div class="action-banner success">@employeeSuccess</div>
+            <div class="action-banner success" role="status">@employeeSuccess</div>
         }
         @if (!string.IsNullOrWhiteSpace(employeeError))
         {
-            <div class="action-banner error">@employeeError</div>
+            <div class="action-banner error" role="alert">@employeeError</div>
         }
         @if (!string.IsNullOrWhiteSpace(grievanceSuccess))
         {
-            <div class="action-banner success">@grievanceSuccess</div>
+            <div class="action-banner success" role="status">@grievanceSuccess</div>
         }
         @if (!string.IsNullOrWhiteSpace(grievanceError))
         {
-            <div class="action-banner error">@grievanceError</div>
+            <div class="action-banner error" role="alert">@grievanceError</div>
         }
         @if (!string.IsNullOrWhiteSpace(payrollSuccess))
         {
-            <div class="action-banner success">@payrollSuccess</div>
+            <div class="action-banner success" role="status">@payrollSuccess</div>
         }
         @if (!string.IsNullOrWhiteSpace(payrollError))
         {
-            <div class="action-banner error">@payrollError</div>
+            <div class="action-banner error" role="alert">@payrollError</div>
         }
     </div>
 }
@@ -373,6 +382,7 @@
                                    <button type="button"
                                            class="account-action-button @(isDisabled ? "disabled" : string.Empty)"
                                            data-account-action="@actionKey"
+                                           aria-pressed="false"
                                            @(isDisabled ? "disabled" : null)>
                                        @button.Label
                                    </button>
@@ -381,7 +391,7 @@
                        }
                    </div>
                    <div class="hr-management-content-panel">
-                       <div class="account-content-host" data-account-content-host data-leave-content-host>
+                       <div class="account-content-host" data-account-content-host data-leave-content-host role="region" aria-live="polite" aria-label="HR content panel" tabindex="-1">
                            @initialHostMessage
                        </div>
                    </div>
@@ -394,7 +404,8 @@
                    {
                        <button type="button"
                                class="account-action-button"
-                               data-account-action="@sectionActions[option]">
+                               data-account-action="@sectionActions[option]"
+                               aria-pressed="false">
                            @option
                        </button>
                    }
@@ -413,7 +424,7 @@
 
             @if (!isHrSection)
             {
-                <div class="account-content-host" data-account-content-host data-leave-content-host>
+                <div class="account-content-host" data-account-content-host data-leave-content-host role="region" aria-live="polite" aria-label="Content panel" tabindex="-1">
                    @initialHostMessage
                 </div>
             }
@@ -453,7 +464,9 @@
                     buttons.forEach((button) => {
                         button.disabled = true;
                         button.classList.remove("active");
+                        button.setAttribute("aria-pressed", "false");
                     });
+                    host.setAttribute("aria-busy", "true");
                     host.textContent = "Loading...";
 
                     try {
@@ -475,10 +488,13 @@
                         const html = await response.text();
                         window.nzftcSetAccountContentHostHtml(host, html);
                         clickedButton?.classList.add("active");
+                        clickedButton?.setAttribute("aria-pressed", "true");
+                        host.focus();
                     } catch (error) {
                         console.error(error);
                         host.textContent = loadErrorMessage;
                     } finally {
+                        host.removeAttribute("aria-busy");
                         buttons.forEach((button) => {
                             button.disabled = false;
                         });
@@ -492,6 +508,7 @@
                             return;
                         }
 
+                        button.setAttribute("aria-pressed", "false");
                         loadAction(actionKey, button);
                     });
                 });
@@ -501,8 +518,10 @@
                 if (initialActionKey) {
                     const initialLeaveRequestId = pageUrl.searchParams.get("leaveRequestId");
                     const initialGrievanceId = pageUrl.searchParams.get("grievanceId");
+                    const initialGroup = pageUrl.searchParams.get("group");
+                    const initialUsername = pageUrl.searchParams.get("username");
                     const matchingButton = buttons.find((button) => button.dataset.accountAction === initialActionKey) || null;
-                    loadAction(initialActionKey, matchingButton, { leaveRequestId: initialLeaveRequestId, grievanceId: initialGrievanceId });
+                    loadAction(initialActionKey, matchingButton, { leaveRequestId: initialLeaveRequestId, grievanceId: initialGrievanceId, group: initialGroup, username: initialUsername });
                 }
             })();
         </script>

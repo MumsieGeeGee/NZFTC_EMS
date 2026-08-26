@@ -269,13 +269,13 @@ void Display_Employee_Assistance_Programme_Contribution_Prompt_UI() {
 }
 
 void Display_Employee_Assistance_Programme_Contribution_Details_Question_UI() {
-    std::cout << "Please Enter the Details of the Employee Assistance Program" << std::endl;
+    std::cout << "Please Enter the Details of the Employee Assistance Programme" << std::endl;
     std::cout << "Programme/Course Name, Start/Finish Dates and any other relevant information." << std::endl;
     std::cout << "Employee Assistance Programme Details: ";
 }
 
 void Display_Employee_Assistance_Programme_Contribution_Amount_Question_UI() {
-    std::cout << "Please Enter the Total Cost of the (Pre-Approved) Employee Assistance Program." << std::endl;
+    std::cout << "Please Enter the Total Cost of the (Pre-Approved) Employee Assistance Programme." << std::endl;
     Display_Total_Decimal_Amount_Prompt_UI();
 }
 

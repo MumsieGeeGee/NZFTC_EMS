@@ -1,14 +1,15 @@
 @model NZFTC_EMS.Models.GrievanceRequest
 
 <div class="grievance-panel">
-    <h2>NZFTC Employee Complaint Form</h2>
-    <p class="grievance-intro">Please complete the complaint details below.</p>
+    <h2>Submit a Grievance</h2>
+    <p class="grievance-intro">Complete the grievance details below.</p>
+    <p id="grievance-form-help" class="grievance-help-text">All fields are required unless marked optional. Use the declaration field exactly as shown so the report can be accepted.</p>
 
-    <form method="post" action="@Url.Action("SubmitGrievanceReport", "Employee")" class="grievance-form">
+    <form method="post" action="@Url.Action("SubmitGrievanceReport", "Employee")" class="grievance-form" aria-describedby="grievance-form-help">
         @Html.AntiForgeryToken()
         <div class="field-row">
             <label for="attendingSupervisor">Attending Supervisor</label>
-            <input id="attendingSupervisor" name="attendingSupervisor" required placeholder="Name of the attending supervisor" />
+            <input id="attendingSupervisor" name="attendingSupervisor" type="text" required autocomplete="name" placeholder="Name of the attending supervisor" />
         </div>
 
         <div class="field-row">
@@ -18,7 +19,7 @@
 
         <div class="field-row">
             <label for="eventDate">Event Date</label>
-            <input id="eventDate" name="eventDate" required placeholder="DD-MM-YYYY" />
+            <input id="eventDate" name="eventDate" type="date" aria-describedby="grievance-date-help" required />
         </div>
 
         <div class="field-row">
@@ -43,15 +44,17 @@
 
         <div class="field-row">
             <label for="declarationAgreement">Declaration Agreement</label>
-            <input id="declarationAgreement" name="declarationAgreement" required placeholder="Enter 'I do' here" />
+            <input id="declarationAgreement" name="declarationAgreement" type="text" aria-describedby="grievance-declaration-help" required placeholder="Enter 'I do' here" />
+            <p id="grievance-declaration-help" class="grievance-help-text">Type <strong>I do</strong> exactly to confirm the grievance declaration.</p>
         </div>
 
         <div class="field-row">
             <label for="signedDate">Date Signed</label>
-            <input id="signedDate" name="signedDate" required placeholder="DD-MM-YYYY" />
+            <input id="signedDate" name="signedDate" type="date" aria-describedby="grievance-date-help" required />
         </div>
+        <p id="grievance-date-help" class="grievance-help-text">Use the calendar date fields for both the event date and the signed date.</p>
 
-        <button type="submit" class="primary-action-button">Submit Complaint</button>
+        <button type="submit" class="primary-action-button">Submit Grievance</button>
     </form>
 </div>
 
@@ -59,6 +62,7 @@
     .grievance-panel { color: #2A5D8F; }
     .grievance-panel h2 { margin-bottom: 10px; }
     .grievance-intro { color: #4A4A4A; margin-bottom: 16px; }
+    .grievance-help-text { color: #4A4A4A; margin: 0; font-size: 13px; line-height: 1.5; }
     .grievance-form { max-width: 720px; display: flex; flex-direction: column; gap: 16px; }
     .field-row { display: flex; flex-direction: column; gap: 8px; color: #4A4A4A; }
     .field-row input, .field-row select, .field-row textarea { border: 1px solid #C7CED6; border-radius: 6px; padding: 10px 12px; font-size: 14px; }

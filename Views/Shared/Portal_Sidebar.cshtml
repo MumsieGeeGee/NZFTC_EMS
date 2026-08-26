@@ -1,0 +1,33 @@
+@{
+    var controllerName = ((string?)ViewBag.PortalShellController ?? string.Empty).Trim();
+    var activeModule = ((string?)ViewBag.PortalShellActiveModule ?? string.Empty).Trim().ToLowerInvariant();
+
+    string BuildButtonClass(string module)
+    {
+        return activeModule == module ? "sidebar-button active" : "sidebar-button";
+    }
+}
+
+<nav aria-label="Portal sections">
+    @if ((bool?)ViewBag.CanAccessAccountModule == true)
+    {
+        <a href="@Url.Action("AccountManagement", controllerName)" class="@BuildButtonClass("account")" aria-current="@(activeModule == "account" ? "page" : null)">
+            <i class="fi fi-rr-user" aria-hidden="true"></i>
+            <span>Account Management</span>
+        </a>
+    }
+    @if ((bool?)ViewBag.CanAccessEmployeeModule == true)
+    {
+        <a href="@Url.Action("EmployeeManagement", controllerName)" class="@BuildButtonClass("employee")" aria-current="@(activeModule == "employee" ? "page" : null)">
+            <i class="fi fi-rr-briefcase" aria-hidden="true"></i>
+            <span>Employee Management</span>
+        </a>
+    }
+    @if ((bool?)ViewBag.CanAccessHrModule == true)
+    {
+        <a href="@Url.Action("HRManagement", controllerName)" class="@BuildButtonClass("hr")" aria-current="@(activeModule == "hr" ? "page" : null)">
+            <i class="fi fi-rr-calendar" aria-hidden="true"></i>
+            <span>HR Management</span>
+        </a>
+    }
+</nav>

@@ -1,13 +1,15 @@
+@using System.Collections.Generic
 @using System.Linq
-@model IEnumerable<NZFTC_EMS.Models.LeaveRequest>
+@model NZFTC_EMS.Models.OwnOpenLeaveRequestsViewModel
 
 @{
-    var requests = Model ?? Enumerable.Empty<NZFTC_EMS.Models.LeaveRequest>();
+    var requests = Model?.Requests ?? Enumerable.Empty<NZFTC_EMS.Models.LeaveRequest>();
+    var impactByRequestId = Model?.ImpactByRequestId ?? new Dictionary<int, NZFTC_EMS.Models.LeaveRequestBalanceImpact>();
 }
 
 <div class="leave-panel">
     <h2>My Open Leave Requests</h2>
-    <p class="leave-intro">These requests are still awaiting action.</p>
+    <p class="leave-intro">These are your current open leave requests.</p>
 
     @if (!requests.Any())
     {
@@ -20,12 +22,28 @@
             <div class="leave-card">
                 <div class="leave-card-header">
                     <span class="leave-badge">@request.Status</span>
-                    <strong>#@request.Id</strong>
                 </div>
                 <h3>@request.LeaveType</h3>
                 <p><strong>Dates:</strong> @request.StartDate.ToString("dd MMM yyyy") to @request.EndDate.ToString("dd MMM yyyy")</p>
                 <p><strong>Days:</strong> @request.TotalDays</p>
                 <p>@request.Reason</p>
+                @if (impactByRequestId.TryGetValue(request.Id, out var impact))
+                {
+                    <div class="leave-impact-summary">
+                        <h4>Leave balance impact</h4>
+                        <div class="leave-impact-grid">
+                            <div><strong>Requested now:</strong> @impact.RequestedAmount @impact.UnitLabel</div>
+                            <div><strong>Available before this request:</strong> @impact.AvailableBeforeRequest @impact.UnitLabel</div>
+                            <div><strong>Estimated balance after this request:</strong> @impact.RemainingAfterRequest @impact.UnitLabel</div>
+                            <div><strong>Already approved upcoming:</strong> @impact.ScheduledApprovedAmount @impact.UnitLabel</div>
+                            <div><strong>Already used:</strong> @impact.TakenAmount @impact.UnitLabel</div>
+                            <div><strong>Total entitlement:</strong> @impact.TotalEntitlementAmount @impact.UnitLabel</div>
+                        </div>
+                    </div>
+                }
+                <div class="leave-card-actions">
+                    <a class="leave-action-button" href="@Url.Action("HRManagement", "Employee", new { actionKey = "edit-own-leave-request", leaveRequestId = request.Id })">Edit leave request</a>
+                </div>
             </div>
         }
     }
@@ -36,5 +54,13 @@
     .leave-card { background: #FFFFFF; border: 1px solid #C7CED6; border-radius: 8px; padding: 16px; margin-bottom: 14px; box-shadow: 0 1px 2px rgba(42, 93, 143, 0.08); }
     .leave-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .leave-badge { background: #5BA6A6; color: #FFFFFF; padding: 4px 8px; border-radius: 14px; font-size: 12px; font-weight: 700; }
+    .leave-action-button {
+        display: inline-block; background: #2A5D8F; color: #FFFFFF; border-radius: 6px; padding: 8px 12px; font-weight: 700; text-decoration: none;
+    }
+    .leave-action-button:hover { background: #5BA6A6; }
+    .leave-card-actions { margin-top: 12px; }
+    .leave-impact-summary { margin-top: 14px; background: #F5F7FA; border: 1px solid #D8DEE6; border-radius: 8px; padding: 14px; }
+    .leave-impact-summary h4 { margin: 0 0 10px; color: #2A5D8F; }
+    .leave-impact-grid { display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 10px; color: #4A4A4A; }
     .empty-state { background: #F5F7FA; border: 1px dashed #C7CED6; padding: 18px; border-radius: 8px; color: #4A4A4A; }
 </style>

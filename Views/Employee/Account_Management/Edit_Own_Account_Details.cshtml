@@ -5,30 +5,29 @@
 
 <div>
     <h2 style="color:#2A5D8F; font-size:22px; margin:0 0 12px;">Edit my Account Details</h2>
-    <form>
+    <p id="account-details-help" style="margin:0 0 12px; color:#4A4A4A;">
+        Update the contact details used for your employee record. All fields below are required.
+    </p>
+    <form method="post" action="@Url.Action("UpdateOwnAccountDetails", "Employee")" aria-describedby="account-details-help">
+        @Html.AntiForgeryToken()
         <div style="display:flex; flex-direction:column; gap:10px; max-width:460px;">
-            <label style="font-weight:700; color:#4A4A4A;">
-                Address
-                <input type="text" value="@Model.Address" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
-            </label>
-            <label style="font-weight:700; color:#4A4A4A;">
-                Email Address
-                <input type="email" value="@Model.EmailAddress" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
-            </label>
-            <label style="font-weight:700; color:#4A4A4A;">
-                Phone Number
-                <input type="text" value="@Model.PhoneNumber" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
-            </label>
-            <label style="font-weight:700; color:#4A4A4A;">
-                New Password
-                <input type="password" value="" autocomplete="new-password" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
-            </label>
-            <label style="font-weight:700; color:#4A4A4A;">
-                Confirm New Password
-                <input type="password" value="" autocomplete="new-password" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
-            </label>
-            <button type="button" disabled style="background:#C7CED6; color:#4A4A4A; border:none; border-radius:4px; padding:10px 14px; font-weight:700; width:max-content;">
-                Save Changes (Next Integration)
+            <div style="display:flex; flex-direction:column; gap:6px;">
+                <label for="account-address" style="font-weight:700; color:#4A4A4A;">Address</label>
+                <input id="account-address" type="text" name="address" value="@Model.Address" required autocomplete="street-address" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+                <label for="account-email-address" style="font-weight:700; color:#4A4A4A;">Email Address</label>
+                <input id="account-email-address" type="email" name="emailAddress" value="@Model.EmailAddress" required autocomplete="email" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+                <label for="account-phone-number" style="font-weight:700; color:#4A4A4A;">Phone Number</label>
+                <input id="account-phone-number" type="tel" name="phoneNumber" value="@Model.PhoneNumber" required autocomplete="tel" style="width:100%; padding:8px; border:1px solid #C7CED6; border-radius:4px; background:#fff;" />
+            </div>
+            <p style="margin:0; color:#4A4A4A;" role="note">
+                Password changes are still handled through the existing assisted account support process.
+            </p>
+            <button type="submit" style="background:#5BA6A6; color:#4A4A4A; border:1px solid rgba(42, 93, 143, 0.2); border-radius:4px; padding:10px 14px; font-weight:700; width:max-content;">
+                Save Changes
             </button>
         </div>
     </form>

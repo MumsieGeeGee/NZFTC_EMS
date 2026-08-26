@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using NZFTC_EMS.Data;
+using NZFTC_EMS.Data.Entities;
 using NZFTC_EMS.Models;
 
 namespace NZFTC_EMS.Services
@@ -19,10 +21,14 @@ namespace NZFTC_EMS.Services
         };
         private static bool PayslipArchiveLoaded;
         private readonly LeaveRequestService _leaveRequestService;
+        private readonly MySqlRepository _mySqlRepository;
+        private readonly EmployeeRecordStore _employeeRecordStore;
 
-        public PayrollService(LeaveRequestService leaveRequestService)
+        public PayrollService(LeaveRequestService leaveRequestService, MySqlRepository mySqlRepository, EmployeeRecordStore employeeRecordStore)
         {
             _leaveRequestService = leaveRequestService;
+            _mySqlRepository = mySqlRepository;
+            _employeeRecordStore = employeeRecordStore;
             EnsurePayslipArchiveLoaded();
         }
 
@@ -34,7 +40,13 @@ namespace NZFTC_EMS.Services
                 return new TaxInformationEditViewModel();
             }
 
-            var employeeName = ResolveEmployeeDisplayName(targetUsername) ?? string.Empty;
+            var storedTaxInformation = _mySqlRepository.GetTaxInformationAsync(targetUsername).GetAwaiter().GetResult();
+            if (storedTaxInformation != null)
+            {
+                return MapTaxEntityToEditViewModel(storedTaxInformation, _employeeRecordStore.ResolveEmployeeDisplayName(targetUsername) ?? string.Empty);
+            }
+
+            var employeeName = _employeeRecordStore.ResolveEmployeeDisplayName(targetUsername) ?? string.Empty;
             var irdNumber = TryResolveIrdNumberForUsername(targetUsername);
             var model = new TaxInformationEditViewModel
             {
@@ -48,14 +60,14 @@ namespace NZFTC_EMS.Services
                 return model;
             }
 
-            foreach (var filePath in EnumerateIrdFiles())
+            foreach (var filePath in _employeeRecordStore.EnumerateIrdFiles())
             {
                 if (!string.Equals(Path.GetFileNameWithoutExtension(filePath), irdNumber, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
 
-                var parsed = ParseKeyValueFile(filePath);
+                var parsed = _employeeRecordStore.ParseKeyValueFile(filePath);
                 model.PayFrequency = GetFieldValue(parsed, "PAYE Frequency", "Pay Frequency");
                 model.PAYETableVersion = GetFieldValue(parsed, "PAYE Table Version");
                 model.ExtraPayeVoluntaryDeduction = GetFieldValue(parsed, "Extra PAYE Voluntary Deduction");
@@ -110,7 +122,13 @@ namespace NZFTC_EMS.Services
                 return new PayrollTaxInformation();
             }
 
-            var employeeName = ResolveEmployeeDisplayName(targetUsername) ?? string.Empty;
+            var storedTaxInformation = _mySqlRepository.GetTaxInformationAsync(targetUsername).GetAwaiter().GetResult();
+            if (storedTaxInformation != null)
+            {
+                return MapTaxEntityToPayrollTaxInformation(storedTaxInformation, _employeeRecordStore.ResolveEmployeeDisplayName(targetUsername) ?? string.Empty);
+            }
+
+            var employeeName = _employeeRecordStore.ResolveEmployeeDisplayName(targetUsername) ?? string.Empty;
             var irdNumber = TryResolveIrdNumberForUsername(targetUsername);
             var employerDefaults = GetEmployerDefaults();
             var payeInfo = new PayrollTaxInformation
@@ -154,14 +172,14 @@ namespace NZFTC_EMS.Services
                 return payeInfo;
             }
 
-            foreach (var filePath in EnumerateIrdFiles())
+            foreach (var filePath in _employeeRecordStore.EnumerateIrdFiles())
             {
                 if (!string.Equals(Path.GetFileNameWithoutExtension(filePath), irdNumber, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
 
-                var parsed = ParseKeyValueFile(filePath);
+                var parsed = _employeeRecordStore.ParseKeyValueFile(filePath);
                 if (parsed.TryGetValue("IRD Confirmation Status", out var confirmationStatus) &&
                     !string.IsNullOrWhiteSpace(confirmationStatus))
                 {
@@ -324,8 +342,25 @@ namespace NZFTC_EMS.Services
                 return Array.Empty<PayslipRecord>();
             }
 
+            var storedPayslips = _mySqlRepository.ListPayslipsAsync(targetUsername).GetAwaiter().GetResult();
+            if (storedPayslips.Count > 0)
+            {
+                return storedPayslips
+                    .Select(MapPayslipEntityToRecord)
+                    .OrderByDescending(p => p.CreatedOn)
+                    .ToList();
+            }
+
             return Payslips
                 .Where(p => string.Equals(p.Username, targetUsername, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(p => p.CreatedOn)
+                .ToList();
+        }
+
+        public IReadOnlyList<PayslipRecord> GetAllPayslips()
+        {
+            EnsurePayslipArchiveLoaded();
+            return Payslips
                 .OrderByDescending(p => p.CreatedOn)
                 .ToList();
         }
@@ -346,7 +381,7 @@ namespace NZFTC_EMS.Services
             var targetUsername = string.IsNullOrWhiteSpace(submittedForUsername) ? submittedByUsername : submittedForUsername;
             var targetTaxInfo = GetTaxInformationForUser(targetUsername);
             var targetLeaveInfo = _leaveRequestService.GetEntitlementForUser(targetUsername);
-            var employeeName = ResolveEmployeeDisplayName(targetUsername) ?? string.Empty;
+            var employeeName = _employeeRecordStore.ResolveEmployeeDisplayName(targetUsername) ?? string.Empty;
             var irdNumber = string.IsNullOrWhiteSpace(targetTaxInfo.IRDNumber)
                 ? TryResolveIrdNumberForUsername(targetUsername) ?? string.Empty
                 : targetTaxInfo.IRDNumber;
@@ -424,13 +459,18 @@ namespace NZFTC_EMS.Services
                 SavePayslipExport(record);
             }
 
+            _mySqlRepository.UpsertPayslipAsync(BuildPayslipEntity(record)).GetAwaiter().GetResult();
+
             return record;
         }
 
         public PayslipRecord? GetPayslipById(int payslipId)
         {
             EnsurePayslipArchiveLoaded();
-            return Payslips.FirstOrDefault(p => p.Id == payslipId);
+            var storedPayslip = _mySqlRepository.GetPayslipAsync(payslipId).GetAwaiter().GetResult();
+            return storedPayslip != null
+                ? MapPayslipEntityToRecord(storedPayslip)
+                : Payslips.FirstOrDefault(p => p.Id == payslipId);
         }
 
         public string? GetPayslipExportText(int payslipId)
@@ -453,7 +493,10 @@ namespace NZFTC_EMS.Services
                 return false;
             }
 
-            var filePath = EnumerateIrdFiles()
+            updatedInformation.Username = targetUsername;
+            updatedInformation.IRDNumber = irdNumber;
+
+            var filePath = _employeeRecordStore.EnumerateIrdFiles()
                 .FirstOrDefault(path => string.Equals(Path.GetFileNameWithoutExtension(path), irdNumber, StringComparison.OrdinalIgnoreCase));
             if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
             {
@@ -509,6 +552,7 @@ namespace NZFTC_EMS.Services
             UpsertField(lines, "Employee Extra Type(s)", updatedInformation.ESCTIncomeBand);
 
             File.WriteAllLines(filePath, lines);
+            _mySqlRepository.UpsertTaxInformationAsync(BuildTaxEntity(updatedInformation, targetUsername)).GetAwaiter().GetResult();
             return true;
         }
 
@@ -533,7 +577,7 @@ namespace NZFTC_EMS.Services
             return UpdateTaxInformation(username, request);
         }
 
-        private static string? TryResolveIrdNumberForUsername(string username)
+        private string? TryResolveIrdNumberForUsername(string username)
         {
             var usernameMappings = ResolveIrdUsernameFile();
             if (string.IsNullOrWhiteSpace(usernameMappings) || !File.Exists(usernameMappings))
@@ -566,37 +610,261 @@ namespace NZFTC_EMS.Services
             return null;
         }
 
-        private static string? ResolveEmployeeDisplayName(string username)
+        private EmployeeTaxInformationEntity BuildTaxEntity(TaxInformationEditViewModel model, string username)
         {
-            var root = ResolveEmployeeRecordRoot();
-            if (string.IsNullOrWhiteSpace(root) || !Directory.Exists(root))
+            var primaryTaxCode = model.PrimaryTaxCode?.Trim() ?? string.Empty;
+            var secondaryTaxCode = model.SecondaryTaxCode?.Trim() ?? string.Empty;
+            var effectiveTaxCode = !string.IsNullOrWhiteSpace(primaryTaxCode) ? primaryTaxCode : secondaryTaxCode;
+            return new EmployeeTaxInformationEntity
             {
-                return null;
-            }
-
-            foreach (var filePath in Directory.EnumerateFiles(root, "*_Employee_Record.txt", SearchOption.AllDirectories))
-            {
-                var parsed = ParseKeyValueFile(filePath);
-                if (!parsed.TryGetValue("Username", out var recordUsername) || 
-                    !string.Equals(recordUsername.Trim(), username.Trim(), StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                var firstName = parsed.TryGetValue("First Name", out var first) ? first.Trim() : string.Empty;
-                var lastName = parsed.TryGetValue("Last Name", out var last) ? last.Trim() : string.Empty;
-                if (string.IsNullOrWhiteSpace(firstName) && string.IsNullOrWhiteSpace(lastName))
-                {
-                    return string.Empty;
-                }
-
-                return string.Join(" ", new[] { firstName, lastName }.Where(value => !string.IsNullOrWhiteSpace(value))).Trim();
-            }
-
-            return null;
+                Username = username,
+                IrdNumber = model.IRDNumber?.Trim() ?? string.Empty,
+                IrdConfirmationStatus = string.IsNullOrWhiteSpace(model.IRDNumber) ? "Unconfirmed" : "Confirmed",
+                PayFrequency = model.PayFrequency?.Trim() ?? "Fortnightly",
+                PayeTableVersion = model.PAYETableVersion?.Trim() ?? DateTime.UtcNow.Year.ToString(CultureInfo.InvariantCulture),
+                ExtraPayeVoluntaryDeduction = TryParseDecimal(model.ExtraPayeVoluntaryDeduction),
+                TaxCode = string.IsNullOrWhiteSpace(effectiveTaxCode) ? "M" : effectiveTaxCode,
+                TaxCodeDescription = string.IsNullOrWhiteSpace(effectiveTaxCode) ? "Standard tax code" : $"{effectiveTaxCode} tax code",
+                TaxCodeJobType = model.TaxCodeJobType?.Trim() ?? "Primary",
+                PrimaryTaxCode = primaryTaxCode,
+                SecondaryTaxCode = secondaryTaxCode,
+                SpecialTaxCode = model.SpecialTaxCode?.Trim() ?? string.Empty,
+                SpecialTaxCodeRate = model.STCRate?.Trim() ?? string.Empty,
+                STCLetterReceived = model.STCLetterReceived?.Trim() ?? string.Empty,
+                STCExpiryDate = model.STCExpiryDate?.Trim() ?? string.Empty,
+                KiwiSaverOptInOutStatus = model.KiwiSaverOptInOutStatus?.Trim() ?? "opt-in",
+                KiwiSaverEmployeeContributionRate = model.KiwiSaverEmployeeContributionRate?.Trim() ?? "3%",
+                KiwiSaverOptOutDate = model.KiwiSaverOptOutDate?.Trim() ?? string.Empty,
+                StudentLoanStatus = string.Equals(model.StudentLoanExistence?.Trim(), "Yes", StringComparison.OrdinalIgnoreCase)
+                    ? "In repayment"
+                    : "Not in repayment",
+                StudentLoanExistence = model.StudentLoanExistence?.Trim() ?? "Yes",
+                StudentLoanSDRIRDLetterExistence = model.StudentLoanSDRIRDLetterExistence?.Trim() ?? string.Empty,
+                StudentLoanSpecialDeductionRate = model.StudentLoanSpecialDeductionRate?.Trim() ?? string.Empty,
+                StudentLoanRepaymentExemptionExistence = model.StudentLoanRepaymentExemptionExistence?.Trim() ?? string.Empty,
+                StudentLoanRepaymentExemptionReason = model.StudentLoanRepaymentExemptionReason?.Trim() ?? string.Empty,
+                StudentLoanRepaymentExemptionExpiryDate = model.StudentLoanRepaymentExemptionExpiryDate?.Trim() ?? string.Empty,
+                StudentLoanRepaymentThreshold = model.StudentLoanRepaymentThreshold?.Trim() ?? string.Empty,
+                ChildSupportStatus = model.ChildSupportStatus?.Trim() ?? string.Empty,
+                ChildSupportStandardDeduction = model.ChildSupportStandardDeduction?.Trim() ?? string.Empty,
+                ChildSupportVoluntaryDeduction = model.ChildSupportVoluntaryDeduction?.Trim() ?? string.Empty,
+                ChildSupportProtectedNetEarnings = model.ChildSupportProtectedNetEarnings?.Trim() ?? string.Empty,
+                ChildSupportIRDNoticeOfDeductionExistence = model.ChildSupportIRDNoticeOfDeductionExistence?.Trim() ?? string.Empty,
+                ChildSupportIRDNoticeOfDeductionAmount = model.ChildSupportIRDNoticeOfDeductionAmount?.Trim() ?? string.Empty,
+                ChildSupportIRDNoticeOfDeductionEffectiveDate = model.ChildSupportIRDNoticeOfDeductionEffectiveDate?.Trim() ?? string.Empty,
+                ChildSupportIRDNoticeOfDeductionExpiryDate = model.ChildSupportIRDNoticeOfDeductionExpiryDate?.Trim() ?? string.Empty,
+                ChildSupportIRDNoticeOfDeductionReferenceNumber = model.ChildSupportIRDNoticeOfDeductionReferenceNumber?.Trim() ?? string.Empty,
+                EmployeeExtras = model.EmployeeExtras?.Trim() ?? string.Empty,
+                ESCTTaxRate = model.ESCTTaxRate?.Trim() ?? string.Empty,
+                ESCTIncomeBand = model.ESCTIncomeBand?.Trim() ?? string.Empty,
+                StudentLoanRate = 12m,
+                KiwiSaverEmployerContributionRate = 3m,
+                ACCLevyRate = 1.75m,
+                EmployeeType = "Salary",
+                UpdatedOnUtc = DateTime.UtcNow
+            };
         }
 
-        private static void EnsurePayslipArchiveLoaded()
+        private static PayrollTaxInformation MapTaxEntityToPayrollTaxInformation(EmployeeTaxInformationEntity entity, string employeeName)
+        {
+            return new PayrollTaxInformation
+            {
+                Username = entity.Username,
+                EmployeeName = employeeName,
+                IRDNumber = entity.IrdNumber,
+                IRDConfirmationStatus = entity.IrdConfirmationStatus,
+                PayFrequency = entity.PayFrequency,
+                PAYETableVersion = entity.PayeTableVersion,
+                ExtraPayeVoluntaryDeduction = entity.ExtraPayeVoluntaryDeduction,
+                TaxCode = entity.TaxCode,
+                TaxCodeDescription = entity.TaxCodeDescription,
+                TaxCodeJobType = entity.TaxCodeJobType,
+                PrimaryTaxCode = entity.PrimaryTaxCode,
+                SecondaryTaxCode = entity.SecondaryTaxCode,
+                SpecialTaxCode = entity.SpecialTaxCode,
+                SpecialTaxCodeRate = entity.SpecialTaxCodeRate,
+                KiwiSaverOptInOutStatus = entity.KiwiSaverOptInOutStatus,
+                KiwiSaverEmployeeContributionRate = entity.KiwiSaverEmployeeContributionRate,
+                KiwiSaverOptOutDate = entity.KiwiSaverOptOutDate,
+                StudentLoanStatus = entity.StudentLoanStatus,
+                StudentLoanExistence = entity.StudentLoanExistence,
+                StudentLoanSDRIRDLetterExistence = entity.StudentLoanSDRIRDLetterExistence,
+                StudentLoanSpecialDeductionRate = entity.StudentLoanSpecialDeductionRate,
+                StudentLoanRepaymentExemptionExistence = entity.StudentLoanRepaymentExemptionExistence,
+                StudentLoanRepaymentExemptionReason = entity.StudentLoanRepaymentExemptionReason,
+                StudentLoanRepaymentExemptionExpiryDate = entity.StudentLoanRepaymentExemptionExpiryDate,
+                StudentLoanRepaymentThreshold = entity.StudentLoanRepaymentThreshold,
+                EmployeeExtras = entity.EmployeeExtras,
+                ESCTTaxRate = entity.ESCTTaxRate,
+                ESCTIncomeBand = entity.ESCTIncomeBand,
+                StudentLoanRate = entity.StudentLoanRate,
+                KiwiSaverEmployerContributionRate = entity.KiwiSaverEmployerContributionRate,
+                ACCLevyRate = entity.ACCLevyRate,
+                EmployeeType = entity.EmployeeType
+            };
+        }
+
+        private static TaxInformationEditViewModel MapTaxEntityToEditViewModel(EmployeeTaxInformationEntity entity, string employeeName)
+        {
+            var model = new TaxInformationEditViewModel
+            {
+                Username = entity.Username,
+                EmployeeName = employeeName,
+                IRDNumber = entity.IrdNumber,
+                PayFrequency = entity.PayFrequency,
+                PAYETableVersion = entity.PayeTableVersion,
+                ExtraPayeVoluntaryDeduction = entity.ExtraPayeVoluntaryDeduction.ToString(CultureInfo.InvariantCulture),
+                TaxCodeJobType = entity.TaxCodeJobType,
+                PrimaryTaxCode = entity.PrimaryTaxCode,
+                SecondaryTaxCode = entity.SecondaryTaxCode,
+                SpecialTaxCode = entity.SpecialTaxCode,
+                STCRate = entity.SpecialTaxCodeRate,
+                STCLetterReceived = entity.STCLetterReceived,
+                STCExpiryDate = entity.STCExpiryDate,
+                StudentLoanExistence = entity.StudentLoanExistence,
+                StudentLoanSDRIRDLetterExistence = entity.StudentLoanSDRIRDLetterExistence,
+                StudentLoanSpecialDeductionRate = entity.StudentLoanSpecialDeductionRate,
+                StudentLoanRepaymentExemptionExistence = entity.StudentLoanRepaymentExemptionExistence,
+                StudentLoanRepaymentExemptionReason = entity.StudentLoanRepaymentExemptionReason,
+                StudentLoanRepaymentExemptionExpiryDate = entity.StudentLoanRepaymentExemptionExpiryDate,
+                StudentLoanRepaymentThreshold = entity.StudentLoanRepaymentThreshold,
+                ChildSupportStatus = entity.ChildSupportStatus,
+                ChildSupportStandardDeduction = entity.ChildSupportStandardDeduction,
+                ChildSupportVoluntaryDeduction = entity.ChildSupportVoluntaryDeduction,
+                ChildSupportProtectedNetEarnings = entity.ChildSupportProtectedNetEarnings,
+                ChildSupportIRDNoticeOfDeductionExistence = entity.ChildSupportIRDNoticeOfDeductionExistence,
+                ChildSupportIRDNoticeOfDeductionAmount = entity.ChildSupportIRDNoticeOfDeductionAmount,
+                ChildSupportIRDNoticeOfDeductionEffectiveDate = entity.ChildSupportIRDNoticeOfDeductionEffectiveDate,
+                ChildSupportIRDNoticeOfDeductionExpiryDate = entity.ChildSupportIRDNoticeOfDeductionExpiryDate,
+                ChildSupportIRDNoticeOfDeductionReferenceNumber = entity.ChildSupportIRDNoticeOfDeductionReferenceNumber,
+                KiwiSaverOptInOutStatus = entity.KiwiSaverOptInOutStatus,
+                KiwiSaverEmployeeContributionRate = entity.KiwiSaverEmployeeContributionRate,
+                KiwiSaverOptOutDate = entity.KiwiSaverOptOutDate,
+                EmployeeExtras = entity.EmployeeExtras,
+                ESCTTaxRate = entity.ESCTTaxRate,
+                ESCTIncomeBand = entity.ESCTIncomeBand
+            };
+
+            model.ShowStudentLoanOptions = !string.Equals(model.PrimaryTaxCode?.Trim(), "ME", StringComparison.OrdinalIgnoreCase);
+            model.SpecialTaxCodeActive = IsActiveValue(model.SpecialTaxCode);
+            model.StudentLoanActive = IsYesValue(model.StudentLoanExistence);
+            model.ChildSupportActive = IsActiveValue(model.ChildSupportStatus);
+            model.KiwiSaverActive = IsOptInValue(model.KiwiSaverOptInOutStatus);
+            model.KiwiSaverOptedOut = IsOptOutValue(model.KiwiSaverOptInOutStatus);
+            model.ESCTActive = IsActiveValue(model.EmployeeExtras);
+            return model;
+        }
+
+        private static PayslipRecord MapPayslipEntityToRecord(PayslipEntity entity)
+        {
+            return new PayslipRecord
+            {
+                Id = checked((int)entity.Id),
+                Username = entity.Username,
+                EmployeeName = entity.EmployeeName,
+                SalaryPackageName = entity.SalaryPackageName,
+                SalaryPackageDisplayName = entity.SalaryPackageDisplayName,
+                IRDNumber = entity.IrdNumber,
+                PayPeriod = entity.PayPeriod,
+                PayFrequency = entity.PayFrequency,
+                BasePay = entity.BasePay,
+                OvertimePay = entity.OvertimePay,
+                BonusPay = entity.BonusPay,
+                AllowancePay = entity.AllowancePay,
+                PreTaxDeductions = entity.PreTaxDeductions,
+                GrossPay = entity.GrossPay,
+                TaxableIncome = entity.TaxableIncome,
+                PAYE = entity.Paye,
+                StudentLoan = entity.StudentLoan,
+                KiwiSaverEmployeeContribution = entity.KiwiSaverEmployeeContribution,
+                KiwiSaverEmployerContribution = entity.KiwiSaverEmployerContribution,
+                ESCT = entity.Esct,
+                ACCLevy = entity.AccLevy,
+                PostTaxDeductions = entity.PostTaxDeductions,
+                NetPay = entity.NetPay,
+                AnnualLeaveLawfulDays = entity.AnnualLeaveLawfulDays,
+                AnnualLeavePackageExtraDays = entity.AnnualLeavePackageExtraDays,
+                AnnualLeaveTakenDays = entity.AnnualLeaveTakenDays,
+                AnnualLeaveScheduledDays = entity.AnnualLeaveScheduledDays,
+                AnnualLeaveRemainingDays = entity.AnnualLeaveRemainingDays,
+                SickLeaveLawfulDays = entity.SickLeaveLawfulDays,
+                SickLeavePackageExtraDays = entity.SickLeavePackageExtraDays,
+                SickLeaveTakenDays = entity.SickLeaveTakenDays,
+                SickLeaveScheduledDays = entity.SickLeaveScheduledDays,
+                SickLeaveRemainingDays = entity.SickLeaveRemainingDays,
+                SpecialLeaveLawfulDays = entity.SpecialLeaveLawfulDays,
+                SpecialLeavePackageExtraDays = entity.SpecialLeavePackageExtraDays,
+                SpecialLeaveTakenDays = entity.SpecialLeaveTakenDays,
+                SpecialLeaveScheduledDays = entity.SpecialLeaveScheduledDays,
+                SpecialLeaveRemainingDays = entity.SpecialLeaveRemainingDays,
+                ParentalLeaveLawfulWeeks = entity.ParentalLeaveLawfulWeeks,
+                ParentalLeavePackageExtraWeeks = entity.ParentalLeavePackageExtraWeeks,
+                ParentalLeaveRemainingWeeks = entity.ParentalLeaveRemainingWeeks,
+                PublicHolidayDays = entity.PublicHolidayDays,
+                PublicHolidayPackageExtraDays = entity.PublicHolidayPackageExtraDays,
+                CreatedOn = entity.CreatedOnUtc
+            };
+        }
+
+        private static PayslipEntity BuildPayslipEntity(PayslipRecord record)
+        {
+            return new PayslipEntity
+            {
+                Id = record.Id,
+                Username = record.Username,
+                EmployeeName = record.EmployeeName,
+                SalaryPackageName = record.SalaryPackageName,
+                SalaryPackageDisplayName = record.SalaryPackageDisplayName,
+                IrdNumber = record.IRDNumber,
+                PayPeriod = record.PayPeriod,
+                PayFrequency = record.PayFrequency,
+                BasePay = record.BasePay,
+                OvertimePay = record.OvertimePay,
+                BonusPay = record.BonusPay,
+                AllowancePay = record.AllowancePay,
+                PreTaxDeductions = record.PreTaxDeductions,
+                GrossPay = record.GrossPay,
+                TaxableIncome = record.TaxableIncome,
+                Paye = record.PAYE,
+                StudentLoan = record.StudentLoan,
+                KiwiSaverEmployeeContribution = record.KiwiSaverEmployeeContribution,
+                KiwiSaverEmployerContribution = record.KiwiSaverEmployerContribution,
+                Esct = record.ESCT,
+                AccLevy = record.ACCLevy,
+                PostTaxDeductions = record.PostTaxDeductions,
+                NetPay = record.NetPay,
+                AnnualLeaveLawfulDays = record.AnnualLeaveLawfulDays,
+                AnnualLeavePackageExtraDays = record.AnnualLeavePackageExtraDays,
+                AnnualLeaveTakenDays = record.AnnualLeaveTakenDays,
+                AnnualLeaveScheduledDays = record.AnnualLeaveScheduledDays,
+                AnnualLeaveRemainingDays = record.AnnualLeaveRemainingDays,
+                SickLeaveLawfulDays = record.SickLeaveLawfulDays,
+                SickLeavePackageExtraDays = record.SickLeavePackageExtraDays,
+                SickLeaveTakenDays = record.SickLeaveTakenDays,
+                SickLeaveScheduledDays = record.SickLeaveScheduledDays,
+                SickLeaveRemainingDays = record.SickLeaveRemainingDays,
+                SpecialLeaveLawfulDays = record.SpecialLeaveLawfulDays,
+                SpecialLeavePackageExtraDays = record.SpecialLeavePackageExtraDays,
+                SpecialLeaveTakenDays = record.SpecialLeaveTakenDays,
+                SpecialLeaveScheduledDays = record.SpecialLeaveScheduledDays,
+                SpecialLeaveRemainingDays = record.SpecialLeaveRemainingDays,
+                ParentalLeaveLawfulWeeks = record.ParentalLeaveLawfulWeeks,
+                ParentalLeavePackageExtraWeeks = record.ParentalLeavePackageExtraWeeks,
+                ParentalLeaveRemainingWeeks = record.ParentalLeaveRemainingWeeks,
+                PublicHolidayDays = record.PublicHolidayDays,
+                PublicHolidayPackageExtraDays = record.PublicHolidayPackageExtraDays,
+                CreatedOnUtc = record.CreatedOn
+            };
+        }
+
+        private static decimal TryParseDecimal(string? value)
+        {
+            return decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var parsed)
+                ? parsed
+                : 0m;
+        }
+
+        private void EnsurePayslipArchiveLoaded()
         {
             lock (PayslipArchiveLock)
             {
@@ -621,7 +889,7 @@ namespace NZFTC_EMS.Services
             }
         }
 
-        private static void SavePayslipArchive()
+        private void SavePayslipArchive()
         {
             var archiveDirectory = ResolvePayslipArchiveDirectory();
             Directory.CreateDirectory(archiveDirectory);
@@ -631,7 +899,7 @@ namespace NZFTC_EMS.Services
             File.WriteAllText(archivePath, json, Encoding.UTF8);
         }
 
-        private static void SavePayslipExport(PayslipRecord record)
+        private void SavePayslipExport(PayslipRecord record)
         {
             var exportDirectory = ResolvePayslipArchiveDirectory();
             Directory.CreateDirectory(exportDirectory);
@@ -694,9 +962,9 @@ namespace NZFTC_EMS.Services
             return "$" + value.ToString("0.00", CultureInfo.InvariantCulture);
         }
 
-        private static string ResolvePayslipArchiveDirectory()
+        private string ResolvePayslipArchiveDirectory()
         {
-            var root = ResolveMainSystemRoot();
+            var root = _employeeRecordStore.ResolveMainSystemRoot();
             if (string.IsNullOrWhiteSpace(root))
             {
                 return Path.Combine(Directory.GetCurrentDirectory(), "App_Data", "Payslips");
@@ -705,7 +973,7 @@ namespace NZFTC_EMS.Services
             return Path.Combine(root, "Employee Management", "Employee_Records", "Payslips");
         }
 
-        private static string ResolvePayslipArchiveIndexPath()
+        private string ResolvePayslipArchiveIndexPath()
         {
             return Path.Combine(ResolvePayslipArchiveDirectory(), "NZFTC_Web_Payslips.json");
         }
@@ -722,84 +990,10 @@ namespace NZFTC_EMS.Services
             return string.IsNullOrWhiteSpace(sanitized) ? "unknown" : sanitized.Trim();
         }
 
-        private static IEnumerable<string> EnumerateIrdFiles()
+        private string ResolveIrdUsernameFile()
         {
-            var irdDirectory = ResolveIrdDirectory();
-            if (string.IsNullOrWhiteSpace(irdDirectory) || !Directory.Exists(irdDirectory))
-            {
-                return Enumerable.Empty<string>();
-            }
-
-            return Directory.EnumerateFiles(irdDirectory, "*.txt", SearchOption.TopDirectoryOnly)
-                .Where(path => !string.Equals(Path.GetFileName(path), "IRD_Username.txt", StringComparison.OrdinalIgnoreCase));
-        }
-
-        private static string ResolveIrdDirectory()
-        {
-            var root = ResolveEmployeeRecordRoot();
-            if (string.IsNullOrWhiteSpace(root))
-            {
-                return string.Empty;
-            }
-
-            return Path.Combine(root, "IRD");
-        }
-
-        private static string ResolveIrdUsernameFile()
-        {
-            var irdDirectory = ResolveIrdDirectory();
+            var irdDirectory = _employeeRecordStore.ResolveIrdDirectory();
             return string.IsNullOrWhiteSpace(irdDirectory) ? string.Empty : Path.Combine(irdDirectory, "IRD_Username.txt");
-        }
-
-        private static string ResolveEmployeeRecordRoot()
-        {
-            var root = ResolveMainSystemRoot();
-            if (string.IsNullOrWhiteSpace(root))
-            {
-                return string.Empty;
-            }
-
-            return Path.Combine(root, "Employee Management", "Employee_Records");
-        }
-
-        private static string ResolveMainSystemRoot()
-        {
-            var candidates = new[]
-            {
-                Path.Combine(Directory.GetCurrentDirectory(), "main", "Main_System"),
-                Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "main", "Main_System")),
-                Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "main", "Main_System"))
-            };
-
-            return candidates.FirstOrDefault(Directory.Exists) ?? string.Empty;
-        }
-
-        private static IReadOnlyDictionary<string, string> ParseKeyValueFile(string filePath)
-        {
-            var parsed = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var rawLine in File.ReadLines(filePath))
-            {
-                var line = rawLine.Trim();
-                if (string.IsNullOrWhiteSpace(line))
-                {
-                    continue;
-                }
-
-                var separatorIndex = line.IndexOf(':');
-                if (separatorIndex <= 0 || separatorIndex == line.Length - 1)
-                {
-                    continue;
-                }
-
-                var key = line.Substring(0, separatorIndex).Trim();
-                var value = line.Substring(separatorIndex + 1).Trim();
-                if (!string.IsNullOrWhiteSpace(key))
-                {
-                    parsed[key] = value;
-                }
-            }
-
-            return parsed;
         }
 
         private static void UpsertField(ICollection<string> lines, string fieldName, string? value)
@@ -910,7 +1104,7 @@ namespace NZFTC_EMS.Services
                    value.Trim().Equals("opt-out", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static EmployerDefaults GetEmployerDefaults()
+        private EmployerDefaults GetEmployerDefaults()
         {
             var defaults = new EmployerDefaults(3m, 1.75m, 142283m, 24128m, 12m);
             var employerDetailsPath = ResolveEmployerDetailsFile();
@@ -919,7 +1113,7 @@ namespace NZFTC_EMS.Services
                 return defaults;
             }
 
-            var parsed = ParseKeyValueFile(employerDetailsPath);
+            var parsed = _employeeRecordStore.ParseKeyValueFile(employerDetailsPath);
             return defaults with
             {
                 KiwiSaverEmployerContributionRate = TryParsePercent(parsed, "KiwiSaver Employer Contribution Rate", defaults.KiwiSaverEmployerContributionRate),
@@ -956,9 +1150,9 @@ namespace NZFTC_EMS.Services
             return decimal.TryParse(cleaned, NumberStyles.Number, CultureInfo.InvariantCulture, out var value) ? value : fallback;
         }
 
-        private static string ResolveEmployerDetailsFile()
+        private string ResolveEmployerDetailsFile()
         {
-            var root = ResolveMainSystemRoot();
+            var root = _employeeRecordStore.ResolveMainSystemRoot();
             if (string.IsNullOrWhiteSpace(root))
             {
                 return string.Empty;
@@ -1021,7 +1215,7 @@ namespace NZFTC_EMS.Services
             return RoundMoney(total / periodsPerYear);
         }
 
-            private static decimal CalculateStudentLoan(decimal taxableIncome, PayrollTaxInformation taxInfo, string payFrequency)
+            private decimal CalculateStudentLoan(decimal taxableIncome, PayrollTaxInformation taxInfo, string payFrequency)
         {
                 if (!ShouldDeductStudentLoan(taxInfo))
                 {
@@ -1099,7 +1293,7 @@ namespace NZFTC_EMS.Services
                 return RoundMoney(taxableContributionBase * (esctRatePercent / 100m));
             }
 
-            private static decimal CalculateAccLevy(string username, decimal taxableIncome, PayrollTaxInformation taxInfo, DateTime payDateUtc)
+            private decimal CalculateAccLevy(string username, decimal taxableIncome, PayrollTaxInformation taxInfo, DateTime payDateUtc)
             {
                 if (taxInfo == null || taxableIncome <= 0m)
                 {

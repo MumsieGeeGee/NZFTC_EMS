@@ -135,33 +135,32 @@ namespace NZFTC_EMS.Utilities
                     break;
 
                 case "hr":
-                    options.Add("View My Leave and Holiday entitlements");
+                    options.Add("My Leave and Holiday Entitlements");
                     options.Add("Apply for Leave");
-                    options.Add("View My Open Leave Requests");
-                    options.Add("View My Temporarily Denied Leave Requests");
-                    options.Add("View My Resolved Leave Requests");
-                    options.Add("View My Payslips");
-                    options.Add("My Tax Details");
-                    options.Add("Edit My Tax Details");
-                    options.Add("Submit a Grievance Report");
-                    options.Add("View My Open Grievance Reports");
-                    options.Add("View My Resolved Grievance Reports");
+                    options.Add("My Open Leave Requests");
+                    options.Add("My Temporarily Denied Leave Requests");
+                    options.Add("My Resolved Leave Requests");
+                    options.Add("My Payslips");
+                    options.Add("My Tax Information");
+                    options.Add("Submit a Grievance");
+                    options.Add("My Open Grievance Reports");
+                    options.Add("My Resolved Grievance Reports");
 
                     if (profile.CanManageAllHr || profile.CanManageAllEmployees)
                     {
-                        options.Add("View Employees Leave and Holiday entitlements");
-                        options.Add("Request Leave on behalf of Employee");
-                        options.Add("View Employees Open Leave Requests");
-                        options.Add("View Employees Temporarily Denied Leave Requests");
-                        options.Add("View Employees Resolved Leave Requests");
-                        options.Add("View Employees Payslips");
-                        options.Add("View Employees Tax Information");
-                        options.Add("Edit Employees Tax Information");
-                        options.Add("Generate Payslip for Employee");
-                        options.Add("View Employees Open Grievance Reports");
-                        options.Add("View Employees Resolved Grievance Reports");
-                        options.Add("Submit a Grievance Report on behalf of Employee");
-                        options.Add("Review Grievance Report");
+                        options.Add("View an Employee's Leave and Holiday Entitlements");
+                        options.Add("Request Leave for an Employee");
+                        options.Add("View Employee Open Leave Requests");
+                        options.Add("View Employee Temporarily Denied Leave Requests");
+                        options.Add("View Employee Resolved Leave Requests");
+                        options.Add("Generate an Employee's Payslip");
+                        options.Add("View an Employee's Payslips");
+                        options.Add("View an Employee's Tax Information");
+                        options.Add("Edit an Employee's Tax Information");
+                        options.Add("Submit a Grievance on behalf of an Employee");
+                        options.Add("Review an Employee's Grievance Report");
+                        options.Add("View Employee Open Grievance Reports");
+                        options.Add("View Employee Resolved Grievance Reports");
                     }
                     break;
             }

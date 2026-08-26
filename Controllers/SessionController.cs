@@ -6,10 +6,12 @@ namespace NZFTC_EMS.Controllers
     public class SessionController : Controller
     {
         private readonly IAuthenticationService _authService;
+        private readonly SessionAuditService _sessionAuditService;
 
-        public SessionController(IAuthenticationService authService)
+        public SessionController(IAuthenticationService authService, SessionAuditService sessionAuditService)
         {
             _authService = authService;
+            _sessionAuditService = sessionAuditService;
         }
 
         [HttpPost]
@@ -22,6 +24,7 @@ namespace NZFTC_EMS.Controllers
             }
 
             HttpContext.Session.SetString("LastActivityTime", DateTime.UtcNow.ToString("O"));
+            _sessionAuditService.TouchSessionAsync(HttpContext.Session.Id).GetAwaiter().GetResult();
             return Ok();
         }
 
@@ -32,6 +35,11 @@ namespace NZFTC_EMS.Controllers
             if (!string.IsNullOrWhiteSpace(username))
             {
                 await _authService.LogoutUserAsync(username);
+                await _sessionAuditService.RecordLogoutAsync(
+                    HttpContext.Session.Id,
+                    username,
+                    "timeout-logout",
+                    HttpContext.Connection.RemoteIpAddress?.ToString());
             }
 
             HttpContext.Session.Clear();

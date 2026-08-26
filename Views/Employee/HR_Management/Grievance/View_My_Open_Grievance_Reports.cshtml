@@ -8,7 +8,7 @@
 
 <div class="grievance-panel">
     <h2>My Open Grievance Reports</h2>
-    <p class="grievance-intro">These are the grievances currently waiting for review or a response.</p>
+    <p class="grievance-intro">These are your current open grievance reports.</p>
 
     @if (!reports.Any())
     {
@@ -21,7 +21,6 @@
             <div class="grievance-card">
                 <div class="grievance-card-header">
                     <span class="grievance-badge">@item.Status</span>
-                    <strong>#@item.Id</strong>
                 </div>
                 <h3>@item.Subject</h3>
                 <p><strong>Category:</strong> @item.Category</p>

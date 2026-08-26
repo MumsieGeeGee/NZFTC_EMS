@@ -26,10 +26,10 @@ void Display_Role_Type_as_Label(const std::string& role_type) {
 }
 
 void Display_HR_PAYE_Main_Menu_UI() {
-    std::cout << "Employee PAYE Menu:" << std::endl;
-    std::cout << "1. View an Employees Tax Information Record" << std::endl;
-    std::cout << "2. Edit an Employees Tax Information Record" << std::endl;
-    std::cout << "3. View an Employees Payslip" << std::endl;
+    std::cout << "Employee PAYE / Tax Information Menu:" << std::endl;
+    std::cout << "1. View an Employee's Tax Information Record" << std::endl;
+    std::cout << "2. Edit an Employee's Tax Information Record" << std::endl;
+    std::cout << "3. View an Employee's Payslip" << std::endl;
     std::cout << "4. Create New Payslip" << std::endl;
     std::cout << "5. " << Return_to_HR_Management_Main_Menu_Label << std::endl;
     std::cout << Please_Select_an_Option_Label << " (1-5):";

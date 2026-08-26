@@ -7,7 +7,7 @@
 
 <div class="leave-panel">
     <h2>My Temporarily Denied Leave Requests</h2>
-    <p class="leave-intro">These leaves have been paused pending review or further information.</p>
+    <p class="leave-intro">These requests are temporarily denied pending review or further information.</p>
 
     @if (!requests.Any())
     {
@@ -20,7 +20,6 @@
             <div class="leave-card">
                 <div class="leave-card-header">
                     <span class="leave-badge">@request.Status</span>
-                    <strong>#@request.Id</strong>
                 </div>
                 <h3>@request.LeaveType</h3>
                 <p><strong>Dates:</strong> @request.StartDate.ToString("dd MMM yyyy") to @request.EndDate.ToString("dd MMM yyyy")</p>

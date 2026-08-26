@@ -54,6 +54,12 @@
     .description-box {
         line-height: 1.6;
     }
+    .review-help-text {
+        color: #4A4A4A;
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.5;
+    }
     .form-section {
         border-top: 1px solid #C7CED6;
         padding-top: 20px;
@@ -121,7 +127,7 @@
             <h2>Review Leave Request</h2>
             <p>Record the decision for this leave application and communicate the outcome clearly.</p>
         </div>
-        <span class="status-badge">@displayStatus</span>
+        <span class="status-badge" role="status" aria-label="Current leave request status">@displayStatus</span>
     </div>
 
     <div class="review-grid">
@@ -148,26 +154,28 @@
         <div>@leaveRequest.StartDate.ToString("dd MMM yyyy") to @leaveRequest.EndDate.ToString("dd MMM yyyy")</div>
     </div>
 
-    <div class="description-box" style="margin-top: 16px;">
+    <div class="description-box" style="margin-top: 16px;" role="region" aria-label="Leave request reason">
         @leaveRequest.Reason
     </div>
 
-    <form method="post" action="@Url.Action("UpdateLeaveRequestStatus", "Admin")" class="form-section">
+    <form method="post" action="@Url.Action("UpdateLeaveRequestStatus", "Admin")" class="form-section" aria-describedby="leave-review-help">
         @Html.AntiForgeryToken()
         <input type="hidden" name="leaveRequestId" value="@leaveRequest.Id" />
+        <p id="leave-review-help" class="review-help-text">Choose the decision outcome and provide a clear explanation so the employee can understand the result.</p>
 
         <div class="form-row">
             <label for="status">Decision</label>
-            <select id="status" name="status">
+            <select id="status" name="status" aria-describedby="leave-review-help">
                 <option value="Approved" selected="@(selectedStatus == "Approved" ? "selected" : null)">Approve</option>
-                <option value="Temporarily Denied" selected="@(selectedStatus == "Temporarily Denied" ? "selected" : null)">Temporarily Deny</option>
+                <option value="Temporarily Denied" selected="@(selectedStatus == "Temporarily Denied" ? "selected" : null)">Temporarily Denied</option>
                 <option value="Fully Denied" selected="@(selectedStatus == "Denied" ? "selected" : null)">Fully Deny</option>
             </select>
         </div>
 
         <div class="form-row">
             <label for="decisionReason">Decision reason</label>
-            <textarea id="decisionReason" name="decisionReason">@leaveRequest.DecisionReason</textarea>
+            <textarea id="decisionReason" name="decisionReason" aria-describedby="leave-review-reason-help">@leaveRequest.DecisionReason</textarea>
+            <p id="leave-review-reason-help" class="review-help-text">Summarise the approval, temporary denial, or denial reason in plain language.</p>
         </div>
 
         <div class="form-actions">

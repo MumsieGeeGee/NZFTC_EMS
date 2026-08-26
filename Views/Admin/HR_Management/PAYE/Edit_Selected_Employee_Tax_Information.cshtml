@@ -10,16 +10,17 @@
 }
 else
 {
-    <form method="post" action="@Url.Action("EditSelectedEmployeeTaxInformation", "Admin")">
+    <p id="selected-tax-information-help">Update the payroll values used for this employee's tax and deduction calculations. Read-only identity fields are shown for confirmation only.</p>
+    <form method="post" action="@Url.Action("EditSelectedEmployeeTaxInformation", "Admin")" aria-describedby="selected-tax-information-help">
         @Html.AntiForgeryToken()
         <input type="hidden" name="Username" value="@taxInfo.Username" />
         <div class="mb-3">
-            <label class="form-label">Employee</label>
-            <input class="form-control" value="@taxInfo.EmployeeName" readonly />
+            <label class="form-label" for="SelectedEmployeeName">Employee</label>
+            <input class="form-control" id="SelectedEmployeeName" value="@taxInfo.EmployeeName" readonly aria-readonly="true" />
         </div>
         <div class="mb-3">
-            <label class="form-label">IRD Number</label>
-            <input class="form-control" value="@taxInfo.IRDNumber" readonly />
+            <label class="form-label" for="SelectedIrdNumber">IRD Number</label>
+            <input class="form-control" id="SelectedIrdNumber" value="@taxInfo.IRDNumber" readonly aria-readonly="true" />
         </div>
         <div class="mb-3">
             <label class="form-label" for="TaxCode">Tax Code</label>
@@ -39,7 +40,8 @@ else
         </div>
         <div class="mb-3">
             <label class="form-label" for="ExtraPayeVoluntaryDeduction">Extra PAYE Voluntary Deduction</label>
-            <input type="number" step="0.01" min="0" class="form-control" id="ExtraPayeVoluntaryDeduction" name="ExtraPayeVoluntaryDeduction" value="@taxInfo.ExtraPayeVoluntaryDeduction" />
+            <input type="number" step="0.01" min="0" class="form-control" id="ExtraPayeVoluntaryDeduction" name="ExtraPayeVoluntaryDeduction" aria-describedby="selected-paye-deduction-help" value="@taxInfo.ExtraPayeVoluntaryDeduction" />
+            <div id="selected-paye-deduction-help" class="form-text">Enter a dollar amount only when an additional voluntary PAYE deduction applies.</div>
         </div>
         <div class="mb-3">
             <label class="form-label" for="StudentLoanStatus">Student Loan Status</label>
@@ -47,15 +49,18 @@ else
         </div>
         <div class="mb-3">
             <label class="form-label" for="StudentLoanRate">Student Loan Rate</label>
-            <input type="number" step="0.01" min="0" class="form-control" id="StudentLoanRate" name="StudentLoanRate" value="@taxInfo.StudentLoanRate" />
+            <input type="number" step="0.01" min="0" class="form-control" id="StudentLoanRate" name="StudentLoanRate" aria-describedby="selected-student-loan-rate-help" value="@taxInfo.StudentLoanRate" />
+            <div id="selected-student-loan-rate-help" class="form-text">Enter the percentage rate as a numeric value, for example 12 for 12%.</div>
         </div>
         <div class="mb-3">
             <label class="form-label" for="KiwiSaverEmployerContributionRate">KiwiSaver Employer Contribution Rate</label>
-            <input type="number" step="0.01" min="0" class="form-control" id="KiwiSaverEmployerContributionRate" name="KiwiSaverEmployerContributionRate" value="@taxInfo.KiwiSaverEmployerContributionRate" />
+            <input type="number" step="0.01" min="0" class="form-control" id="KiwiSaverEmployerContributionRate" name="KiwiSaverEmployerContributionRate" aria-describedby="selected-kiwisaver-rate-help" value="@taxInfo.KiwiSaverEmployerContributionRate" />
+            <div id="selected-kiwisaver-rate-help" class="form-text">Enter the percentage rate as a numeric value, for example 3 for 3%.</div>
         </div>
         <div class="mb-3">
             <label class="form-label" for="ACCLevyRate">ACC Levy Rate</label>
-            <input type="number" step="0.01" min="0" class="form-control" id="ACCLevyRate" name="ACCLevyRate" value="@taxInfo.ACCLevyRate" />
+            <input type="number" step="0.01" min="0" class="form-control" id="ACCLevyRate" name="ACCLevyRate" aria-describedby="selected-acc-rate-help" value="@taxInfo.ACCLevyRate" />
+            <div id="selected-acc-rate-help" class="form-text">Enter the levy rate as a numeric percentage value used for payroll calculations.</div>
         </div>
         <div class="mb-3">
             <label class="form-label" for="EmployeeType">Employee Type</label>

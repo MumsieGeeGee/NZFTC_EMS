@@ -43,6 +43,13 @@
         background: #FFFFFF;
         color: #4A4A4A;
     }
+
+    .grievance-help-text {
+        color: #4A4A4A;
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.5;
+    }
 </style>
 
 <div class="grievance-panel"
@@ -51,17 +58,18 @@
      data-action-key="submit-grievance-report-on-behalf-of-user"
      data-usernames-by-group="@JsonSerializer.Serialize(Model.UsernamesByGroup)"
      data-display-names="@JsonSerializer.Serialize(Model.UsernameDisplayNames)">
-    <h2>NZFTC Employee Complaint Form</h2>
+    <h2>Submit a Grievance on behalf of an Employee</h2>
     <p class="grievance-intro">
         @(hasTargetEmployee
-            ? $"Complete the complaint details for {employeeName}."
+            ? $"Complete the grievance details for {employeeName}."
             : "Select a department and employee, then click Load.")
     </p>
+    <p id="grievance-target-help" class="grievance-help-text">Select the employee first, then complete the grievance report. All fields are required unless marked optional.</p>
 
-    <div class="selected-target-controls">
-        <label>
+    <div class="selected-target-controls" aria-describedby="grievance-target-help">
+        <label for="grievance-selected-group">
             Business Department
-            <select data-selected-group>
+            <select id="grievance-selected-group" data-selected-group>
                 <option value="">Select a department...</option>
                 <option value="admin" selected="@(Model.SelectedGroup == "admin" ? "selected" : null)">Admin</option>
                 <option value="finance" selected="@(Model.SelectedGroup == "finance" ? "selected" : null)">Finance</option>
@@ -69,9 +77,9 @@
             </select>
         </label>
 
-        <label>
+        <label for="grievance-selected-username">
             Employee
-            <select data-selected-username>
+            <select id="grievance-selected-username" data-selected-username>
                 <option value="">Select an employee...</option>
                 @foreach (var username in Model.Usernames)
                 {
@@ -81,23 +89,24 @@
             </select>
         </label>
 
-        <button type="button" class="selected-target-load-button" data-load-selected-target>Load</button>
+        <button type="button" class="selected-target-load-button" data-load-selected-target aria-describedby="grievance-target-help">Load</button>
     </div>
 
     @if (hasTargetEmployee)
     {
-        <form method="post" action="@submitAction" class="grievance-form">
+        <form method="post" action="@submitAction" class="grievance-form" aria-describedby="grievance-form-help">
             @Html.AntiForgeryToken()
             <input type="hidden" id="submittedForUsername" name="submittedForUsername" value="@Model.SelectedUsername" />
+            <p id="grievance-form-help" class="grievance-help-text">Use the employee details below for reference. Type <strong>I do</strong> exactly in the declaration field before submitting.</p>
 
             <div class="field-row">
-                <label>Employee</label>
-                <input value="@employeeName" readonly />
+                <label for="grievance-employee-name">Employee</label>
+                <input id="grievance-employee-name" value="@employeeName" readonly aria-readonly="true" />
             </div>
 
             <div class="field-row">
                 <label for="attendingSupervisor">Attending Supervisor</label>
-                <input id="attendingSupervisor" name="attendingSupervisor" required placeholder="Name of the attending supervisor" />
+                <input id="attendingSupervisor" name="attendingSupervisor" type="text" required autocomplete="name" placeholder="Name of the attending supervisor" />
             </div>
 
             <div class="field-row">
@@ -107,7 +116,7 @@
 
             <div class="field-row">
                 <label for="eventDate">Event Date</label>
-                <input id="eventDate" name="eventDate" required placeholder="DD-MM-YYYY" />
+                <input id="eventDate" name="eventDate" type="date" aria-describedby="grievance-date-help" required />
             </div>
 
             <div class="field-row">
@@ -132,13 +141,15 @@
 
             <div class="field-row">
                 <label for="declarationAgreement">Declaration Agreement</label>
-                <input id="declarationAgreement" name="declarationAgreement" required placeholder="Enter 'I do' here" />
+                <input id="declarationAgreement" name="declarationAgreement" type="text" aria-describedby="grievance-declaration-help" required placeholder="Enter 'I do' here" />
+                <p id="grievance-declaration-help" class="grievance-help-text">Type <strong>I do</strong> exactly to confirm the grievance declaration for this employee.</p>
             </div>
 
             <div class="field-row">
                 <label for="signedDate">Date Signed</label>
-                <input id="signedDate" name="signedDate" required placeholder="DD-MM-YYYY" />
+                <input id="signedDate" name="signedDate" type="date" aria-describedby="grievance-date-help" required />
             </div>
+            <p id="grievance-date-help" class="grievance-help-text">Use the calendar date fields for both the event date and the signed date.</p>
 
             <button type="submit" class="primary-action-button">Submit Complaint</button>
         </form>
@@ -188,6 +199,7 @@
 
         async function loadSelected(group, username) {
             if (!username) {
+                host.innerHTML = "<p style='margin:0; color:#4A4A4A;' role='status'>Please select an employee first.</p>";
                 return;
             }
 
@@ -195,6 +207,7 @@
             try {
                 const response = await fetch(`${endpoint}?actionKey=${encodeURIComponent(actionKey)}&group=${encodeURIComponent(group)}&username=${encodeURIComponent(username)}`, { credentials: "same-origin" });
                 if (!response.ok) {
+                    host.innerHTML = "<p style='margin:0; color:#B33A3A;' role='alert'>The grievance form could not be loaded right now.</p>";
                     return;
                 }
 
@@ -208,6 +221,7 @@
                 }
             } catch (error) {
                 console.error(error);
+                host.innerHTML = "<p style='margin:0; color:#B33A3A;' role='alert'>The grievance form could not be loaded right now.</p>";
             } finally {
                 loadButton.disabled = false;
             }

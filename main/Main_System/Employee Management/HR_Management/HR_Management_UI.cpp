@@ -314,7 +314,7 @@ void Display_View_Current_User_Tax_Information_UI(const Tax_Information_Record_D
 }
 
 void Display_Selected_User_Tax_Information_UI(const Tax_Information_Record_Details& details) {
-	std::cout << "Selected User Tax Information:" << '\n';
+	std::cout << "Employee Tax Information:" << '\n';
 	Display_Tax_Information_Record_Body(details);
 }
 
@@ -324,6 +324,6 @@ void Display_Edit_Current_User_Tax_Information_UI(const Tax_Information_Record_D
 }
 
 void Display_Edit_Selected_User_Tax_Information_UI(const Tax_Information_Record_Details& details) {
-	std::cout << "Selected User Tax Information:" << '\n';
+	std::cout << "Employee Tax Information:" << '\n';
 	Display_Tax_Information_Record_Body(details);
 }

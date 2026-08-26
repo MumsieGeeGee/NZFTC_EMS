@@ -13,11 +13,14 @@
         display: inline-block; background: #2A5D8F; color: #FFFFFF; border-radius: 6px; padding: 8px 12px; font-weight: 700; text-decoration: none;
     }
     .leave-action-button:hover { background: #5BA6A6; }
+    .leave-impact-summary { margin-top: 14px; background: #F5F7FA; border: 1px solid #D8DEE6; border-radius: 8px; padding: 14px; }
+    .leave-impact-summary h4 { margin: 0 0 10px; color: #2A5D8F; }
+    .leave-impact-grid { display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 10px; color: #4A4A4A; }
     .empty-state { background: #F5F7FA; border: 1px dashed #C7CED6; padding: 18px; border-radius: 8px; color: #4A4A4A; }
 </style>
 
 <div>
-    <h2 style="color:#2A5D8F; font-size:22px; margin:0 0 12px;">View Employees Open Leave Requests</h2>
+    <h2 style="color:#2A5D8F; font-size:22px; margin:0 0 12px;">View Employee Open Leave Requests</h2>
 
     @if (Model.Requests.Any())
     {
@@ -32,6 +35,20 @@
                     <p><strong>Dates:</strong> @request.StartDate.ToString("dd MMM yyyy") to @request.EndDate.ToString("dd MMM yyyy")</p>
                     <p><strong>Days:</strong> @request.TotalDays</p>
                     <p>@request.Reason</p>
+                    @if (Model.ImpactByRequestId.TryGetValue(request.Id, out var impact))
+                    {
+                        <div class="leave-impact-summary">
+                            <h4>Leave balance impact</h4>
+                            <div class="leave-impact-grid">
+                                <div><strong>Requested now:</strong> @impact.RequestedAmount @impact.UnitLabel</div>
+                                <div><strong>Available before this request:</strong> @impact.AvailableBeforeRequest @impact.UnitLabel</div>
+                                <div><strong>Estimated balance after this request:</strong> @impact.RemainingAfterRequest @impact.UnitLabel</div>
+                                <div><strong>Already approved upcoming:</strong> @impact.ScheduledApprovedAmount @impact.UnitLabel</div>
+                                <div><strong>Already used:</strong> @impact.TakenAmount @impact.UnitLabel</div>
+                                <div><strong>Total entitlement:</strong> @impact.TotalEntitlementAmount @impact.UnitLabel</div>
+                            </div>
+                        </div>
+                    }
                     <div class="leave-card-actions">
                         <a class="leave-action-button" href="@Url.Action("HRManagement", "Admin", new { actionKey = "review-leave-request", leaveRequestId = request.Id })">Review leave request</a>
                     </div>

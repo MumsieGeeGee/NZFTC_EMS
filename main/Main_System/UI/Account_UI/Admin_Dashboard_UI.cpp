@@ -54,19 +54,19 @@ void Display_Admin_All_Employees_HR_Management_Menu_UI(bool payroll_access) {
 	std::cout << "HR Management Menu:" << std::endl;
 	int option = 1;
 	if (payroll_access) {
-		std::cout << option++ << ". Generate Payslip for User" << std::endl;
-		std::cout << option++ << ". View Users Payslips" << std::endl;
-		std::cout << option++ << ". Request a Payslip Review on behalf of User" << std::endl;
+		std::cout << option++ << ". Generate an Employee's Payslip" << std::endl;
+		std::cout << option++ << ". View Employee Payslips" << std::endl;
+		std::cout << option++ << ". Request a Payslip Review on behalf of an Employee" << std::endl;
 	}
-	std::cout << option++ << ". View Users Leave and Holiday entitlements" << std::endl;
-	std::cout << option++ << ". View Users Open Leave Requests" << std::endl;
-	std::cout << option++ << ". View Users Resolved Leave Requests" << std::endl;
-	std::cout << option++ << ". Request Leave on behalf of User" << std::endl;
-	std::cout << option++ << ". View Users Open Grievance Reports" << std::endl;
-	std::cout << option++ << ". View Users Resolved Grievance Reports" << std::endl;
-	std::cout << option++ << ". Submit a Grievance Report on behalf of User" << std::endl;
-	std::cout << option++ << ". View Users Tax Information" << std::endl;
-	std::cout << option++ << ". Edit Users Tax Information" << std::endl;
+	std::cout << option++ << ". View an Employee's Leave and Holiday Entitlements" << std::endl;
+	std::cout << option++ << ". View Employee Open Leave Requests" << std::endl;
+	std::cout << option++ << ". View Employee Resolved Leave Requests" << std::endl;
+	std::cout << option++ << ". Request Leave on behalf of an Employee" << std::endl;
+	std::cout << option++ << ". View Employee Open Grievance Reports" << std::endl;
+	std::cout << option++ << ". View Employee Resolved Grievance Reports" << std::endl;
+	std::cout << option++ << ". Submit a Grievance Report on behalf of an Employee" << std::endl;
+	std::cout << option++ << ". View Employee Tax Information" << std::endl;
+	std::cout << option++ << ". Edit Employee Tax Information" << std::endl;
 	std::cout << option << ". " << Return_to_Admin_Dashboard_Main_Menu_Label << std::endl;
 	std::cout << Please_Select_an_Option_Label << " (1-" << option << "): ";
 }
@@ -78,7 +78,7 @@ void Display_Assistant_Delegated_HR_Management_Menu_UI(
 	for (const std::string& manager_description : manager_descriptions) {
 		std::cout << "- " << manager_description << std::endl;
 	}
-	std::cout << "1. View Manager Leave and Holiday entitlements" << std::endl;
+	std::cout << "1. View Manager Leave and Holiday Entitlements" << std::endl;
 	std::cout << "2. View Manager Open Leave Requests" << std::endl;
 	std::cout << "3. View Manager Resolved Leave Requests" << std::endl;
 	std::cout << "4. Request Leave on behalf of Manager" << std::endl;
@@ -97,8 +97,8 @@ void Display_Assigned_Team_Members_UI(
 
 void Display_Admin_Employee_Management_Menu_UI() {
 	std::cout << "Employee Management Menu:" << std::endl;
-	std::cout << "1. View an Employees Details" << std::endl;
-	std::cout << "2. Edit an Existing Employees Details" << std::endl;
+	std::cout << "1. View an Employee's Details" << std::endl;
+	std::cout << "2. Edit an Existing Employee's Details" << std::endl;
 	std::cout << "3. " << Return_to_Admin_Dashboard_Main_Menu_Label << std::endl;
 	std::cout << Please_Select_an_Option_Label << " (1-3): ";
 }
